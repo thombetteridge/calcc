@@ -1,0 +1,40 @@
+{
+    files = {
+        "build/.objs/stack_calc/linux/x86_64/release/src/lexer.c.o",
+        "build/.objs/stack_calc/linux/x86_64/release/src/main.c.o",
+        "build/linux/x86_64/release/librlimgui.a",
+        "build/linux/x86_64/release/libcimgui.a"
+    },
+    values = {
+        "/usr/bin/g++",
+        {
+            "-m64",
+            "-L/home/tom/.xmake/packages/b/bdwgc/v8.2.6/2bbea4dad3df48319defa746f5bd80e4/lib",
+            "-L/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/fe5fcc9e882e45c7a8e040e869caee57/lib",
+            "-Lbuild/linux/x86_64/release",
+            "-L/home/tom/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/lib",
+            "-s",
+            "-lcord",
+            "-lgc",
+            "-latomic_ops",
+            "-lcimgui",
+            "-lrlimgui",
+            "-lraylib",
+            "-lXrandr",
+            "-lXinerama",
+            "-lXcursor",
+            "-lXrender",
+            "-lX11",
+            "-lXi",
+            "-lXfixes",
+            "-lXext",
+            "-lxcb",
+            "-lXau",
+            "-lXdmcp",
+            "-lOpenGL",
+            "-lpthread",
+            "-ldl",
+            "-lm"
+        }
+    }
+}

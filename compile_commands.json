@@ -1,0 +1,46 @@
+[
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/cimgui.cpp.o", "third_party/cimgui/cimgui.cpp"],
+  "file": "third_party/cimgui/cimgui.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/cimgui_impl.cpp.o", "third_party/cimgui/cimgui_impl.cpp"],
+  "file": "third_party/cimgui/cimgui_impl.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_widgets.cpp.o", "third_party/cimgui/imgui/imgui_widgets.cpp"],
+  "file": "third_party/cimgui/imgui/imgui_widgets.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_demo.cpp.o", "third_party/cimgui/imgui/imgui_demo.cpp"],
+  "file": "third_party/cimgui/imgui/imgui_demo.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_draw.cpp.o", "third_party/cimgui/imgui/imgui_draw.cpp"],
+  "file": "third_party/cimgui/imgui/imgui_draw.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_tables.cpp.o", "third_party/cimgui/imgui/imgui_tables.cpp"],
+  "file": "third_party/cimgui/imgui/imgui_tables.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui.cpp.o", "third_party/cimgui/imgui/imgui.cpp"],
+  "file": "third_party/cimgui/imgui/imgui.cpp"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-Wall", "-Wextra", "-Werror", "-O3", "-std=c99", "-Ibuild/.gens/stack_calc/linux/x86_64/release/platform/windows/idl", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-Ithird_party/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/release/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/2bbea4dad3df48319defa746f5bd80e4/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/fe5fcc9e882e45c7a8e040e869caee57/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/include", "-I", "/usr/include/X11/dri", "-DNDEBUG", "-o", "build/.objs/stack_calc/linux/x86_64/release/src/main.c.o", "src/main.c"],
+  "file": "src/main.c"
+},
+{
+  "directory": "/home/tom/programming/c/calcc",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/release/platform/windows/idl", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/include", "-I", "/usr/include/X11/dri", "-DNDEBUG", "-o", "build/.objs/rlimgui/linux/x86_64/release/third_party/rlImGui/rlImGui.cpp.o", "third_party/rlImGui/rlImGui.cpp"],
+  "file": "third_party/rlImGui/rlImGui.cpp"
+}]
