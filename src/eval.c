@@ -39,7 +39,8 @@ static bool stack_top(const Stack* stack, double* out) {
 
 static bool stack_pop(Stack* stack, double* out) {
    if (stack->len == 0) return false;
-   *out = stack->data[--stack->len];
+   stack_top(stack, out);
+   stack->len--;
    return true;
 }
 
@@ -133,7 +134,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err) {
       if (n < 0) return; // ignore on error
       if ((size_t)n >= sizeof(buf)) n = (int)(sizeof(buf) - 1);
       gc_string_append(err, buf, (uint)n);
-      // return;
+      continue;
    }
    }
 }

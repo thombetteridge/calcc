@@ -9,6 +9,9 @@
 #include "gcstring.h"
 #include "lexer.h"
 
+// font
+#include "embedded_font.inc"
+
 char input_buffer[2048];
 
 int main() {
@@ -23,12 +26,32 @@ int main() {
    InitWindow(screen_width, screen_height, "test");
    rlImGuiSetup(true);
 
+   // ImFontConfig* cfg;
+   // cfg                       = ImFontConfig_ImFontConfig();
+   // cfg->OversampleH          = 1;
+   // cfg->OversampleV          = 1;
+   // cfg->PixelSnapH           = true;
+   // cfg->FontDataOwnedByAtlas = false;
+
+   // ImFontAtlas im_font_atlas = { 0 };
+
+   // float font_size = 20.0f;
+
+   // ImFont* mono = ImFontAtlas_AddFontFromMemoryTTF(
+   //     &im_font_atlas,
+   //     (void*)JetBrainsMono_Regular_ttf,
+   //     (int)JetBrainsMono_Regular_ttf_len,
+   //     font_size,
+   //     cfg,
+   //     NULL);
+
    SetTargetFPS(30);
 
    while (!WindowShouldClose()) {
       BeginDrawing();
       ClearBackground(RAYWHITE);
       rlImGuiBegin();
+      // igPushFont(mono, font_size);
 
       igSetNextWindowPos((ImVec2) { 0, 0 }, ImGuiCond_Always, (ImVec2) { 0, 0 });
       igSetNextWindowSize((ImVec2) { (float)screen_width, (float)screen_height }, ImGuiCond_Always);
@@ -80,6 +103,7 @@ int main() {
 
       igPopStyleVar(2);
       igEndChild();
+      // igPopFont();
       igEnd();
 
       rlImGuiEnd();
