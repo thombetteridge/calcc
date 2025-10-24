@@ -251,7 +251,11 @@ static void next_token(Lexer* lexer)
       tok = new_token(DOLLAR, lexer->ch, lexer->pos);
       break;
    case '#':
-      tok = new_token(HASH, lexer->ch, lexer->pos);
+      // --- COMMENT ---
+      read_comment(lexer); // read to newline
+      read_char(lexer);    // bump pointer past newline
+      return;
+      // tok = new_token(HASH, lexer->ch, lexer->pos);
       break;
    case '.':
       if (is_number(peak(lexer))) {
@@ -304,12 +308,8 @@ static void next_token(Lexer* lexer)
       tok = new_token(QUESTION, lexer->ch, lexer->pos);
       break;
    case ';':
-      // --- COMMENT ---
-      read_comment(lexer); // read to newline
-      read_char(lexer);    // bump pointer past newline
-      return;
-      // tok = new_token(semicolon, lexer->ch, lexer->pos);
-      // break;
+      tok = new_token(SEMICOLON, lexer->ch, lexer->pos);
+      break;
    case ':':
       tok = new_token(COLON, lexer->ch, lexer->pos);
       break;

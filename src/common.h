@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 
 typedef unsigned uint;
 
@@ -47,4 +48,9 @@ typedef int64_t i64;
    [[maybe_unused]] static inline void T##_Array_pop(T##_Array* v)       \
    {                                                                     \
       v->len--;                                                          \
+   }                                                                     \
+   [[maybe_unused]] static inline T* T##_Array_at(T##_Array* v, uint i)  \
+   {                                                                     \
+      assert(i < v->len);                                                \
+      return &v->data[i];                                                 \
    }

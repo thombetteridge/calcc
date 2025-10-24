@@ -1,7 +1,9 @@
 #pragma once
 
 #include "common.h"
+#include "lexer.h"
 
+#include "gcstring.h"
 
 /* ----------------------------------------- */
 
@@ -37,16 +39,24 @@ void gc_table_init(GC_Table* t);
 void gc_table_add(GC_Table* t, const char* key, GC_Func func);
 GC_Func gc_table_find(GC_Table* t, const char* key);
 
+/* ----------------------------------------- */
 
-/*--------------------------------------------*/
 
-typedef struct GC_String {
-   char* data;
-   uint  len;
-   uint  cap;
-} GC_String;
+ARR_DEF(Token);
 
-void gc_string_init(GC_String* str);
-void gc_string_ensure(GC_String* str, uint add);
-void gc_string_append(GC_String* str, const char* append, uint append_len);
-void gc_string_appendf(GC_String* str, const char* fmt, double x);
+typedef struct {
+    GC_String   key;
+    Token_Array tokens;
+} GC_TableEntry_User_Words;
+
+typedef struct {
+    GC_TableEntry_User_Words* entries;
+    unsigned       len;
+    unsigned       cap;
+} GC_Table_User_Words;
+
+void gc_user_table_init(GC_Table_User_Words* t);
+void gc_user_table_add(GC_Table_User_Words* t, GC_String key, Token_Array arr);
+Token_Array* gc_user_table_find(GC_Table_User_Words* t, GC_String* key);
+
+

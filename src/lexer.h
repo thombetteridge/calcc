@@ -2,6 +2,8 @@
 
 #include "common.h"
 #include "gcstructures.h"
+#include "gcstring.h"
+
 
 
 typedef enum Token_Type {

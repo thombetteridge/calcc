@@ -14,6 +14,8 @@
 
 static GC_Table keywords;
 
+
+
 void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 {
    for (uint i = 0; i < lexer->tokens_len; ++i) {
@@ -65,56 +67,76 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
          }
       } break;
 
-      case USCORE:
-      case ASSIGN:
-      case CARET:
-      case PERCENT:
-      case DOLLAR:
-      case HASH:
-      case BANG:
-      case AT:
-      case AND_:
-      case PIPE:
-      case TILDA:
-      case BTICK:
-      case QUESTION:
-      case DOT:
-      case LT:
-      case GT:
-      case EQ:
-      case NOT_EQ_:
-      case LT_EQ:
-      case GT_EQ:
-      case ARROW:
-      case FAT_ARROW:
-      case COMMA:
-      case COLON:
-      case SEMICOLON:
-      case LPAREN:
-      case RPAREN:
-      case LBRACE:
-      case RBRACE:
-      case LBRACKET:
-      case RBRACKET:
-      case DOUBLE_QUOTE:
-      case QUOTE:
-         break;
+      case USCORE: break;
+      case ASSIGN: break;
+      case CARET: break;
+      case PERCENT: break;
+      case DOLLAR: break;
+      case HASH: break;
+      case BANG: break;
+      case AT: break;
+      case AND_: break;
+      case PIPE: break;
+      case TILDA: break;
+      case BTICK: break;
+      case QUESTION: break;
+      case DOT: break;
+      case LT: break;
+      case GT: break;
+      case EQ: break;
+      case NOT_EQ_: break;
+      case LT_EQ: break;
+      case GT_EQ: break;
+      case ARROW: break;
+      case FAT_ARROW: break;
+      case COMMA: break;
+      case COLON: {
+         GC_String word_name;
+         gc_string_init(&word_name);
+         Token_Array definition;
+         Token_Array_init(&definition);
+
+         if (++i < lexer->tokens_len && lexer->tokens[i].type != WORD){
+            gc_string_join(&word_name, &lexer->tokens[i].literal);
+         }
+         else {
+            break;
+         }
+
+         while (++i < lexer->tokens_len && lexer->tokens[i].type != SEMICOLON) {
+            Token_Array_push(&definition, lexer->tokens[i]);
+         }
+
+         user_words[word_name] = definition;
+
+      } break;
+      case SEMICOLON: break;
+      case LPAREN: break;
+      case RPAREN: break;
+      case LBRACE: break;
+      case RBRACE: break;
+      case LBRACKET: break;
+      case RBRACKET: break;
+      case DOUBLE_QUOTE: break;
+      case QUOTE: break;
       }
 
       continue;
 
-   underflow: {
-      char buf[64];
-      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", i);
-      if (n < 0) {
-         return; // ignore on error
+   underflow:
+      break;
+      {
+         char buf[64];
+         int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", i);
+         if (n < 0) {
+            return; // ignore on error
+         }
+         if ((size_t)n >= sizeof(buf)) {
+            n = (int)(sizeof(buf) - 1);
+         }
+         gc_string_append(err, buf, (uint)n);
+         continue;
       }
-      if ((size_t)n >= sizeof(buf)) {
-         n = (int)(sizeof(buf) - 1);
-      }
-      gc_string_append(err, buf, (uint)n);
-      continue;
-   }
    }
 }
 
