@@ -38,14 +38,6 @@ target("stack_calc")
     add_defines("CIMGUI_DEFINE_ENUMS_AND_STRUCTS")
     add_deps("rlimgui")
 
-target("cc_lib")
-    set_languages("c++20")
-    set_warnings("all", "extra", "error")
-    set_kind("binary")
-    set_default(false)
-    add_files("tmp/*.cc")
-    add_packages("bdwgc")
-
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

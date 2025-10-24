@@ -1,12 +1,10 @@
 #include "lexer.h"
 #include "common.h"
-
-#include "gc/gc.h"
 #include "gcstring.h"
 
+#include "gc/gc.h"
+
 #include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
 /* fwd decs */
 static void      read_char(Lexer* lexer);
@@ -22,13 +20,15 @@ static Token     new_word_token(Lexer* lexer);
 static Token     new_number_token(Lexer* lexer);
 static void      next_token(Lexer* lexer);
 
-void lexer_run(Lexer* lexer) {
+void lexer_run(Lexer* lexer)
+{
    while (lexer->pos < lexer->input_len) {
       next_token(lexer);
    }
 }
 
-void lexer_init(Lexer* lexer) {
+void lexer_init(Lexer* lexer)
+{
    lexer->pos        = 0;
    lexer->read_pos   = 0;
    lexer->ch         = 0;
@@ -37,7 +37,8 @@ void lexer_init(Lexer* lexer) {
    lexer->tokens     = (Token*)GC_malloc(lexer->tokens_cap * sizeof(Token));
 }
 
-void lexer_feed(Lexer* lexer, char* input_, uint input_len_) {
+void lexer_feed(Lexer* lexer, char* input_, uint input_len_)
+{
    lexer->pos        = 0;
    lexer->read_pos   = 0;
    lexer->ch         = 0;
@@ -48,7 +49,8 @@ void lexer_feed(Lexer* lexer, char* input_, uint input_len_) {
    lexer_run(lexer);
 };
 
-static void read_char(Lexer* lexer) {
+static void read_char(Lexer* lexer)
+{
    if (lexer->read_pos >= lexer->input_len || lexer->input[lexer->read_pos] == '\0') {
       lexer->ch       = 0;
       lexer->pos      = lexer->input_len;
@@ -61,15 +63,18 @@ static void read_char(Lexer* lexer) {
    }
 }
 
-static bool is_letter(char c) {
+static bool is_letter(char c)
+{
    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_');
 }
 
-static bool is_number(char c) {
+static bool is_number(char c)
+{
    return ('0' <= c && c <= '9');
 }
 
-static char peak(Lexer* lexer) {
+static char peak(Lexer* lexer)
+{
    char result;
    if (lexer->read_pos >= lexer->input_len) {
       result = 0;
@@ -80,7 +85,8 @@ static char peak(Lexer* lexer) {
    return result;
 }
 
-static GC_String read_word(Lexer* lexer) {
+static GC_String read_word(Lexer* lexer)
+{
    GC_String result;
    gc_string_init(&result);
    uint start = lexer->pos;
@@ -95,12 +101,15 @@ static GC_String read_word(Lexer* lexer) {
    return result;
 }
 
-static GC_String read_number(Lexer* lexer) {
+static GC_String read_number(Lexer* lexer)
+{
    GC_String result;
    gc_string_init(&result);
    uint start = lexer->pos;
 
-   if (lexer->ch == '-') read_char(lexer);
+   if (lexer->ch == '-') {
+      read_char(lexer);
+   }
 
    bool has_e = false;
    for (;;) {
@@ -110,7 +119,9 @@ static GC_String read_number(Lexer* lexer) {
       else if (!has_e && (lexer->ch == 'e' || lexer->ch == 'E')) {
          has_e = true;
          read_char(lexer);
-         if (lexer->ch == '+' || lexer->ch == '-') read_char(lexer);
+         if (lexer->ch == '+' || lexer->ch == '-') {
+            read_char(lexer);
+         }
       }
       else {
          break;
@@ -126,7 +137,8 @@ static GC_String read_number(Lexer* lexer) {
    return result;
 }
 
-static void read_comment(Lexer* lexer) {
+static void read_comment(Lexer* lexer)
+{
    uint count = 0; // backup exit lol
    while (lexer->ch != '\n' && lexer->ch != '\r' && count < 120) {
       read_char(lexer);
@@ -134,7 +146,8 @@ static void read_comment(Lexer* lexer) {
    }
 }
 
-static Token new_token(Token_Type type, char c, uint position) {
+static Token new_token(Token_Type type, char c, uint position)
+{
    GC_String str;
    gc_string_init(&str);
    char temp_str[2];
@@ -144,7 +157,8 @@ static Token new_token(Token_Type type, char c, uint position) {
    return (Token) { .type = type, .pos = position, .literal = str };
 }
 
-static Token new_token2(Token_Type type, Lexer* lexer) {
+static Token new_token2(Token_Type type, Lexer* lexer)
+{
    GC_String str;
    gc_string_init(&str);
    char temp_str[3];
@@ -158,17 +172,20 @@ static Token new_token2(Token_Type type, Lexer* lexer) {
    return result;
 }
 
-static Token new_word_token(Lexer* lexer) {
+static Token new_word_token(Lexer* lexer)
+{
    GC_String str = read_word(lexer);
    return (Token) { .type = WORD, .pos = lexer->pos, .literal = str };
 }
 
-static Token new_number_token(Lexer* lexer) {
+static Token new_number_token(Lexer* lexer)
+{
    GC_String str = read_number(lexer);
    return (Token) { .type = NUMBER, .pos = lexer->pos, .literal = str };
 }
 
-static void push_token(Lexer* lexer, Token tok) {
+static void push_token(Lexer* lexer, Token tok)
+{
    if (lexer->tokens_cap == 0) {
       lexer->tokens_cap = 8;
       lexer->tokens     = (Token*)GC_malloc(sizeof(Token) * lexer->tokens_cap);
@@ -181,7 +198,8 @@ static void push_token(Lexer* lexer, Token tok) {
    lexer->tokens_len++;
 }
 
-static void next_token(Lexer* lexer) {
+static void next_token(Lexer* lexer)
+{
    Token tok;
    switch (lexer->ch) {
    case ' ':

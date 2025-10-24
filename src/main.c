@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <string.h>
 
 #include "cimgui.h"
 #include "gc/gc.h"
@@ -14,7 +15,8 @@
 
 char input_buffer[2048];
 
-int main() {
+int main()
+{
    GC_INIT();
 
    int const screen_width  = 400;
@@ -24,26 +26,27 @@ int main() {
    lexer_init(&lexer);
 
    InitWindow(screen_width, screen_height, "test");
+
    rlImGuiSetup(true);
+   ImGuiContext* ctx = igGetCurrentContext();
 
-   // ImFontConfig* cfg;
-   // cfg                       = ImFontConfig_ImFontConfig();
-   // cfg->OversampleH          = 1;
-   // cfg->OversampleV          = 1;
-   // cfg->PixelSnapH           = true;
-   // cfg->FontDataOwnedByAtlas = false;
+   ImGuiIO io = ctx->IO;
 
-   // ImFontAtlas im_font_atlas = { 0 };
+   ImFontAtlas* atlas = io.Fonts;
 
-   // float font_size = 20.0f;
+   ImFontConfig* cfg;
+   cfg                       = ImFontConfig_ImFontConfig();
+   cfg->FontDataOwnedByAtlas = false;
 
-   // ImFont* mono = ImFontAtlas_AddFontFromMemoryTTF(
-   //     &im_font_atlas,
-   //     (void*)JetBrainsMono_Regular_ttf,
-   //     (int)JetBrainsMono_Regular_ttf_len,
-   //     font_size,
-   //     cfg,
-   //     NULL);
+   float font_size = 20.0f;
+
+   ImFont* mono = ImFontAtlas_AddFontFromMemoryTTF(
+       atlas,
+       (void*)JetBrainsMono_Regular_ttf,
+       (int)JetBrainsMono_Regular_ttf_len,
+       font_size,
+       cfg,
+       NULL);
 
    SetTargetFPS(30);
 
@@ -52,7 +55,7 @@ int main() {
       BeginDrawing();
       ClearBackground(RAYWHITE);
       rlImGuiBegin();
-      // igPushFont(mono, font_size);
+      igPushFont(mono, font_size);
 
       igSetNextWindowPos((ImVec2) { 0, 0 }, ImGuiCond_Always, (ImVec2) { 0, 0 });
       igSetNextWindowSize((ImVec2) { (float)screen_width, (float)screen_height }, ImGuiCond_Always);
@@ -104,8 +107,8 @@ int main() {
 
       igPopStyleVar(2);
       igEndChild();
-      // igPopFont();
       igEnd();
+      igPopFont();
 
       rlImGuiEnd();
       EndDrawing();

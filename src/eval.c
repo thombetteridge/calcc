@@ -16,7 +16,8 @@ typedef struct Stack {
    uint    cap;
 } Stack;
 
-static void stack_push(Stack* stack, double x) {
+static void stack_push(Stack* stack, double x)
+{
    if (stack->cap == 0) {
       stack->cap  = 8;
       stack->data = (double*)GC_malloc(stack->cap * sizeof(double));
@@ -31,30 +32,42 @@ static void stack_push(Stack* stack, double x) {
    stack->len++;
 }
 
-static bool stack_top(const Stack* stack, double* out) {
-   if (stack->len == 0) return false;
+static bool stack_top(const Stack* stack, double* out)
+{
+   if (stack->len == 0) {
+      return false;
+   }
    *out = stack->data[stack->len - 1];
    return true;
 }
 
-static bool stack_pop(Stack* stack, double* out) {
-   if (stack->len == 0) return false;
+static bool stack_pop(Stack* stack, double* out)
+{
+   if (stack->len == 0) {
+      return false;
+   }
    stack_top(stack, out);
    stack->len--;
    return true;
 }
 
-static bool binop_pop2(Stack* st, double* a, double* b) {
+static bool binop_pop2(Stack* st, double* a, double* b)
+{
    // Pops x then y, returns y in *a, x in *b (so a op b is natural order)
    double x, y;
-   if (!stack_pop(st, &x)) return false;
-   if (!stack_pop(st, &y)) return false;
+   if (!stack_pop(st, &x)) {
+      return false;
+   }
+   if (!stack_pop(st, &y)) {
+      return false;
+   }
    *a = y;
    *b = x;
    return true;
 }
 
-void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err) {
+void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
+{
    for (uint i = 0; i < lexer->tokens_len; ++i) {
       Token token = lexer->tokens[i];
       switch (token.type) {
@@ -64,25 +77,33 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err) {
 
       case PLUS: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) goto underflow;
+         if (!binop_pop2(stack, &a, &b)) {
+            goto underflow;
+         }
          stack_push(stack, a + b);
       } break;
 
       case MINUS: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) goto underflow;
+         if (!binop_pop2(stack, &a, &b)) {
+            goto underflow;
+         }
          stack_push(stack, a - b);
       } break;
 
       case ASTRIX: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) goto underflow;
+         if (!binop_pop2(stack, &a, &b)) {
+            goto underflow;
+         }
          stack_push(stack, a * b);
       } break;
 
       case SLASH: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) goto underflow;
+         if (!binop_pop2(stack, &a, &b)) {
+            goto underflow;
+         }
          // Optional: check divide-by-zero; here we mimic C (inf/nan)
          stack_push(stack, a / b);
       } break;
@@ -131,15 +152,20 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err) {
    underflow: {
       char buf[64];
       int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating token at index %u\n", i);
-      if (n < 0) return; // ignore on error
-      if ((size_t)n >= sizeof(buf)) n = (int)(sizeof(buf) - 1);
+      if (n < 0) {
+         return; // ignore on error
+      }
+      if ((size_t)n >= sizeof(buf)) {
+         n = (int)(sizeof(buf) - 1);
+      }
       gc_string_append(err, buf, (uint)n);
       continue;
    }
    }
 }
 
-void str_append(char* str, uint* str_len, const char* str2, uint str2_len) {
+void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
+{
    uint old_len = *str_len;
    *str_len += str2_len;
    str = (char*)GC_realloc(str, *str_len);
@@ -148,7 +174,8 @@ void str_append(char* str, uint* str_len, const char* str2, uint str2_len) {
 
 /* ---------- Public API ---------- */
 
-GC_String run_calculator(Lexer* lexer) {
+GC_String run_calculator(Lexer* lexer)
+{
    Stack     stack = { 0 };
    GC_String out;
    gc_string_init(&out);

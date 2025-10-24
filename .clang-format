@@ -1,13 +1,13 @@
 BasedOnStyle: Webkit
 IndentWidth: 3
 ColumnLimit: 0
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Custom
 BraceWrapping:
     AfterClass: false
     AfterCaseLabel: false
     AfterControlStatement: false
     AfterEnum: false
-    AfterFunction: false
+    AfterFunction: true
     AfterStruct: false
     AfterUnion: false
     BeforeLambdaBody: false
@@ -31,4 +31,6 @@ UseTab: Never
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignTrailingComments: true
+
+InsertBraces: true
 
