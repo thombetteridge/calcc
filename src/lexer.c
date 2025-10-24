@@ -34,7 +34,7 @@ void lexer_init(Lexer* lexer)
    lexer->ch         = 0;
    lexer->tokens_len = 0;
    lexer->tokens_cap = 128;
-   lexer->tokens     = (Token*)GC_malloc(lexer->tokens_cap * sizeof(Token));
+   lexer->tokens     = NEW(Token, lexer->tokens_cap);
 }
 
 void lexer_feed(Lexer* lexer, char* input_, uint input_len_)
@@ -188,11 +188,11 @@ static void push_token(Lexer* lexer, Token tok)
 {
    if (lexer->tokens_cap == 0) {
       lexer->tokens_cap = 8;
-      lexer->tokens     = (Token*)GC_malloc(sizeof(Token) * lexer->tokens_cap);
+      lexer->tokens     = NEW(Token, lexer->tokens_cap);
    }
    if (lexer->tokens_len == lexer->tokens_cap) {
       lexer->tokens_cap *= 2;
-      lexer->tokens = (Token*)GC_realloc(lexer->tokens, sizeof(Token) * lexer->tokens_cap);
+      lexer->tokens = RENEW(Token, lexer->tokens, lexer->tokens_cap);
    }
    lexer->tokens[lexer->tokens_len] = tok;
    lexer->tokens_len++;
