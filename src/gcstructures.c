@@ -45,7 +45,6 @@ bool stack_pop(Stack* stack, double* out)
 
 bool stack_pop_2(Stack* stack, double* y_out, double* x_out)
 {
-   // Pops x then y, returns y in *a, x in *b (so a op b is natural order)
    double x, y;
    if (!stack_pop(stack, &x)) {
       return false;
@@ -91,7 +90,7 @@ void gc_string_appendf(GC_String* str, const char* fmt, double x)
    char buf[64];
    int  n = snprintf(buf, sizeof(buf), fmt, x);
    if (n < 0) {
-      return; // ignore on error
+      return; 
    }
    if ((size_t)n >= sizeof(buf)) {
       n = (int)(sizeof(buf) - 1);
@@ -126,7 +125,7 @@ void gc_table_add(GC_Table* t, const char* key, GC_Func func)
 
 GC_Func gc_table_find(GC_Table* t, const char* key)
 {
-    for (unsigned i = 0; i < t->len; i++) {
+    for (uint i = 0; i < t->len; i++) {
         if (strcmp(t->entries[i].key, key) == 0) {
             return t->entries[i].func;
         }
