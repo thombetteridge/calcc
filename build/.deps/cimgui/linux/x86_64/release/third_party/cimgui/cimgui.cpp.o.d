@@ -1,6 +1,7 @@
 {
-    depfiles = "cimgui.o: third_party/cimgui/cimgui.cpp  third_party/cimgui/./imgui/imgui.h third_party/cimgui/./imgui/imconfig.h  third_party/cimgui/./imgui/imgui_internal.h third_party/cimgui/cimgui.h\
-",
+    files = {
+        "third_party/cimgui/cimgui.cpp"
+    },
     depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
@@ -16,7 +17,6 @@
             "-DNDEBUG"
         }
     },
-    files = {
-        "third_party/cimgui/cimgui.cpp"
-    }
+    depfiles = "cimgui.o: third_party/cimgui/cimgui.cpp  third_party/cimgui/./imgui/imgui.h third_party/cimgui/./imgui/imconfig.h  third_party/cimgui/./imgui/imgui_internal.h third_party/cimgui/cimgui.h\
+"
 }

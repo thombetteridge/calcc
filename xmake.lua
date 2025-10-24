@@ -4,9 +4,13 @@ add_requires("bdwgc")
 
 if is_mode("debug") then
     set_optimize("none")
+    set_symbols("debug")
 end
 if is_mode("release") then
     set_optimize("fastest")
+    add_defines("NDEBUG")
+    set_symbols("hidden")
+    set_strip ("all")
 end
 
 

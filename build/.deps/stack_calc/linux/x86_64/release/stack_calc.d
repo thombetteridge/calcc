@@ -3,6 +3,7 @@
         "build/.objs/stack_calc/linux/x86_64/release/src/lexer.c.o",
         "build/.objs/stack_calc/linux/x86_64/release/src/main.c.o",
         "build/.objs/stack_calc/linux/x86_64/release/src/eval.c.o",
+        "build/.objs/stack_calc/linux/x86_64/release/src/gcstructures.c.o",
         "build/linux/x86_64/release/librlimgui.a",
         "build/linux/x86_64/release/libcimgui.a"
     },

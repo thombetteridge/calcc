@@ -1,6 +1,7 @@
 {
-    depfiles = "rlImGui.o: third_party/rlImGui/rlImGui.cpp third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h  third_party/rlImGui/imgui_impl_raylib.h third_party/cimgui/imgui/imgui.h  third_party/cimgui/imgui/imconfig.h  third_party/rlImGui/extras/FA6FreeSolidFontData.h\
-",
+    files = {
+        "third_party/rlImGui/rlImGui.cpp"
+    },
     depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
@@ -20,7 +21,6 @@
             "-DNDEBUG"
         }
     },
-    files = {
-        "third_party/rlImGui/rlImGui.cpp"
-    }
+    depfiles = "rlImGui.o: third_party/rlImGui/rlImGui.cpp third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h  third_party/rlImGui/imgui_impl_raylib.h third_party/cimgui/imgui/imgui.h  third_party/cimgui/imgui/imconfig.h  third_party/rlImGui/extras/FA6FreeSolidFontData.h\
+"
 }

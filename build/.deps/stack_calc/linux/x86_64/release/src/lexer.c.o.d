@@ -1,10 +1,8 @@
 {
-    depfiles_format = "gcc",
-    depfiles = "lexer.o: src/lexer.c src/lexer.h src/common.h src/gcstring.h\
-",
     files = {
         "src/lexer.c"
     },
+    depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
         {
@@ -32,5 +30,7 @@
             "/usr/include/X11/dri",
             "-DNDEBUG"
         }
-    }
+    },
+    depfiles = "lexer.o: src/lexer.c src/lexer.h src/common.h src/gcstructures.h\
+"
 }

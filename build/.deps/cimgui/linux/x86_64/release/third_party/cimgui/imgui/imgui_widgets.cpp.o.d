@@ -1,6 +1,7 @@
 {
-    depfiles = "imgui_widgets.o: third_party/cimgui/imgui/imgui_widgets.cpp  third_party/cimgui/imgui/imgui.h third_party/cimgui/imgui/imconfig.h  third_party/cimgui/imgui/imgui_internal.h  third_party/cimgui/imgui/imstb_textedit.h\
-",
+    files = {
+        "third_party/cimgui/imgui/imgui_widgets.cpp"
+    },
     depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
@@ -16,7 +17,6 @@
             "-DNDEBUG"
         }
     },
-    files = {
-        "third_party/cimgui/imgui/imgui_widgets.cpp"
-    }
+    depfiles = "imgui_widgets.o: third_party/cimgui/imgui/imgui_widgets.cpp  third_party/cimgui/imgui/imgui.h third_party/cimgui/imgui/imconfig.h  third_party/cimgui/imgui/imgui_internal.h  third_party/cimgui/imgui/imstb_textedit.h\
+"
 }

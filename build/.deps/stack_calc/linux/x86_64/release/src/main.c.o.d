@@ -1,10 +1,8 @@
 {
-    depfiles_format = "gcc",
     files = {
         "src/main.c"
     },
-    depfiles = "main.o: src/main.c third_party/cimgui/cimgui.h  third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h src/eval.h src/common.h  src/gcstring.h src/lexer.h dat/embedded_font.inc\
-",
+    depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
         {
@@ -32,5 +30,7 @@
             "/usr/include/X11/dri",
             "-DNDEBUG"
         }
-    }
+    },
+    depfiles = "main.o: src/main.c third_party/cimgui/cimgui.h  third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h src/gcstructures.h  src/common.h src/eval.h src/lexer.h dat/embedded_font.inc\
+"
 }
