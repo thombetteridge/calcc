@@ -6,17 +6,16 @@
 #include "raylib.h"
 #include "rlImGui.h"
 
-#include "gcstructures.h"
 #include "eval.h"
+#include "gcstructures.h"
 
 #include "lexer.h"
 
 // font
 #include "embedded_font.inc"
 
-char input_buffer[2048];
-
-
+char input_buffer[2048] = {0};
+char previous_input[2048] = {0};
 
 int main()
 {
@@ -52,6 +51,9 @@ int main()
        NULL);
 
    SetTargetFPS(30);
+   GC_String output;
+
+   bool update = true;
 
    while (!WindowShouldClose()) {
 
@@ -74,8 +76,11 @@ int main()
       igGetContentRegionAvail(&out_avail);
       igBeginChild_Str("OutputText", (ImVec2) { out_avail.x, out_avail.y }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
-      GC_String output;
-      output = run_calculator(&lexer);
+      if (update) {
+         output = run_calculator(&lexer);
+         update = false;
+      }
+
       if (output.len > 0) {
          ImVec2 inner_avail;
          igGetContentRegionAvail(&inner_avail);
@@ -102,11 +107,15 @@ int main()
       float right_margin  = 0.0f;
       float bottom_margin = 2.0f;
 
-      igInputTextMultiline("##editor", input_buffer, sizeof(input_buffer),
-          (ImVec2) { avail.x - right_margin, avail.y - bottom_margin },
-          ImGuiInputTextFlags_AllowTabInput, 0, 0);
-
-      lexer_feed(&lexer, input_buffer, (uint)strlen(input_buffer));
+      if (igInputTextMultiline("##editor", input_buffer, sizeof(input_buffer),
+              (ImVec2) { avail.x - right_margin, avail.y - bottom_margin },
+              ImGuiInputTextFlags_AllowTabInput, 0, 0)) {
+         if (strcmp(previous_input, input_buffer) != 0) {
+                    memcpy(previous_input, input_buffer, sizeof(input_buffer));
+            lexer_feed(&lexer, previous_input, (uint)strlen(previous_input));
+            update = true;
+         }
+      }
 
       igPopStyleVar(2);
       igEndChild();
@@ -120,9 +129,9 @@ int main()
    CloseWindow();
 
    GC_gcollect();
-   printf("Heap size: %lu bytes\n", (unsigned long)GC_get_heap_size());
-   printf("Bytes allocated since last GC: %lu\n", (unsigned long)GC_get_bytes_since_gc());
-   printf("Bytes reclaimed: %lu\n", (unsigned long)GC_get_free_bytes());
+   printf("Heap size: %lu bytes\n", (u64)GC_get_heap_size());
+   printf("Bytes allocated since last GC: %lu\n", (u64)GC_get_bytes_since_gc());
+   printf("Bytes reclaimed: %lu\n", (u64)GC_get_free_bytes());
 
    return 0;
 }

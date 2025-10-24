@@ -105,7 +105,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
    underflow: {
       char buf[64];
-      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating token at index %u\n", i);
+      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", i);
       if (n < 0) {
          return; // ignore on error
       }
@@ -118,7 +118,9 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
    }
 }
 
-void calc_sin(Stack* stack)
+/* trig */
+
+static void calc_sin(Stack* stack)
 {
    double x;
    if (stack_pop(stack, &x)) {
@@ -126,7 +128,7 @@ void calc_sin(Stack* stack)
    }
 }
 
-void calc_cos(Stack* stack)
+static void calc_cos(Stack* stack)
 {
    double x;
    if (stack_pop(stack, &x)) {
@@ -134,7 +136,7 @@ void calc_cos(Stack* stack)
    }
 }
 
-void calc_tan(Stack* stack)
+static void calc_tan(Stack* stack)
 {
    double x;
    if (stack_pop(stack, &x)) {
@@ -142,7 +144,33 @@ void calc_tan(Stack* stack)
    }
 }
 
-void calc_sqrt(Stack* stack)
+static void calc_asin(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, asin(x));
+   }
+}
+
+static void calc_acos(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, acos(x));
+   }
+}
+
+static void calc_atan(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, atan(x));
+   }
+}
+
+/* math */
+
+static void calc_sqrt(Stack* stack)
 {
    double x;
    if (stack_pop(stack, &x)) {
@@ -150,7 +178,7 @@ void calc_sqrt(Stack* stack)
    }
 }
 
-void calc_sq(Stack* stack)
+static void calc_sq(Stack* stack)
 {
    double x;
    if (stack_pop(stack, &x)) {
@@ -158,9 +186,99 @@ void calc_sq(Stack* stack)
    }
 }
 
-void calc_pi(Stack* stack)
+/* constants */
+
+static void calc_pi(Stack* stack)
 {
    stack_push(stack, 3.14159265358979323846);
+}
+
+/* stack ops */
+
+static void calc_dup(Stack* stack)
+{
+   double x;
+   if (stack_top(stack, &x)) {
+      stack_push(stack, x);
+   }
+}
+
+static void calc_swap(Stack* stack)
+{
+   double x, y;
+   if (stack_pop_2(stack, &y, &x)) {
+      stack_push(stack, x);
+      stack_push(stack, y);
+   }
+}
+
+/* sequences */
+
+static void calc_sum(Stack* stack)
+{
+   double result = 0;
+   double x;
+   while (stack_pop(stack, &x)) {
+      result += x;
+   }
+   stack_push(stack, result);
+}
+
+static void calc_mean(Stack* stack)
+{
+   double len = stack->len;
+   if (len == 0) {
+      return;
+   }
+   calc_sum(stack);
+   double sum;
+   stack_pop(stack, &sum);
+   stack_push(stack, sum / len);
+}
+
+static void calc_range(Stack* stack)
+{
+   if (stack->len < 3) {
+      return;
+   }
+   double step, end, start;
+
+   stack_pop(stack, &step);
+   stack_pop(stack, &end);
+   stack_pop(stack, &start);
+
+   if (step == 0 || ((end - start) / step < 0)) {
+      return;
+   }
+
+   uint       failsafe = 0;
+   uint const fail_max = 1e6;
+   if (step > 0) {
+      for (double x = start; x < end; x += step) {
+         stack_push(stack, x);
+         if (++failsafe > fail_max) {
+            return;
+         }
+      }
+   }
+   else {
+      for (double x = start; x > end; x += step) {
+         stack_push(stack, x);
+         if (++failsafe > fail_max) {
+            return;
+         }
+      }
+   }
+}
+
+static void calc_iota(Stack* stack)
+{
+   double x;
+   stack_pop(stack, &x);
+   int n = (int)x;
+   for (int i = 1; i <= n; ++i) {
+      stack_push(stack, x);
+   }
 }
 
 static void add_keywords(GC_Table* keywords)
@@ -168,9 +286,22 @@ static void add_keywords(GC_Table* keywords)
    gc_table_add(keywords, "sin", calc_sin);
    gc_table_add(keywords, "cos", calc_cos);
    gc_table_add(keywords, "tan", calc_tan);
+   gc_table_add(keywords, "asin", calc_asin);
+   gc_table_add(keywords, "acos", calc_acos);
+   gc_table_add(keywords, "atan", calc_atan);
+
    gc_table_add(keywords, "sqrt", calc_sqrt);
    gc_table_add(keywords, "sq", calc_sq);
+
    gc_table_add(keywords, "pi", calc_pi);
+
+   gc_table_add(keywords, "dup", calc_dup);
+   gc_table_add(keywords, "swap", calc_swap);
+
+   gc_table_add(keywords, "sum", calc_sum);
+   gc_table_add(keywords, "mean", calc_mean);
+   gc_table_add(keywords, "range", calc_range);
+   gc_table_add(keywords, "iota", calc_iota);
 }
 
 void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
