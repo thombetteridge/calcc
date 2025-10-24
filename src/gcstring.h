@@ -12,7 +12,7 @@ typedef struct GC_String {
 } GC_String;
 
 inline void gc_string_init(GC_String* str) {
-   str->data    = (char*)GC_malloc_atomic(32);
+   str->data    = (char*)GC_malloc(32);
    str->len     = 0;
    str->cap     = 32;
    str->data[0] = '\0';

@@ -49,14 +49,16 @@ void lexer_feed(Lexer* lexer, char* input_, uint input_len_) {
 };
 
 static void read_char(Lexer* lexer) {
-   if (lexer->read_pos >= lexer->input_len) {
-      lexer->ch = 0;
+   if (lexer->read_pos >= lexer->input_len || lexer->input[lexer->read_pos] == '\0') {
+      lexer->ch       = 0;
+      lexer->pos      = lexer->input_len;
+      lexer->read_pos = lexer->input_len;
    }
    else {
-      lexer->ch = lexer->input[lexer->read_pos];
+      lexer->ch  = lexer->input[lexer->read_pos];
+      lexer->pos = lexer->read_pos;
+      lexer->read_pos++;
    }
-   lexer->pos = lexer->read_pos;
-   lexer->read_pos++;
 }
 
 static bool is_letter(char c) {
@@ -82,10 +84,12 @@ static GC_String read_word(Lexer* lexer) {
    GC_String result;
    gc_string_init(&result);
    uint start = lexer->pos;
-   while ((is_letter(lexer->ch) || is_number(lexer->ch))) {
+   while (is_letter(lexer->ch) || is_number(lexer->ch)) {
       read_char(lexer);
    }
-   lexer->read_pos--;
+   if (lexer->ch != 0) {
+      lexer->read_pos--;
+   }
    uint out_len = lexer->pos - start;
    gc_string_append(&result, lexer->input + start, out_len);
    return result;
@@ -95,25 +99,27 @@ static GC_String read_number(Lexer* lexer) {
    GC_String result;
    gc_string_init(&result);
    uint start = lexer->pos;
-   if (lexer->ch == '-')
-      read_char(lexer);
+
+   if (lexer->ch == '-') read_char(lexer);
 
    bool has_e = false;
-   while (true) {
+   for (;;) {
       if (is_number(lexer->ch) || lexer->ch == '.') {
          read_char(lexer);
       }
       else if (!has_e && (lexer->ch == 'e' || lexer->ch == 'E')) {
          has_e = true;
          read_char(lexer);
-         if (lexer->ch == '+' || lexer->ch == '-')
-            read_char(lexer);
+         if (lexer->ch == '+' || lexer->ch == '-') read_char(lexer);
       }
       else {
          break;
       }
    }
-   lexer->read_pos--;
+
+   if (lexer->ch != 0) {
+      lexer->read_pos--;
+   }
 
    uint out_len = lexer->pos - start;
    gc_string_append(&result, lexer->input + start, out_len);

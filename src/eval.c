@@ -19,7 +19,7 @@ typedef struct Stack {
 static void stack_push(Stack* stack, double x) {
    if (stack->cap == 0) {
       stack->cap  = 8;
-      stack->data = (double*)GC_malloc_atomic(stack->cap * sizeof(double));
+      stack->data = (double*)GC_malloc(stack->cap * sizeof(double));
    }
 
    if (stack->len == stack->cap) {
@@ -53,7 +53,7 @@ static bool binop_pop2(Stack* st, double* a, double* b) {
    return true;
 }
 
-void evaluate_tokens(const Lexer* lexer, Stack* stack) {
+void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err) {
    for (uint i = 0; i < lexer->tokens_len; ++i) {
       Token token = lexer->tokens[i];
       switch (token.type) {
@@ -127,9 +127,14 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack) {
 
       continue;
 
-   underflow:
-      fprintf(stderr, "Stack underflow while evaluating token at index %u\n", i);
-      return;
+   underflow: {
+      char buf[64];
+      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating token at index %u\n", i);
+      if (n < 0) return; // ignore on error
+      if ((size_t)n >= sizeof(buf)) n = (int)(sizeof(buf) - 1);
+      gc_string_append(err, buf, (uint)n);
+      // return;
+   }
    }
 }
 
@@ -146,8 +151,14 @@ GC_String run_calculator(Lexer* lexer) {
    Stack     stack = { 0 };
    GC_String out;
    gc_string_init(&out);
+   GC_String err;
+   gc_string_init(&err);
 
-   evaluate_tokens(lexer, &stack);
+   evaluate_tokens(lexer, &stack, &err);
+
+   if (err.len > 0) {
+      gc_string_append(&out, err.data, err.len);
+   }
 
    for (uint i = 0; i < stack.len; ++i) {
       gc_string_appendf(&out, "%g\n", stack.data[i]);

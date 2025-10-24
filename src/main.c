@@ -44,8 +44,8 @@ int main() {
       igGetContentRegionAvail(&out_avail);
       igBeginChild_Str("OutputText", (ImVec2) { out_avail.x, out_avail.y }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
-      GC_String output = { 0 };
-      output           = run_calculator(&lexer);
+      GC_String output;
+      output = run_calculator(&lexer);
       if (output.len > 0) {
          ImVec2 inner_avail;
          igGetContentRegionAvail(&inner_avail);
@@ -85,9 +85,13 @@ int main() {
       rlImGuiEnd();
       EndDrawing();
    }
-
    rlImGuiShutdown();
    CloseWindow();
+
+   GC_gcollect();
+   printf("Heap size: %lu bytes\n", (unsigned long)GC_get_heap_size());
+   printf("Bytes allocated since last GC: %lu\n", (unsigned long)GC_get_bytes_since_gc());
+   printf("Bytes reclaimed: %lu\n", (unsigned long)GC_get_free_bytes());
 
    return 0;
 }
