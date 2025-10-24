@@ -9,7 +9,6 @@ if is_mode("release") then
     set_optimize("fastest")
 end
 
-set_languages("c99")
 
 target("cimgui")
     set_kind("static")
@@ -28,6 +27,7 @@ target("rlimgui")
     set_warnings("none")
 
 target("stack_calc")
+    set_languages("c11")
     set_warnings("all", "extra", "error")
     set_kind("binary")
     add_files("src/*.c")

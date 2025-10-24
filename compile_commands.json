@@ -1,46 +1,56 @@
 [
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/cimgui.cpp.o", "third_party/cimgui/cimgui.cpp"],
-  "file": "third_party/cimgui/cimgui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\cimgui.cpp.obj", "third_party\\cimgui\\cimgui.cpp"],
+  "file": "third_party\\cimgui\\cimgui.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/cimgui_impl.cpp.o", "third_party/cimgui/cimgui_impl.cpp"],
-  "file": "third_party/cimgui/cimgui_impl.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\cimgui_impl.cpp.obj", "third_party\\cimgui\\cimgui_impl.cpp"],
+  "file": "third_party\\cimgui\\cimgui_impl.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_widgets.cpp.o", "third_party/cimgui/imgui/imgui_widgets.cpp"],
-  "file": "third_party/cimgui/imgui/imgui_widgets.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\imgui\\imgui.cpp.obj", "third_party\\cimgui\\imgui\\imgui.cpp"],
+  "file": "third_party\\cimgui\\imgui\\imgui.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_demo.cpp.o", "third_party/cimgui/imgui/imgui_demo.cpp"],
-  "file": "third_party/cimgui/imgui/imgui_demo.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\imgui\\imgui_demo.cpp.obj", "third_party\\cimgui\\imgui\\imgui_demo.cpp"],
+  "file": "third_party\\cimgui\\imgui\\imgui_demo.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_draw.cpp.o", "third_party/cimgui/imgui/imgui_draw.cpp"],
-  "file": "third_party/cimgui/imgui/imgui_draw.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\imgui\\imgui_draw.cpp.obj", "third_party\\cimgui\\imgui\\imgui_draw.cpp"],
+  "file": "third_party\\cimgui\\imgui\\imgui_draw.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui_tables.cpp.o", "third_party/cimgui/imgui/imgui_tables.cpp"],
-  "file": "third_party/cimgui/imgui/imgui_tables.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\imgui\\imgui_tables.cpp.obj", "third_party\\cimgui\\imgui\\imgui_tables.cpp"],
+  "file": "third_party\\cimgui\\imgui\\imgui_tables.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-DNDEBUG", "-o", "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/imgui.cpp.o", "third_party/cimgui/imgui/imgui.cpp"],
-  "file": "third_party/cimgui/imgui/imgui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\cimgui", "/EHsc", "/DNDEBUG", "/Fobuild\\.objs\\cimgui\\windows\\x64\\release\\third_party\\cimgui\\imgui\\imgui_widgets.cpp.obj", "third_party\\cimgui\\imgui\\imgui_widgets.cpp"],
+  "file": "third_party\\cimgui\\imgui\\imgui_widgets.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-Wall", "-Wextra", "-Werror", "-O3", "-std=c99", "-Ibuild/.gens/stack_calc/linux/x86_64/release/platform/windows/idl", "-Ithird_party/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl", "-Ithird_party/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/release/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/2bbea4dad3df48319defa746f5bd80e4/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/fe5fcc9e882e45c7a8e040e869caee57/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/include", "-I", "/usr/include/X11/dri", "-DNDEBUG", "-o", "build/.objs/stack_calc/linux/x86_64/release/src/main.c.o", "src/main.c"],
-  "file": "src/main.c"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/w", "/O2", "/Ithird_party\\cimgui\\imgui", "/Ithird_party\\rlImGui", "/EHsc", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\ff3f87ca824444c78f4ea6c42aea7e19\\include", "/DNDEBUG", "/Fobuild\\.objs\\rlimgui\\windows\\x64\\release\\third_party\\rlImGui\\rlImGui.cpp.obj", "third_party\\rlImGui\\rlImGui.cpp"],
+  "file": "third_party\\rlImGui\\rlImGui.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-w", "-O3", "-Ithird_party/cimgui/imgui", "-Ithird_party/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/release/platform/windows/idl", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/include", "-I", "/usr/include/X11/dri", "-DNDEBUG", "-o", "build/.objs/rlimgui/linux/x86_64/release/third_party/rlImGui/rlImGui.cpp.o", "third_party/rlImGui/rlImGui.cpp"],
-  "file": "third_party/rlImGui/rlImGui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/W4", "/WX", "/O2", "/TP", "/Ithird_party\\cimgui", "/Ithird_party\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\c95ecca2d1d14dad99225ed2257e7ae6\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\5b6b80290cc14a6a8280672b37745884\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\ff3f87ca824444c78f4ea6c42aea7e19\\include", "/DNDEBUG", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\release\\src\\eval.c.obj", "src\\eval.c"],
+  "file": "src\\eval.c"
+},
+{
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/W4", "/WX", "/O2", "/TP", "/Ithird_party\\cimgui", "/Ithird_party\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\c95ecca2d1d14dad99225ed2257e7ae6\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\5b6b80290cc14a6a8280672b37745884\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\ff3f87ca824444c78f4ea6c42aea7e19\\include", "/DNDEBUG", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\release\\src\\lexer.c.obj", "src\\lexer.c"],
+  "file": "src\\lexer.c"
+},
+{
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["p:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/W4", "/WX", "/O2", "/TP", "/Ithird_party\\cimgui", "/Ithird_party\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\c95ecca2d1d14dad99225ed2257e7ae6\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\5b6b80290cc14a6a8280672b37745884\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\ff3f87ca824444c78f4ea6c42aea7e19\\include", "/DNDEBUG", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\release\\src\\main.c.obj", "src\\main.c"],
+  "file": "src\\main.c"
 }]

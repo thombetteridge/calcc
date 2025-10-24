@@ -1,0 +1,34 @@
+BasedOnStyle: Webkit
+IndentWidth: 3
+ColumnLimit: 0
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: false
+    AfterCaseLabel: false
+    AfterControlStatement: false
+    AfterEnum: false
+    AfterFunction: false
+    AfterStruct: false
+    AfterUnion: false
+    BeforeLambdaBody: false
+    BeforeWhile: true
+    BeforeCatch: true
+    BeforeElse: true
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+# BreakBeforeBraces: Stroustrup
+
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortCompoundRequirementOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+
+UseTab: Never
+
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignTrailingComments: true
+
