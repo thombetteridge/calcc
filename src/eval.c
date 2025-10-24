@@ -1,9 +1,7 @@
 #include "eval.h"
 
 #include "common.h"
-#include "gcstack.h"
-#include "gcstring.h"
-#include "gctable.h"
+#include "gcstructures.h"
 #include "lexer.h"
 
 #include "gc/gc.h"
@@ -127,6 +125,7 @@ void calc_sin(Stack* stack)
       stack_push(stack, sin(x));
    }
 }
+
 void calc_cos(Stack* stack)
 {
    double x;
@@ -134,6 +133,7 @@ void calc_cos(Stack* stack)
       stack_push(stack, cos(x));
    }
 }
+
 void calc_tan(Stack* stack)
 {
    double x;
@@ -141,6 +141,7 @@ void calc_tan(Stack* stack)
       stack_push(stack, tan(x));
    }
 }
+
 void calc_sqrt(Stack* stack)
 {
    double x;
@@ -149,6 +150,18 @@ void calc_sqrt(Stack* stack)
    }
 }
 
+void calc_sq(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, x * x);
+   }
+}
+
+void calc_pi(Stack* stack)
+{
+   stack_push(stack, 3.14159265358979323846);
+}
 
 static void add_keywords(GC_Table* keywords)
 {
@@ -156,6 +169,8 @@ static void add_keywords(GC_Table* keywords)
    gc_table_add(keywords, "cos", calc_cos);
    gc_table_add(keywords, "tan", calc_tan);
    gc_table_add(keywords, "sqrt", calc_sqrt);
+   gc_table_add(keywords, "sq", calc_sq);
+   gc_table_add(keywords, "pi", calc_pi);
 }
 
 void str_append(char* str, uint* str_len, const char* str2, uint str2_len)

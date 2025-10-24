@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "common.h"
-#include "gcstring.h"
+
+#include "gcstructures.h"
 
 #include "gc/gc.h"
 

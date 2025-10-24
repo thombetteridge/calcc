@@ -6,14 +6,17 @@
 #include "raylib.h"
 #include "rlImGui.h"
 
+#include "gcstructures.h"
 #include "eval.h"
-#include "gcstring.h"
+
 #include "lexer.h"
 
 // font
 #include "embedded_font.inc"
 
 char input_buffer[2048];
+
+
 
 int main()
 {

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "gcstring.h"
+#include "gcstructures.h"
+
 
 typedef enum Token_Type {
    ILLEGAL,
