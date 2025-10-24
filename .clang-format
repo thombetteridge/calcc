@@ -1,7 +1,7 @@
 BasedOnStyle: Webkit
 IndentWidth: 3
 ColumnLimit: 0
-BreakBeforeBraces: Custom
+BreakBeforeBraces: Stroustrup
 BraceWrapping:
     AfterClass: false
     AfterCaseLabel: false

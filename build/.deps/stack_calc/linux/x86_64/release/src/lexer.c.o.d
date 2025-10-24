@@ -1,6 +1,9 @@
 {
-    depfiles = "lexer.o: src/lexer.c src/lexer.h src/common.h\
+    depfiles = "lexer.o: src/lexer.c src/lexer.h src/common.h src/gcstring.h\
 ",
+    files = {
+        "src/lexer.c"
+    },
     depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
@@ -11,7 +14,8 @@
             "-Wextra",
             "-Werror",
             "-O3",
-            "-std=c99",
+            "-std=c11",
+            "-Idat",
             "-Ibuild/.gens/stack_calc/linux/x86_64/release/platform/windows/idl",
             "-Ithird_party/cimgui",
             "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl",
@@ -28,8 +32,5 @@
             "/usr/include/X11/dri",
             "-DNDEBUG"
         }
-    },
-    files = {
-        "src/lexer.c"
     }
 }

@@ -48,6 +48,7 @@ int main() {
    SetTargetFPS(30);
 
    while (!WindowShouldClose()) {
+
       BeginDrawing();
       ClearBackground(RAYWHITE);
       rlImGuiBegin();

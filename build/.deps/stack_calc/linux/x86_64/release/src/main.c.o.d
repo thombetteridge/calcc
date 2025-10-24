@@ -2,8 +2,6 @@
     files = {
         "src/main.c"
     },
-    depfiles = "main.o: src/main.c third_party/cimgui/cimgui.h  third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h src/lexer.h src/common.h\
-",
     depfiles_format = "gcc",
     values = {
         "/usr/bin/gcc",
@@ -14,7 +12,8 @@
             "-Wextra",
             "-Werror",
             "-O3",
-            "-std=c99",
+            "-std=c11",
+            "-Idat",
             "-Ibuild/.gens/stack_calc/linux/x86_64/release/platform/windows/idl",
             "-Ithird_party/cimgui",
             "-Ibuild/.gens/cimgui/linux/x86_64/release/platform/windows/idl",
@@ -31,5 +30,7 @@
             "/usr/include/X11/dri",
             "-DNDEBUG"
         }
-    }
+    },
+    depfiles = "main.o: src/main.c third_party/cimgui/cimgui.h  third_party/rlImGui/rlImGui.h  third_party/rlImGui/extras/IconsFontAwesome6.h src/eval.h src/common.h  src/gcstring.h src/lexer.h dat/embedded_font.inc\
+"
 }
