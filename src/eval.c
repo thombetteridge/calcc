@@ -1,70 +1,20 @@
 #include "eval.h"
 
 #include "common.h"
-#include "gc/gc.h"
+#include "gcstack.h"
 #include "gcstring.h"
+#include "gctable.h"
 #include "lexer.h"
 
+#include "gc/gc.h"
+
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Stack {
-   double* data;
-   uint    len;
-   uint    cap;
-} Stack;
-
-static void stack_push(Stack* stack, double x)
-{
-   if (stack->cap == 0) {
-      stack->cap  = 8;
-      stack->data = (double*)GC_malloc(stack->cap * sizeof(double));
-   }
-
-   if (stack->len == stack->cap) {
-      stack->cap *= 2;
-      stack->data = (double*)GC_realloc(stack->data, stack->cap * sizeof(double));
-   }
-
-   stack->data[stack->len] = x;
-   stack->len++;
-}
-
-static bool stack_top(const Stack* stack, double* out)
-{
-   if (stack->len == 0) {
-      return false;
-   }
-   *out = stack->data[stack->len - 1];
-   return true;
-}
-
-static bool stack_pop(Stack* stack, double* out)
-{
-   if (stack->len == 0) {
-      return false;
-   }
-   stack_top(stack, out);
-   stack->len--;
-   return true;
-}
-
-static bool binop_pop2(Stack* st, double* a, double* b)
-{
-   // Pops x then y, returns y in *a, x in *b (so a op b is natural order)
-   double x, y;
-   if (!stack_pop(st, &x)) {
-      return false;
-   }
-   if (!stack_pop(st, &y)) {
-      return false;
-   }
-   *a = y;
-   *b = x;
-   return true;
-}
+static GC_Table keywords;
 
 void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 {
@@ -77,7 +27,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       case PLUS: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) {
+         if (!stack_pop_2(stack, &a, &b)) {
             goto underflow;
          }
          stack_push(stack, a + b);
@@ -85,7 +35,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       case MINUS: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) {
+         if (!stack_pop_2(stack, &a, &b)) {
             goto underflow;
          }
          stack_push(stack, a - b);
@@ -93,7 +43,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       case ASTRIX: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) {
+         if (!stack_pop_2(stack, &a, &b)) {
             goto underflow;
          }
          stack_push(stack, a * b);
@@ -101,7 +51,7 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       case SLASH: {
          double a, b;
-         if (!binop_pop2(stack, &a, &b)) {
+         if (!stack_pop_2(stack, &a, &b)) {
             goto underflow;
          }
          // Optional: check divide-by-zero; here we mimic C (inf/nan)
@@ -110,7 +60,13 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       case ILLEGAL:
       case EOF_:
-      case WORD:
+      case WORD: {
+         GC_Func f;
+         if ((f = gc_table_find(&keywords, token.literal.data))) {
+            f(stack);
+         }
+      } break;
+
       case USCORE:
       case ASSIGN:
       case CARET:
@@ -164,6 +120,44 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
    }
 }
 
+void calc_sin(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, sin(x));
+   }
+}
+void calc_cos(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, cos(x));
+   }
+}
+void calc_tan(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, tan(x));
+   }
+}
+void calc_sqrt(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, sqrt(x));
+   }
+}
+
+
+static void add_keywords(GC_Table* keywords)
+{
+   gc_table_add(keywords, "sin", calc_sin);
+   gc_table_add(keywords, "cos", calc_cos);
+   gc_table_add(keywords, "tan", calc_tan);
+   gc_table_add(keywords, "sqrt", calc_sqrt);
+}
+
 void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
 {
    uint old_len = *str_len;
@@ -176,6 +170,15 @@ void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
 
 GC_String run_calculator(Lexer* lexer)
 {
+   static bool needs_to_init_tables = true;
+
+   if (needs_to_init_tables) {
+      gc_table_init(&keywords);
+      add_keywords(&keywords);
+
+      needs_to_init_tables = false;
+   }
+
    Stack     stack = { 0 };
    GC_String out;
    gc_string_init(&out);
