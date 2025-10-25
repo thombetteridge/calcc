@@ -2,10 +2,10 @@
 
 #include "gc/gc.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <assert.h>
 
 typedef unsigned uint;
 
@@ -43,7 +43,8 @@ typedef int64_t i64;
          v->cap *= 2;                                                    \
          v->data = RENEW(T, v->data, v->cap);                            \
       }                                                                  \
-      v->data[v->len++] = x;                                             \
+      v->data[v->len] = x;                                               \
+      v->len++;                                                          \
    }                                                                     \
    [[maybe_unused]] static inline void T##_Array_pop(T##_Array* v)       \
    {                                                                     \
@@ -52,5 +53,5 @@ typedef int64_t i64;
    [[maybe_unused]] static inline T* T##_Array_at(T##_Array* v, uint i)  \
    {                                                                     \
       assert(i < v->len);                                                \
-      return &v->data[i];                                                 \
+      return &v->data[i];                                                \
    }

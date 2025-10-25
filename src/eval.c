@@ -12,14 +12,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-static GC_Table keywords;
+static GC_Table            keywords;
+static GC_Table_User_Words user_words;
 
-
-
-void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
+void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_String* err)
 {
-   for (uint i = 0; i < lexer->tokens_len; ++i) {
-      Token token = lexer->tokens[i];
+   for (uint i = 0; i < tokens_len; ++i) {
+      Token token = tokens[i];
       switch (token.type) {
       case NUMBER:
          stack_push(stack, atof(token.literal.data));
@@ -64,8 +63,26 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
          GC_Func f;
          if ((f = gc_table_find(&keywords, token.literal.data))) {
             f(stack);
+            break;
          }
-      } break;
+         Token_Array* user_word = NULL;
+         if (gc_user_table_find(&user_words, &token.literal, &user_word) && user_word) {
+            evaluate_tokens(user_word->data, user_word->len, stack, err);
+            break;
+         }
+
+         // Report unknown word
+         char buf[64];
+         int  n = snprintf(buf, sizeof(buf), "Unknown word: '%s' at index %u\n", token.literal.data, i);
+         if (n < 0) {
+            return; // ignore on error
+         }
+         if ((size_t)n >= sizeof(buf)) {
+            n = (int)(sizeof(buf) - 1);
+         }
+         gc_string_append(err, buf, (uint)n);
+         break;
+      }
 
       case USCORE: break;
       case ASSIGN: break;
@@ -94,20 +111,20 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
          GC_String word_name;
          gc_string_init(&word_name);
          Token_Array definition;
-         Token_Array_init(&definition);
+         token_array_init(&definition);
 
-         if (++i < lexer->tokens_len && lexer->tokens[i].type != WORD){
-            gc_string_join(&word_name, &lexer->tokens[i].literal);
+         if (++i < tokens_len && tokens[i].type == WORD) {
+            gc_string_join(&word_name, &tokens[i].literal);
          }
          else {
             break;
          }
 
-         while (++i < lexer->tokens_len && lexer->tokens[i].type != SEMICOLON) {
-            Token_Array_push(&definition, lexer->tokens[i]);
+         while (++i < tokens_len && tokens[i].type != SEMICOLON) {
+            token_array_push(&definition, tokens[i]);
          }
 
-         user_words[word_name] = definition;
+         gc_user_table_add(&user_words, word_name, definition);
 
       } break;
       case SEMICOLON: break;
@@ -123,20 +140,18 @@ void evaluate_tokens(const Lexer* lexer, Stack* stack, GC_String* err)
 
       continue;
 
-   underflow:
-      break;
-      {
-         char buf[64];
-         int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", i);
-         if (n < 0) {
-            return; // ignore on error
-         }
-         if ((size_t)n >= sizeof(buf)) {
-            n = (int)(sizeof(buf) - 1);
-         }
-         gc_string_append(err, buf, (uint)n);
-         continue;
+   underflow: {
+      char buf[64];
+      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", i);
+      if (n < 0) {
+         return; // ignore on error
       }
+      if ((size_t)n >= sizeof(buf)) {
+         n = (int)(sizeof(buf) - 1);
+      }
+      gc_string_append(err, buf, (uint)n);
+      continue;
+   }
    }
 }
 
@@ -207,6 +222,15 @@ static void calc_sq(Stack* stack)
       stack_push(stack, x * x);
    }
 }
+
+static void calc_abs(Stack* stack)
+{
+   double x;
+   if (stack_pop(stack, &x)) {
+      stack_push(stack, fabs(x));
+   }
+}
+
 
 /* constants */
 
@@ -299,7 +323,7 @@ static void calc_iota(Stack* stack)
    stack_pop(stack, &x);
    int n = (int)x;
    for (int i = 1; i <= n; ++i) {
-      stack_push(stack, x);
+      stack_push(stack, i);
    }
 }
 
@@ -314,6 +338,7 @@ static void add_keywords(GC_Table* keywords)
 
    gc_table_add(keywords, "sqrt", calc_sqrt);
    gc_table_add(keywords, "sq", calc_sq);
+   gc_table_add(keywords, "abs", calc_abs);
 
    gc_table_add(keywords, "pi", calc_pi);
 
@@ -344,6 +369,8 @@ GC_String run_calculator(Lexer* lexer)
       gc_table_init(&keywords);
       add_keywords(&keywords);
 
+      gc_user_table_init(&user_words);
+
       needs_to_init_tables = false;
    }
 
@@ -353,7 +380,7 @@ GC_String run_calculator(Lexer* lexer)
    GC_String err;
    gc_string_init(&err);
 
-   evaluate_tokens(lexer, &stack, &err);
+   evaluate_tokens(lexer->tokens, lexer->tokens_len, &stack, &err);
 
    if (err.len > 0) {
       gc_string_append(&out, err.data, err.len);
