@@ -4,8 +4,9 @@
     },
     depfiles_format = "gcc",
     values = {
-        "/usr/bin/gcc",
+        "/usr/bin/clang",
         {
+            "-Qunused-arguments",
             "-m64",
             "-fvisibility=hidden",
             "-fvisibility-inlines-hidden",
@@ -17,6 +18,6 @@
             "-DNDEBUG"
         }
     },
-    depfiles = "imgui_draw.o: third_party/cimgui/imgui/imgui_draw.cpp  third_party/cimgui/imgui/imgui.h third_party/cimgui/imgui/imconfig.h  third_party/cimgui/imgui/imgui_internal.h  third_party/cimgui/imgui/imstb_rectpack.h  third_party/cimgui/imgui/imstb_truetype.h\
+    depfiles = "build/.objs/cimgui/linux/x86_64/release/third_party/cimgui/imgui/__cpp_imgui_draw.cpp.cpp:   third_party/cimgui/imgui/imgui_draw.cpp   third_party/cimgui/imgui/imgui.h third_party/cimgui/imgui/imconfig.h   third_party/cimgui/imgui/imgui_internal.h   third_party/cimgui/imgui/imstb_rectpack.h   third_party/cimgui/imgui/imstb_truetype.h\
 "
 }

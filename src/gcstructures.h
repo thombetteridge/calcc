@@ -32,8 +32,8 @@ typedef struct {
 
 typedef struct {
    GC_TableEntry* entries;
-   unsigned       len;
-   unsigned       cap;
+   uint       len;
+   uint       cap;
 } GC_Table;
 
 void    gc_table_init(GC_Table* t);
@@ -59,22 +59,27 @@ typedef struct {
 
 typedef struct {
    GC_TableEntry_User_Words* entries;
-   unsigned                  len;
-   unsigned                  cap;
+   uint                  len;
+   uint                  cap;
 } GC_Table_User_Words;
 
 void gc_user_table_init(GC_Table_User_Words* t);
 void gc_user_table_add(GC_Table_User_Words* t, GC_String key, Token_Array arr);
 bool gc_user_table_find(GC_Table_User_Words* t, GC_String* key, Token_Array** result);
 
-_Static_assert(sizeof(uint) == 4, "uint must be 32-bit"); // adjust if needed
 
-// Adjust names/order to your real definition:
-_Static_assert(offsetof(Token_Array, data) == 0, "Token_Array.data offset mismatch");
-_Static_assert(offsetof(Token_Array, len) > 0, "Token_Array.len offset mismatch");
-_Static_assert(offsetof(Token_Array, cap) > 0, "Token_Array.cap offset mismatch");
-_Static_assert(sizeof(Token_Array) >= sizeof(void*) + 2 * sizeof(uint),
-    "Token_Array size too small");
+typedef struct {
+   GC_String   key;
+   double variable;
+} Variable_TableEntry;
 
-_Static_assert(offsetof(GC_TableEntry_User_Words, key) == 0, "entry.key offset mismatch");
-_Static_assert(offsetof(GC_TableEntry_User_Words, tokens) > 0, "entry.tokens offset mismatch");
+typedef struct {
+   Variable_TableEntry* entries;
+   uint                  len;
+   uint                  cap;
+} Variable_Table;
+
+void variable_table_init(Variable_Table* t);
+void variable_table_add(Variable_Table* t, GC_String key, double variable);
+bool variable_table_find(Variable_Table* t, GC_String* key, double* variable);
+

@@ -1,10 +1,6 @@
 #include "lexer.h"
 #include "common.h"
 
-#include "gcstructures.h"
-
-#include "gc/gc.h"
-
 #include <stdbool.h>
 
 /* fwd decs */

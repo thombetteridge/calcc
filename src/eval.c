@@ -1,6 +1,7 @@
 #include "eval.h"
 
 #include "common.h"
+#include "gcstring.h"
 #include "gcstructures.h"
 #include "lexer.h"
 
@@ -14,6 +15,7 @@
 
 static GC_Table            keywords;
 static GC_Table_User_Words user_words;
+static Variable_Table      variables;
 
 void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_String* err)
 {
@@ -71,6 +73,12 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
             break;
          }
 
+         double variable;
+         if (variable_table_find(&variables, &token.literal, &variable)) {
+            stack_push(stack, variable);
+            break;
+         }
+
          // Report unknown word
          char buf[64];
          int  n = snprintf(buf, sizeof(buf), "Unknown word: '%s' at index %u\n", token.literal.data, i);
@@ -85,7 +93,42 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
       }
 
       case USCORE: break;
-      case ASSIGN: break;
+      case ASSIGN: {
+         if (i + 1 >= tokens_len || tokens[i + 1].type != WORD) {
+            char buf[64];
+            int  n = snprintf(buf, sizeof(buf), "Error: '=' must be\nfollowed by variable name");
+            if (n < 0) {
+               return; // ignore on error
+            }
+            if ((size_t)n >= sizeof(buf)) {
+               n = (int)(sizeof(buf) - 1);
+            }
+            gc_string_append(err, buf, (uint)n);
+            break;
+         }
+         double x;
+         if (stack_pop(stack, &x)) {
+            GC_String var_name;
+            // gc_string_init(&var_name);
+            var_name = gc_string_clone(&tokens[++i].literal);
+
+            variable_table_add(&variables, var_name, x);
+         }
+         else {
+            char buf[64];
+            int  n = snprintf(buf, sizeof(buf), "Error: '=' underflow\n");
+            if (n < 0) {
+               return; // ignore on error
+            }
+            if ((size_t)n >= sizeof(buf)) {
+               n = (int)(sizeof(buf) - 1);
+            }
+            gc_string_append(err, buf, (uint)n);
+            break;
+         }
+         break;
+      }
+
       case CARET: break;
       case PERCENT: break;
       case DOLLAR: break;
@@ -124,7 +167,9 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
             token_array_push(&definition, tokens[i]);
          }
 
-         gc_user_table_add(&user_words, word_name, definition);
+         if (tokens[i].type == SEMICOLON) {
+            gc_user_table_add(&user_words, word_name, definition);
+         }
 
       } break;
       case SEMICOLON: break;
@@ -230,7 +275,6 @@ static void calc_abs(Stack* stack)
       stack_push(stack, fabs(x));
    }
 }
-
 
 /* constants */
 
@@ -370,6 +414,8 @@ GC_String run_calculator(Lexer* lexer)
       add_keywords(&keywords);
 
       gc_user_table_init(&user_words);
+
+      variable_table_init(&variables);
 
       needs_to_init_tables = false;
    }

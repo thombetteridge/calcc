@@ -3,8 +3,6 @@
 #include "common.h"
 #include "gcstring.h"
 
-
-
 typedef enum Token_Type {
    ILLEGAL,
    EOF_,

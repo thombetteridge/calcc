@@ -23,35 +23,27 @@ typedef int64_t i64;
 #define NEW_ATOMIC(T, n) ((T*)GC_malloc(sizeof(T) * (n)))
 #define RENEW(T, ptr, n) ((T*)GC_realloc((ptr), sizeof(T) * (n)))
 
-#define ARR_DEF(T)                                                       \
+#define ARRAY_DEF(Type)                                                       \
    typedef struct {                                                      \
-      T*   data;                                                         \
+      Type*   data;                                                         \
       uint len;                                                          \
       uint cap;                                                          \
    } T##_Array;                                                          \
-                                                                         \
-   [[maybe_unused]] static inline void T##_Array_init(T##_Array* v)      \
-   {                                                                     \
-      v->len  = 0;                                                       \
-      v->cap  = 8;                                                       \
-      v->data = NEW(T, v->cap);                                          \
-   }                                                                     \
-                                                                         \
-   [[maybe_unused]] static inline void T##_Array_push(T##_Array* v, T x) \
-   {                                                                     \
-      if (v->len == v->cap) {                                            \
-         v->cap *= 2;                                                    \
-         v->data = RENEW(T, v->data, v->cap);                            \
-      }                                                                  \
-      v->data[v->len] = x;                                               \
-      v->len++;                                                          \
-   }                                                                     \
-   [[maybe_unused]] static inline void T##_Array_pop(T##_Array* v)       \
-   {                                                                     \
-      v->len--;                                                          \
-   }                                                                     \
-   [[maybe_unused]] static inline T* T##_Array_at(T##_Array* v, uint i)  \
-   {                                                                     \
-      assert(i < v->len);                                                \
-      return &v->data[i];                                                \
-   }
+
+
+#define ARRAY_INIT(Type, array) \
+   array.len  = 0;              \
+   array.cap  = 8;              \
+   array.data = NEW(Type, array.cap)
+
+#define ARRAY_PUSH(Type, array, value)                        \
+   if (array.len == array.cap) {                       \
+      array.cap *= 2;                                  \
+      array.data = RENEW(Type, array.data, array.cap); \
+   }                                                   \
+   array.data[array.len] = value;                          \
+   array.len++;
+
+#define ARRAY_POP(Type, array) \
+   = array[array.len - 1];    \
+   --array.len;

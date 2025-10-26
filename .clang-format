@@ -1,7 +1,7 @@
 BasedOnStyle: Webkit
 IndentWidth: 3
 ColumnLimit: 0
-BreakBeforeBraces: Custom
+# BreakBeforeBraces: Custom
 BraceWrapping:
     AfterClass: false
     AfterCaseLabel: false
@@ -16,7 +16,7 @@ BraceWrapping:
     BeforeElse: true
     SplitEmptyFunction: false
     SplitEmptyRecord: false
-# BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Stroustrup
 
 AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: true

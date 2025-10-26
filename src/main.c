@@ -14,8 +14,8 @@
 // font
 #include "embedded_font.inc"
 
-char input_buffer[2048] = {0};
-char previous_input[2048] = {0};
+char input_buffer[2048]   = { 0 };
+char previous_input[2048] = { 0 };
 
 int main()
 {
@@ -111,7 +111,7 @@ int main()
               (ImVec2) { avail.x - right_margin, avail.y - bottom_margin },
               ImGuiInputTextFlags_AllowTabInput, 0, 0)) {
          if (strcmp(previous_input, input_buffer) != 0) {
-                    memcpy(previous_input, input_buffer, sizeof(input_buffer));
+            memcpy(previous_input, input_buffer, sizeof(input_buffer));
             lexer_feed(&lexer, previous_input, (uint)strlen(previous_input));
             update = true;
          }
