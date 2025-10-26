@@ -51,7 +51,7 @@ int main()
        NULL);
 
    SetTargetFPS(30);
-   GC_String output;
+   GC_String output = { 0 };
 
    bool update = true;
 
@@ -129,9 +129,9 @@ int main()
    CloseWindow();
 
    GC_gcollect();
-   printf("Heap size: %lu bytes\n", (u64)GC_get_heap_size());
-   printf("Bytes allocated since last GC: %lu\n", (u64)GC_get_bytes_since_gc());
-   printf("Bytes reclaimed: %lu\n", (u64)GC_get_free_bytes());
+   printf("Heap size: %zu bytes\n", (u64)GC_get_heap_size());
+   printf("Bytes allocated since last GC: %zu\n", (u64)GC_get_bytes_since_gc());
+   printf("Bytes reclaimed: %zu\n", (u64)GC_get_free_bytes());
 
    return 0;
 }

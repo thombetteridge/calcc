@@ -342,7 +342,7 @@ static void calc_range(Stack* stack)
    }
 
    uint       failsafe = 0;
-   uint const fail_max = 1e6;
+   uint const fail_max = (uint)1e6;
    if (step > 0) {
       for (double x = start; x < end; x += step) {
          stack_push(stack, x);
@@ -371,28 +371,28 @@ static void calc_iota(Stack* stack)
    }
 }
 
-static void add_keywords(GC_Table* keywords)
+static void add_keywords(GC_Table* keywords_)
 {
-   gc_table_add(keywords, "sin", calc_sin);
-   gc_table_add(keywords, "cos", calc_cos);
-   gc_table_add(keywords, "tan", calc_tan);
-   gc_table_add(keywords, "asin", calc_asin);
-   gc_table_add(keywords, "acos", calc_acos);
-   gc_table_add(keywords, "atan", calc_atan);
+   gc_table_add(keywords_, "sin", calc_sin);
+   gc_table_add(keywords_, "cos", calc_cos);
+   gc_table_add(keywords_, "tan", calc_tan);
+   gc_table_add(keywords_, "asin", calc_asin);
+   gc_table_add(keywords_, "acos", calc_acos);
+   gc_table_add(keywords_, "atan", calc_atan);
 
-   gc_table_add(keywords, "sqrt", calc_sqrt);
-   gc_table_add(keywords, "sq", calc_sq);
-   gc_table_add(keywords, "abs", calc_abs);
+   gc_table_add(keywords_, "sqrt", calc_sqrt);
+   gc_table_add(keywords_, "sq", calc_sq);
+   gc_table_add(keywords_, "abs", calc_abs);
 
-   gc_table_add(keywords, "pi", calc_pi);
+   gc_table_add(keywords_, "pi", calc_pi);
 
-   gc_table_add(keywords, "dup", calc_dup);
-   gc_table_add(keywords, "swap", calc_swap);
+   gc_table_add(keywords_, "dup", calc_dup);
+   gc_table_add(keywords_, "swap", calc_swap);
 
-   gc_table_add(keywords, "sum", calc_sum);
-   gc_table_add(keywords, "mean", calc_mean);
-   gc_table_add(keywords, "range", calc_range);
-   gc_table_add(keywords, "iota", calc_iota);
+   gc_table_add(keywords_, "sum", calc_sum);
+   gc_table_add(keywords_, "mean", calc_mean);
+   gc_table_add(keywords_, "range", calc_range);
+   gc_table_add(keywords_, "iota", calc_iota);
 }
 
 void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
