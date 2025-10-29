@@ -395,14 +395,6 @@ static void add_keywords(GC_Table* keywords_)
    gc_table_add(keywords_, "iota", calc_iota);
 }
 
-void str_append(char* str, uint* str_len, const char* str2, uint str2_len)
-{
-   uint old_len = *str_len;
-   *str_len += str2_len;
-   str = (char*)GC_realloc(str, *str_len);
-   memcpy(str + old_len, str2, str2_len);
-}
-
 /* ---------- Public API ---------- */
 
 GC_String run_calculator(Lexer* lexer)
@@ -435,5 +427,7 @@ GC_String run_calculator(Lexer* lexer)
    for (uint i = 0; i < stack.len; ++i) {
       gc_string_appendf(&out, "%g\n", stack.data[i]);
    }
+
+   gc_string_append(&out, "\0", sizeof("\0"));
    return out;
 }
