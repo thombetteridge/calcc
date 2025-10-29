@@ -1,7 +1,5 @@
 #pragma once
 
-#include "common.h"
-
 #include "tstring.h"
 
 typedef enum Token_Type {
@@ -58,14 +56,14 @@ typedef enum Token_Type {
 
 typedef struct Token {
    Token_Type type;
-   uint       pos;
+   size_t     pos;
    String     literal;
 } Token;
 
 typedef struct Token_Array {
    Token* data;
-   u32    len;
-   u32    cap;
+   size_t len;
+   size_t cap;
 } Token_Array;
 
 void token_array_init(Token_Array* arr);
@@ -76,13 +74,12 @@ void token_array_free(Token_Array* arr);
 typedef struct Lexer {
    String      input;
    Token_Array tokens;
-   uint        pos;
-   uint        read_pos;
+   size_t      pos;
+   size_t      read_pos;
    char        ch;
 } Lexer;
 
-void lexer_feed(Lexer* lexer, char* input_, uint input_len_);
+void lexer_feed(Lexer* lexer, char* input_, size_t input_len_);
 void lexer_init(Lexer* lexer);
 void lexer_run(Lexer* lexer);
 void lexer_shutdown(Lexer* lexer);
-

@@ -6,7 +6,6 @@
 
 typedef uint8_t byte;
 
-
 typedef struct Arena {
    byte*  buffer;
    size_t cap;

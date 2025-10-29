@@ -17,7 +17,6 @@ char previous_input[2048] = { 0 };
 
 int main()
 {
-
    int const screen_width  = 400;
    int const screen_height = 600;
 
@@ -50,7 +49,6 @@ int main()
    SetTargetFPS(30);
    String output = { 0 };
    eval_init();
-
 
    bool update = true;
 
@@ -111,7 +109,7 @@ int main()
               ImGuiInputTextFlags_AllowTabInput, 0, 0)) {
          if (strcmp(previous_input, input_buffer) != 0) {
             memcpy(previous_input, input_buffer, sizeof(input_buffer));
-            lexer_feed(&lexer, previous_input, (uint)strlen(previous_input));
+            lexer_feed(&lexer, previous_input, strlen(previous_input));
             update = true;
          }
       }

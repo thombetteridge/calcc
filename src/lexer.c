@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include "common.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -59,11 +58,12 @@ void lexer_init(Lexer* lexer)
    token_array_init(&lexer->tokens);
 }
 
-void lexer_shutdown(Lexer* lexer){
+void lexer_shutdown(Lexer* lexer)
+{
    token_array_free(&lexer->tokens);
 }
 
-void lexer_feed(Lexer* lexer, char* input_, uint input_len_)
+void lexer_feed(Lexer* lexer, char* input_, size_t input_len_)
 {
    lexer->pos        = 0;
    lexer->read_pos   = 0;
@@ -113,20 +113,20 @@ static char peak(Lexer* lexer)
 
 static String read_word(Lexer* lexer)
 {
-   uint start = lexer->pos;
+   size_t start = lexer->pos;
    while (is_letter(lexer->ch) || is_number(lexer->ch)) {
       read_char(lexer);
    }
    if (lexer->ch != 0) {
       lexer->read_pos--;
    }
-   uint out_len = lexer->pos - start;
+   size_t out_len = lexer->pos - start;
    return (String) { .data = lexer->input.data + start, .len = out_len };
 }
 
 static String read_number(Lexer* lexer)
 {
-   uint start = lexer->pos;
+   size_t start = lexer->pos;
 
    if (lexer->ch == '-') {
       read_char(lexer);
@@ -153,13 +153,13 @@ static String read_number(Lexer* lexer)
       lexer->read_pos--;
    }
 
-   uint out_len = lexer->pos - start;
+   size_t out_len = lexer->pos - start;
    return (String) { .data = lexer->input.data + start, .len = out_len };
 }
 
 static void read_comment(Lexer* lexer)
 {
-   uint count = 0; // backup exit lol
+   size_t count = 0; // backup exit lol
    while (lexer->ch != '\n' && lexer->ch != '\r' && count < 120) {
       read_char(lexer);
       ++count;

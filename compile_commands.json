@@ -1,61 +1,66 @@
 [
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/cimgui.cpp.o", "ext/cimgui/cimgui.cpp"],
-  "file": "ext/cimgui/cimgui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\cimgui.cpp.obj", "ext\\cimgui\\cimgui.cpp"],
+  "file": "ext\\cimgui\\cimgui.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/cimgui_impl.cpp.o", "ext/cimgui/cimgui_impl.cpp"],
-  "file": "ext/cimgui/cimgui_impl.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\cimgui_impl.cpp.obj", "ext\\cimgui\\cimgui_impl.cpp"],
+  "file": "ext\\cimgui\\cimgui_impl.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/imgui/imgui_widgets.cpp.o", "ext/cimgui/imgui/imgui_widgets.cpp"],
-  "file": "ext/cimgui/imgui/imgui_widgets.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\imgui\\imgui.cpp.obj", "ext\\cimgui\\imgui\\imgui.cpp"],
+  "file": "ext\\cimgui\\imgui\\imgui.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/imgui/imgui_demo.cpp.o", "ext/cimgui/imgui/imgui_demo.cpp"],
-  "file": "ext/cimgui/imgui/imgui_demo.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\imgui\\imgui_demo.cpp.obj", "ext\\cimgui\\imgui\\imgui_demo.cpp"],
+  "file": "ext\\cimgui\\imgui\\imgui_demo.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/imgui/imgui_draw.cpp.o", "ext/cimgui/imgui/imgui_draw.cpp"],
-  "file": "ext/cimgui/imgui/imgui_draw.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\imgui\\imgui_draw.cpp.obj", "ext\\cimgui\\imgui\\imgui_draw.cpp"],
+  "file": "ext\\cimgui\\imgui\\imgui_draw.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/imgui/imgui_tables.cpp.o", "ext/cimgui/imgui/imgui_tables.cpp"],
-  "file": "ext/cimgui/imgui/imgui_tables.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\imgui\\imgui_tables.cpp.obj", "ext\\cimgui\\imgui\\imgui_tables.cpp"],
+  "file": "ext\\cimgui\\imgui\\imgui_tables.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-o", "build/.objs/cimgui/linux/x86_64/debug/ext/cimgui/imgui/imgui.cpp.o", "ext/cimgui/imgui/imgui.cpp"],
-  "file": "ext/cimgui/imgui/imgui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\cimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\cimgui", "/EHsc", "/Fobuild\\.objs\\cimgui\\windows\\x64\\debug\\ext\\cimgui\\imgui\\imgui_widgets.cpp.obj", "ext\\cimgui\\imgui\\imgui_widgets.cpp"],
+  "file": "ext\\cimgui\\imgui\\imgui_widgets.cpp"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-Wall", "-Wextra", "-Werror", "-O0", "-std=c11", "-Idat", "-Ibuild/.gens/stack_calc/linux/x86_64/debug/platform/windows/idl", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-Iext/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/debug/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/b8d70da35948460da0129f6c01f3c83b/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/74feaeb625d74d0ab0a313e347b22d0a/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/e384f591f7554392a29c0679d0c21ad8/include", "-I", "/usr/include/X11/dri", "-o", "build/.objs/stack_calc/linux/x86_64/debug/src/lexer.c.o", "src/lexer.c"],
-  "file": "src/lexer.c"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\compile.stack_calc.pdb", "/W4", "/WX", "/Od", "/std:c11", "/Idat", "/Iext\\cimgui", "/Iext\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\a681c99b059d4444a66ba0a7f86e884c\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\0c989e47530749128f553b08c87cde8a\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\debug\\src\\eval.c.obj", "src\\eval.c"],
+  "file": "src\\eval.c"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-Wall", "-Wextra", "-Werror", "-O0", "-std=c11", "-Idat", "-Ibuild/.gens/stack_calc/linux/x86_64/debug/platform/windows/idl", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-Iext/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/debug/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/b8d70da35948460da0129f6c01f3c83b/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/74feaeb625d74d0ab0a313e347b22d0a/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/e384f591f7554392a29c0679d0c21ad8/include", "-I", "/usr/include/X11/dri", "-o", "build/.objs/stack_calc/linux/x86_64/debug/src/main.c.o", "src/main.c"],
-  "file": "src/main.c"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\compile.stack_calc.pdb", "/W4", "/WX", "/Od", "/std:c11", "/Idat", "/Iext\\cimgui", "/Iext\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\a681c99b059d4444a66ba0a7f86e884c\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\0c989e47530749128f553b08c87cde8a\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\debug\\src\\gcstructures.c.obj", "src\\gcstructures.c"],
+  "file": "src\\gcstructures.c"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-Wall", "-Wextra", "-Werror", "-O0", "-std=c11", "-Idat", "-Ibuild/.gens/stack_calc/linux/x86_64/debug/platform/windows/idl", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-Iext/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/debug/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/b8d70da35948460da0129f6c01f3c83b/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/74feaeb625d74d0ab0a313e347b22d0a/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/e384f591f7554392a29c0679d0c21ad8/include", "-I", "/usr/include/X11/dri", "-o", "build/.objs/stack_calc/linux/x86_64/debug/src/eval.c.o", "src/eval.c"],
-  "file": "src/eval.c"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\compile.stack_calc.pdb", "/W4", "/WX", "/Od", "/std:c11", "/Idat", "/Iext\\cimgui", "/Iext\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\a681c99b059d4444a66ba0a7f86e884c\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\0c989e47530749128f553b08c87cde8a\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\debug\\src\\lexer.c.obj", "src\\lexer.c"],
+  "file": "src\\lexer.c"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-Wall", "-Wextra", "-Werror", "-O0", "-std=c11", "-Idat", "-Ibuild/.gens/stack_calc/linux/x86_64/debug/platform/windows/idl", "-Iext/cimgui", "-Ibuild/.gens/cimgui/linux/x86_64/debug/platform/windows/idl", "-Iext/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/debug/platform/windows/idl", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "-I", "/home/tom/.xmake/packages/b/bdwgc/v8.2.6/b8d70da35948460da0129f6c01f3c83b/include", "-I", "/home/tom/.xmake/packages/l/libatomic_ops/7.8.2/74feaeb625d74d0ab0a313e347b22d0a/include", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/e384f591f7554392a29c0679d0c21ad8/include", "-I", "/usr/include/X11/dri", "-o", "build/.objs/stack_calc/linux/x86_64/debug/src/gcstructures.c.o", "src/gcstructures.c"],
-  "file": "src/gcstructures.c"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\compile.stack_calc.pdb", "/W4", "/WX", "/Od", "/std:c11", "/Idat", "/Iext\\cimgui", "/Iext\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\a681c99b059d4444a66ba0a7f86e884c\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\0c989e47530749128f553b08c87cde8a\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\debug\\src\\main.c.obj", "src\\main.c"],
+  "file": "src\\main.c"
 },
 {
-  "directory": "/home/tom/programming/c/calcc",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-w", "-O0", "-Iext/cimgui/imgui", "-Iext/rlImGui", "-Ibuild/.gens/rlimgui/linux/x86_64/debug/platform/windows/idl", "-I", "/home/tom/.xmake/packages/r/raylib/5.5/e384f591f7554392a29c0679d0c21ad8/include", "-I", "/usr/include/X11/dri", "-o", "build/.objs/rlimgui/linux/x86_64/debug/ext/rlImGui/rlImGui.cpp.o", "ext/rlImGui/rlImGui.cpp"],
-  "file": "ext/rlImGui/rlImGui.cpp"
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\compile.stack_calc.pdb", "/W4", "/WX", "/Od", "/std:c11", "/Idat", "/Iext\\cimgui", "/Iext\\rlImGui", "/DCIMGUI_DEFINE_ENUMS_AND_STRUCTS", "/DGC_NOT_DLL", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\b\\bdwgc\\v8.2.6\\a681c99b059d4444a66ba0a7f86e884c\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\l\\libatomic_ops\\v7.8.4\\0c989e47530749128f553b08c87cde8a\\include", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\stack_calc\\windows\\x64\\debug\\src\\structures.c.obj", "src\\structures.c"],
+  "file": "src\\structures.c"
+},
+{
+  "directory": "C:\\Users\\Thomas.Betteridge\\prog\\calcc",
+  "arguments": ["P:\\buildtools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx64\\x64\\cl.exe", "/c", "/nologo", "/MDd", "/Zi", "/FS", "/Fdbuild\\windows\\x64\\debug\\rlimgui.pdb", "/w", "/Od", "/Iext\\cimgui\\imgui", "/Iext\\rlImGui", "/EHsc", "/IC:\\Users\\Thomas.Betteridge\\AppData\\Local\\.xmake\\packages\\r\\raylib\\5.5\\54ca76bdccd640b28ad5ff4ce8599042\\include", "/Fobuild\\.objs\\rlimgui\\windows\\x64\\debug\\ext\\rlImGui\\rlImGui.cpp.obj", "ext\\rlImGui\\rlImGui.cpp"],
+  "file": "ext\\rlImGui\\rlImGui.cpp"
 }]

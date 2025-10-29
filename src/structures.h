@@ -16,7 +16,6 @@ bool stack_top(const Stack* stack, f64* out);
 bool stack_pop(Stack* stack, f64* out);
 bool stack_pop_2(Stack* stack, f64* y_out, f64* x_out);
 
-
 typedef void (*Keyword)(Stack*);
 
 typedef struct {
@@ -26,14 +25,13 @@ typedef struct {
 
 typedef struct {
    Keyword_Table_Entry* entries;
-   uint           len;
-   uint           cap;
+   uint                 len;
+   uint                 cap;
 } Keyword_Table;
 
-void    keyword_table_init(Keyword_Table* t);
-void    keyword_table_add(Keyword_Table* t, const char* key, Keyword func);
-Keyword keyword_table_get(Keyword_Table* t, const char* key);
-
+void    keywords_table_init(Keyword_Table* t);
+void    keywords_table_add(Keyword_Table* t, const char* key, Keyword func);
+Keyword keywords_table_get(Keyword_Table* t, const char* key);
 
 typedef struct {
    String      key;
