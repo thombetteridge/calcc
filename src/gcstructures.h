@@ -32,8 +32,8 @@ typedef struct {
 
 typedef struct {
    GC_TableEntry* entries;
-   uint       len;
-   uint       cap;
+   uint           len;
+   uint           cap;
 } GC_Table;
 
 void    gc_table_init(GC_Table* t);
@@ -59,27 +59,25 @@ typedef struct {
 
 typedef struct {
    GC_TableEntry_User_Words* entries;
-   uint                  len;
-   uint                  cap;
+   uint                      len;
+   uint                      cap;
 } GC_Table_User_Words;
 
 void gc_user_table_init(GC_Table_User_Words* t);
 void gc_user_table_add(GC_Table_User_Words* t, GC_String key, Token_Array arr);
 bool gc_user_table_find(GC_Table_User_Words* t, GC_String* key, Token_Array** result);
 
-
 typedef struct {
-   GC_String   key;
-   double variable;
+   GC_String key;
+   double    variable;
 } Variable_TableEntry;
 
 typedef struct {
    Variable_TableEntry* entries;
-   uint                  len;
-   uint                  cap;
+   uint                 len;
+   uint                 cap;
 } Variable_Table;
 
 void variable_table_init(Variable_Table* t);
 void variable_table_add(Variable_Table* t, GC_String key, double variable);
 bool variable_table_find(Variable_Table* t, GC_String* key, double* variable);
-

@@ -23,27 +23,26 @@ typedef int64_t i64;
 #define NEW_ATOMIC(T, n) ((T*)GC_malloc(sizeof(T) * (n)))
 #define RENEW(T, ptr, n) ((T*)GC_realloc((ptr), sizeof(T) * (n)))
 
-#define ARRAY_DEF(Type)                                                       \
-   typedef struct {                                                      \
-      Type*   data;                                                         \
-      uint len;                                                          \
-      uint cap;                                                          \
-   } T##_Array;                                                          \
-
+#define ARRAY_DEF(Type) \
+   typedef struct {     \
+      Type* data;       \
+      uint  len;        \
+      uint  cap;        \
+   } T##_Array;
 
 #define ARRAY_INIT(Type, array) \
    array.len  = 0;              \
    array.cap  = 8;              \
    array.data = NEW(Type, array.cap)
 
-#define ARRAY_PUSH(Type, array, value)                        \
+#define ARRAY_PUSH(Type, array, value)                 \
    if (array.len == array.cap) {                       \
       array.cap *= 2;                                  \
       array.data = RENEW(Type, array.data, array.cap); \
    }                                                   \
-   array.data[array.len] = value;                          \
+   array.data[array.len] = value;                      \
    array.len++;
 
 #define ARRAY_POP(Type, array) \
-   = array[array.len - 1];    \
+   = array[array.len - 1];     \
    --array.len;
