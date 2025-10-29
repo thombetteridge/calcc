@@ -212,26 +212,6 @@ bool gc_user_table_find(GC_Table_User_Words* t, GC_String* key, Token_Array** re
    return false;
 }
 
-void token_array_init(Token_Array* v)
-{
-   v->len  = 0;
-   v->cap  = 8;
-   v->data = NEW(Token, v->cap);
-}
-
-void token_array_push(Token_Array* v, Token x)
-{
-   if (v->len == v->cap) {
-      v->cap *= 2;
-      v->data = RENEW(Token, v->data, v->cap);
-   }
-   v->data[v->len] = x;
-   v->len++;
-}
-void token_array_pop(Token_Array* v)
-{
-   v->len--;
-}
 
 
 void variable_table_init(Variable_Table* t)

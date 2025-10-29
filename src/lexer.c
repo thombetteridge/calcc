@@ -2,36 +2,65 @@
 #include "common.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 /* fwd decs */
-static void      read_char(Lexer* lexer);
-static bool      is_letter(char c);
-static bool      is_number(char c);
-static char      peak(Lexer* lexer);
-static GC_String read_word(Lexer* lexer);
-static GC_String read_number(Lexer* lexer);
-static void      read_comment(Lexer* lexer);
-static Token     new_token(Token_Type type, char c, uint position);
-static Token     new_token2(Token_Type type, Lexer* lexer);
-static Token     new_word_token(Lexer* lexer);
-static Token     new_number_token(Lexer* lexer);
-static void      next_token(Lexer* lexer);
+static void   read_char(Lexer* lexer);
+static bool   is_letter(char c);
+static bool   is_number(char c);
+static char   peak(Lexer* lexer);
+static String read_word(Lexer* lexer);
+static String read_number(Lexer* lexer);
+static void   read_comment(Lexer* lexer);
+static Token  new_token(Token_Type type, Lexer* lexer);
+static Token  new_token2(Token_Type type, Lexer* lexer);
+static Token  new_word_token(Lexer* lexer);
+static Token  new_number_token(Lexer* lexer);
+static void   next_token(Lexer* lexer);
+
+void token_array_init(Token_Array* arr)
+{
+   arr->len  = 0;
+   arr->cap  = 8;
+   arr->data = (Token*)malloc(arr->cap * sizeof(Token));
+}
+
+void token_array_push(Token_Array* arr, Token x)
+{
+   if (arr->len == arr->cap) {
+      arr->cap *= 2;
+      arr->data = (Token*)realloc(arr->data, sizeof(Token) * arr->cap);
+   }
+   arr->data[arr->len] = x;
+   arr->len++;
+}
+void token_array_pop(Token_Array* arr)
+{
+   arr->len--;
+}
+
+void token_array_free(Token_Array* arr)
+{
+   free(arr->data);
+}
 
 void lexer_run(Lexer* lexer)
 {
-   while (lexer->pos < lexer->input_len) {
+   while (lexer->pos < lexer->input.len) {
       next_token(lexer);
    }
 }
 
 void lexer_init(Lexer* lexer)
 {
-   lexer->pos        = 0;
-   lexer->read_pos   = 0;
-   lexer->ch         = 0;
-   lexer->tokens_len = 0;
-   lexer->tokens_cap = 128;
-   lexer->tokens     = NEW(Token, lexer->tokens_cap);
+   lexer->pos      = 0;
+   lexer->read_pos = 0;
+   lexer->ch       = 0;
+   token_array_init(&lexer->tokens);
+}
+
+void lexer_shutdown(Lexer* lexer){
+   token_array_free(&lexer->tokens);
 }
 
 void lexer_feed(Lexer* lexer, char* input_, uint input_len_)
@@ -39,22 +68,22 @@ void lexer_feed(Lexer* lexer, char* input_, uint input_len_)
    lexer->pos        = 0;
    lexer->read_pos   = 0;
    lexer->ch         = 0;
-   lexer->input      = input_;
-   lexer->input_len  = input_len_;
-   lexer->tokens_len = 0; // RESET THIS!
+   lexer->input.data = input_;
+   lexer->input.len  = input_len_;
+   lexer->tokens.len = 0; // RESET THIS!
    read_char(lexer);
    lexer_run(lexer);
 };
 
 static void read_char(Lexer* lexer)
 {
-   if (lexer->read_pos >= lexer->input_len || lexer->input[lexer->read_pos] == '\0') {
+   if (lexer->read_pos >= lexer->input.len || lexer->input.data[lexer->read_pos] == '\0') {
       lexer->ch       = 0;
-      lexer->pos      = lexer->input_len;
-      lexer->read_pos = lexer->input_len;
+      lexer->pos      = lexer->input.len;
+      lexer->read_pos = lexer->input.len;
    }
    else {
-      lexer->ch  = lexer->input[lexer->read_pos];
+      lexer->ch  = lexer->input.data[lexer->read_pos];
       lexer->pos = lexer->read_pos;
       lexer->read_pos++;
    }
@@ -73,19 +102,17 @@ static bool is_number(char c)
 static char peak(Lexer* lexer)
 {
    char result;
-   if (lexer->read_pos >= lexer->input_len) {
+   if (lexer->read_pos >= lexer->input.len) {
       result = 0;
    }
    else {
-      result = lexer->input[lexer->read_pos];
+      result = lexer->input.data[lexer->read_pos];
    }
    return result;
 }
 
-static GC_String read_word(Lexer* lexer)
+static String read_word(Lexer* lexer)
 {
-   GC_String result;
-   gc_string_init(&result);
    uint start = lexer->pos;
    while (is_letter(lexer->ch) || is_number(lexer->ch)) {
       read_char(lexer);
@@ -94,14 +121,11 @@ static GC_String read_word(Lexer* lexer)
       lexer->read_pos--;
    }
    uint out_len = lexer->pos - start;
-   gc_string_append(&result, lexer->input + start, out_len);
-   return result;
+   return (String) { .data = lexer->input.data + start, .len = out_len };
 }
 
-static GC_String read_number(Lexer* lexer)
+static String read_number(Lexer* lexer)
 {
-   GC_String result;
-   gc_string_init(&result);
    uint start = lexer->pos;
 
    if (lexer->ch == '-') {
@@ -130,8 +154,7 @@ static GC_String read_number(Lexer* lexer)
    }
 
    uint out_len = lexer->pos - start;
-   gc_string_append(&result, lexer->input + start, out_len);
-   return result;
+   return (String) { .data = lexer->input.data + start, .len = out_len };
 }
 
 static void read_comment(Lexer* lexer)
@@ -143,56 +166,34 @@ static void read_comment(Lexer* lexer)
    }
 }
 
-static Token new_token(Token_Type type, char c, uint position)
+static Token new_token(Token_Type type, Lexer* lexer)
 {
-   GC_String str;
-   gc_string_init(&str);
-   char temp_str[2];
-   temp_str[0] = c;
-   temp_str[1] = '\0';
-   gc_string_append(&str, temp_str, 2);
-   return (Token) { .type = type, .pos = position, .literal = str };
+   String literal = (String) { .data = lexer->input.data + lexer->pos, .len = 1 };
+   return (Token) {
+      .type    = type,
+      .pos     = lexer->pos,
+      .literal = literal
+   };
 }
 
 static Token new_token2(Token_Type type, Lexer* lexer)
 {
-   GC_String str;
-   gc_string_init(&str);
-   char temp_str[3];
-   temp_str[0] = *(lexer->input + lexer->pos);
-   temp_str[1] = *(lexer->input + lexer->pos + 1);
-   temp_str[2] = '\0';
-   gc_string_append(&str, temp_str, 3);
-
-   Token result = (Token) { .type = type, .pos = lexer->pos, .literal = str };
+   String str    = (String) { .data = lexer->input.data + lexer->pos, .len = 2 };
+   Token  result = (Token) { .type = type, .pos = lexer->pos, .literal = str };
    lexer->read_pos++;
    return result;
 }
 
 static Token new_word_token(Lexer* lexer)
 {
-   GC_String str = read_word(lexer);
+   String str = read_word(lexer);
    return (Token) { .type = WORD, .pos = lexer->pos, .literal = str };
 }
 
 static Token new_number_token(Lexer* lexer)
 {
-   GC_String str = read_number(lexer);
+   String str = read_number(lexer);
    return (Token) { .type = NUMBER, .pos = lexer->pos, .literal = str };
-}
-
-static void push_token(Lexer* lexer, Token tok)
-{
-   if (lexer->tokens_cap == 0) {
-      lexer->tokens_cap = 8;
-      lexer->tokens     = NEW(Token, lexer->tokens_cap);
-   }
-   if (lexer->tokens_len == lexer->tokens_cap) {
-      lexer->tokens_cap *= 2;
-      lexer->tokens = RENEW(Token, lexer->tokens, lexer->tokens_cap);
-   }
-   lexer->tokens[lexer->tokens_len] = tok;
-   lexer->tokens_len++;
 }
 
 static void next_token(Lexer* lexer)
@@ -214,11 +215,11 @@ static void next_token(Lexer* lexer)
          tok = new_token2(FAT_ARROW, lexer);
       }
       else {
-         tok = new_token(ASSIGN, lexer->ch, lexer->pos);
+         tok = new_token(ASSIGN, lexer);
       }
       break;
    case '+':
-      tok = new_token(PLUS, lexer->ch, lexer->pos);
+      tok = new_token(PLUS, lexer);
       break;
    case '-':
       if (peak(lexer) == '>') {
@@ -228,37 +229,37 @@ static void next_token(Lexer* lexer)
          tok = new_number_token(lexer);
       }
       else {
-         tok = new_token(MINUS, lexer->ch, lexer->pos);
+         tok = new_token(MINUS, lexer);
       }
       break;
    case '*':
-      tok = new_token(ASTRIX, lexer->ch, lexer->pos);
+      tok = new_token(ASTRIX, lexer);
       break;
    case '/':
-      tok = new_token(SLASH, lexer->ch, lexer->pos);
+      tok = new_token(SLASH, lexer);
       break;
    case '^':
-      tok = new_token(CARET, lexer->ch, lexer->pos);
+      tok = new_token(CARET, lexer);
       break;
    case '%':
-      tok = new_token(PERCENT, lexer->ch, lexer->pos);
+      tok = new_token(PERCENT, lexer);
       break;
    case '$':
-      tok = new_token(DOLLAR, lexer->ch, lexer->pos);
+      tok = new_token(DOLLAR, lexer);
       break;
    case '#':
       // --- COMMENT ---
       read_comment(lexer); // read to newline
       read_char(lexer);    // bump pointer past newline
       return;
-      // tok = new_token(HASH, lexer->ch, lexer->pos);
+      // tok = new_token(HASH,lexer);
       break;
    case '.':
       if (is_number(peak(lexer))) {
          tok = new_number_token(lexer);
       }
       else {
-         tok = new_token(DOT, lexer->ch, lexer->pos);
+         tok = new_token(DOT, lexer);
       }
       break;
    case '!':
@@ -266,30 +267,30 @@ static void next_token(Lexer* lexer)
          tok = new_token2(NOT_EQ_, lexer);
       }
       else {
-         tok = new_token(BANG, lexer->ch, lexer->pos);
+         tok = new_token(BANG, lexer);
       }
       break;
    case '@':
-      tok = new_token(AT, lexer->ch, lexer->pos);
+      tok = new_token(AT, lexer);
       break;
    case '&':
-      tok = new_token(AND_, lexer->ch, lexer->pos);
+      tok = new_token(AND_, lexer);
       break;
    case '|':
-      tok = new_token(PIPE, lexer->ch, lexer->pos);
+      tok = new_token(PIPE, lexer);
       break;
    case '~':
-      tok = new_token(TILDA, lexer->ch, lexer->pos);
+      tok = new_token(TILDA, lexer);
       break;
    case '`':
-      tok = new_token(BTICK, lexer->ch, lexer->pos);
+      tok = new_token(BTICK, lexer);
       break;
    case '<':
       if (peak(lexer) == '=') {
          tok = new_token2(LT_EQ, lexer);
       }
       else {
-         tok = new_token(LT, lexer->ch, lexer->pos);
+         tok = new_token(LT, lexer);
       }
       break;
    case '>':
@@ -297,38 +298,38 @@ static void next_token(Lexer* lexer)
          tok = new_token2(GT_EQ, lexer);
       }
       else {
-         tok = new_token(GT, lexer->ch, lexer->pos);
+         tok = new_token(GT, lexer);
       }
       break;
    case '?':
-      tok = new_token(QUESTION, lexer->ch, lexer->pos);
+      tok = new_token(QUESTION, lexer);
       break;
    case ';':
-      tok = new_token(SEMICOLON, lexer->ch, lexer->pos);
+      tok = new_token(SEMICOLON, lexer);
       break;
    case ':':
-      tok = new_token(COLON, lexer->ch, lexer->pos);
+      tok = new_token(COLON, lexer);
       break;
    case '{':
-      tok = new_token(LBRACE, lexer->ch, lexer->pos);
+      tok = new_token(LBRACE, lexer);
       break;
    case '}':
-      tok = new_token(RBRACE, lexer->ch, lexer->pos);
+      tok = new_token(RBRACE, lexer);
       break;
    case '[':
-      tok = new_token(LBRACKET, lexer->ch, lexer->pos);
+      tok = new_token(LBRACKET, lexer);
       break;
    case ']':
-      tok = new_token(RBRACKET, lexer->ch, lexer->pos);
+      tok = new_token(RBRACKET, lexer);
       break;
    case '(':
-      tok = new_token(LPAREN, lexer->ch, lexer->pos);
+      tok = new_token(LPAREN, lexer);
       break;
    case ')':
-      tok = new_token(RPAREN, lexer->ch, lexer->pos);
+      tok = new_token(RPAREN, lexer);
       break;
    case '_': {
-      tok = new_token(USCORE, lexer->ch, lexer->pos);
+      tok = new_token(USCORE, lexer);
       break;
    }
    default:
@@ -339,10 +340,10 @@ static void next_token(Lexer* lexer)
          tok = new_number_token(lexer);
       }
       else {
-         tok = new_token(ILLEGAL, lexer->ch, lexer->pos);
+         tok = new_token(ILLEGAL, lexer);
       }
       break;
    }
    read_char(lexer);
-   push_token(lexer, tok);
+   token_array_push(&lexer->tokens, tok);
 }

@@ -6,9 +6,6 @@
 
 typedef uint8_t byte;
 
-#define KB(x) x * 1024ull
-#define MB(x) KB(x) * 1024ull
-#define GB(x) MB(x) * 1024ull
 
 typedef struct Arena {
    byte*  buffer;

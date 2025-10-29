@@ -6,6 +6,7 @@ if is_mode("debug") then
     set_optimize("none")
     set_symbols("debug")
 end
+
 if is_mode("release") then
     set_optimize("fastest")
     add_defines("NDEBUG")
@@ -13,20 +14,19 @@ if is_mode("release") then
     set_strip ("all")
 end
 
-
 target("cimgui")
     set_kind("static")
-    add_files("third_party/cimgui/*.cpp")
-    add_files("third_party/cimgui/imgui/*.cpp")
-    add_includedirs("third_party/cimgui/imgui")
-    add_includedirs("third_party/cimgui/", {public = true})
+    add_files("ext/cimgui/*.cpp")
+    add_files("ext/cimgui/imgui/*.cpp")
+    add_includedirs("ext/cimgui/imgui")
+    add_includedirs("ext/cimgui/", {public = true})
     set_warnings("none")
 
 target("rlimgui")
     set_kind("static")
-    add_files("third_party/rlImGui/*.cpp")
-    add_includedirs("third_party/cimgui/imgui")
-    add_includedirs("third_party/rlImGui/", {public = true})
+    add_files("ext/rlImGui/*.cpp")
+    add_includedirs("ext/cimgui/imgui")
+    add_includedirs("ext/rlImGui/", {public = true})
     add_packages("raylib")
     set_warnings("none")
 

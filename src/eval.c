@@ -1,23 +1,32 @@
 #include "eval.h"
 
 #include "common.h"
-#include "gcstring.h"
-#include "gcstructures.h"
 #include "lexer.h"
+#include "structures.h"
+#include "tstring.h"
 
-#include "gc/gc.h"
-
+#include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static GC_Table            keywords;
-static GC_Table_User_Words user_words;
-static Variable_Table      variables;
+static Keyword_Table    keywords;
+static User_Words_Table user_words;
+static Variable_Table   variables;
 
-void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_String* err)
+static String_Builder error;
+static String_Builder output_builder;
+
+static char error_string_buffer[KB(1)];
+static char output_string_buffer[MB(2)];
+
+// static char keywords_buffer[MB(1)];
+// static char user_words_buffer[MB(1)];
+// static char variables_buffer[MB(1)];
+
+void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack)
 {
    for (uint i = 0; i < tokens_len; ++i) {
       Token token = tokens[i];
@@ -62,20 +71,20 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
       case ILLEGAL:
       case EOF_:
       case WORD: {
-         GC_Func f;
-         if ((f = gc_table_find(&keywords, token.literal.data))) {
+         Keyword f;
+         if ((f = keyword_table_get(&keywords, token.literal.data))) {
             f(stack);
             break;
          }
          Token_Array* user_word = NULL;
-         if (gc_user_table_find(&user_words, &token.literal, &user_word) && user_word) {
-            evaluate_tokens(user_word->data, user_word->len, stack, err);
+         if ((user_word = user_words_table_get(&user_words, &token.literal))) {
+            evaluate_tokens(user_word->data, user_word->len, stack);
             break;
          }
 
-         double variable;
-         if (variable_table_find(&variables, &token.literal, &variable)) {
-            stack_push(stack, variable);
+         double* variable = NULL;
+         if ((variable = variable_table_get(&variables, &token.literal))) {
+            stack_push(stack, *variable);
             break;
          }
 
@@ -108,7 +117,7 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
          }
          double x;
          if (stack_pop(stack, &x)) {
-            GC_String var_name;
+            String var_name;
             // gc_string_init(&var_name);
             var_name = gc_string_clone(&tokens[++i].literal);
 
@@ -151,7 +160,7 @@ void evaluate_tokens(const Token* tokens, uint tokens_len, Stack* stack, GC_Stri
       case FAT_ARROW: break;
       case COMMA: break;
       case COLON: {
-         GC_String word_name;
+         String word_name;
          gc_string_init(&word_name);
          Token_Array definition;
          token_array_init(&definition);
@@ -371,63 +380,72 @@ static void calc_iota(Stack* stack)
    }
 }
 
-static void add_keywords(GC_Table* keywords_)
+static void add_keywords(Keyword_Table* keywords_)
 {
-   gc_table_add(keywords_, "sin", calc_sin);
-   gc_table_add(keywords_, "cos", calc_cos);
-   gc_table_add(keywords_, "tan", calc_tan);
-   gc_table_add(keywords_, "asin", calc_asin);
-   gc_table_add(keywords_, "acos", calc_acos);
-   gc_table_add(keywords_, "atan", calc_atan);
+   keyword_table_add(keywords_, "sin", calc_sin);
+   keyword_table_add(keywords_, "cos", calc_cos);
+   keyword_table_add(keywords_, "tan", calc_tan);
+   keyword_table_add(keywords_, "asin", calc_asin);
+   keyword_table_add(keywords_, "acos", calc_acos);
+   keyword_table_add(keywords_, "atan", calc_atan);
 
-   gc_table_add(keywords_, "sqrt", calc_sqrt);
-   gc_table_add(keywords_, "sq", calc_sq);
-   gc_table_add(keywords_, "abs", calc_abs);
+   keyword_table_add(keywords_, "sqrt", calc_sqrt);
+   keyword_table_add(keywords_, "sq", calc_sq);
+   keyword_table_add(keywords_, "abs", calc_abs);
 
-   gc_table_add(keywords_, "pi", calc_pi);
+   keyword_table_add(keywords_, "pi", calc_pi);
 
-   gc_table_add(keywords_, "dup", calc_dup);
-   gc_table_add(keywords_, "swap", calc_swap);
+   keyword_table_add(keywords_, "dup", calc_dup);
+   keyword_table_add(keywords_, "swap", calc_swap);
 
-   gc_table_add(keywords_, "sum", calc_sum);
-   gc_table_add(keywords_, "mean", calc_mean);
-   gc_table_add(keywords_, "range", calc_range);
-   gc_table_add(keywords_, "iota", calc_iota);
+   keyword_table_add(keywords_, "sum", calc_sum);
+   keyword_table_add(keywords_, "mean", calc_mean);
+   keyword_table_add(keywords_, "range", calc_range);
+   keyword_table_add(keywords_, "iota", calc_iota);
 }
 
 /* ---------- Public API ---------- */
 
-GC_String run_calculator(Lexer* lexer)
+void eval_init()
 {
-   static bool needs_to_init_tables = true;
+   keyword_table_init(&keywords);
+   add_keywords(&keywords);
+   user_words_table_init(&user_words);
+   variable_table_init(&variables);
+   error          = (String_Builder) { .data = error_string_buffer, .len = 0, .cap = sizeof(error_string_buffer) };
+   output_builder = (String_Builder) { .data = output_string_buffer, .len = 0, .cap = sizeof(output_string_buffer) };
+}
 
-   if (needs_to_init_tables) {
-      gc_table_init(&keywords);
-      add_keywords(&keywords);
+void eval_shutdown()
+{
+   assert(false && "TODO");
+}
 
-      gc_user_table_init(&user_words);
+String run_calculator(Lexer* lexer)
+{
 
-      variable_table_init(&variables);
+   Stack  stack = { 0 };
+   String err;
 
-      needs_to_init_tables = false;
-   }
-
-   Stack     stack = { 0 };
-   GC_String out;
-   gc_string_init(&out);
-   GC_String err;
-   gc_string_init(&err);
+   string_builder_reset(&output_builder);
+   string_builder_reset(&error);
 
    evaluate_tokens(lexer->tokens, lexer->tokens_len, &stack, &err);
 
    if (err.len > 0) {
-      gc_string_append(&out, err.data, err.len);
+      string_builder_append(&output_builder, err.data, err.len);
    }
 
    for (uint i = 0; i < stack.len; ++i) {
-      gc_string_appendf(&out, "%g\n", stack.data[i]);
+      char fmt_buffer[32];
+      int  fmt_len = sprintf(fmt_buffer, "%g\n", stack.data[i]);
+      string_builder_append(&output_builder, fmt_buffer, fmt_len);
    }
 
-   gc_string_append(&out, "\0", sizeof("\0"));
+   string_builder_append(&output_builder, "\0", sizeof("\0"));
+   output_builder.data[output_builder.cap - 1] = '\0'; // just incase
+
+   String out = (String) { .data = output_builder.data, .len = output_builder.len };
+
    return out;
 }

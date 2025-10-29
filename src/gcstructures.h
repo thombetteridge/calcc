@@ -43,16 +43,6 @@ GC_Func gc_table_find(GC_Table* t, const char* key);
 /* ----------------------------------------- */
 
 typedef struct {
-   Token* data;
-   uint   len;
-   uint   cap;
-} Token_Array;
-
-void token_array_init(Token_Array* v);
-void token_array_push(Token_Array* v, Token x);
-void token_array_pop(Token_Array* v);
-
-typedef struct {
    GC_String   key;
    Token_Array tokens;
 } GC_TableEntry_User_Words;

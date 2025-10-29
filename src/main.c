@@ -2,12 +2,10 @@
 #include <string.h>
 
 #include "cimgui.h"
-#include "gc/gc.h"
 #include "raylib.h"
 #include "rlImGui.h"
 
 #include "eval.h"
-#include "gcstructures.h"
 
 #include "lexer.h"
 
@@ -19,7 +17,6 @@ char previous_input[2048] = { 0 };
 
 int main()
 {
-   GC_INIT();
 
    int const screen_width  = 400;
    int const screen_height = 600;
@@ -51,7 +48,9 @@ int main()
        NULL);
 
    SetTargetFPS(30);
-   GC_String output = { 0 };
+   String output = { 0 };
+   eval_init();
+
 
    bool update = true;
 
@@ -128,10 +127,8 @@ int main()
    rlImGuiShutdown();
    CloseWindow();
 
-   GC_gcollect();
-   printf("Heap size: %zu bytes\n", (u64)GC_get_heap_size());
-   printf("Bytes allocated since last GC: %zu\n", (u64)GC_get_bytes_since_gc());
-   printf("Bytes reclaimed: %zu\n", (u64)GC_get_free_bytes());
+   lexer_shutdown(&lexer);
+   eval_shutdown();
 
    return 0;
 }
