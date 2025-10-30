@@ -14,7 +14,6 @@ void stack_push(Stack* stack, double x)
       fprintf(stderr, "stack overflow\n");
       return;
    }
-
    stack->data[stack->len] = x;
    stack->len++;
 }
@@ -125,7 +124,7 @@ static void token_array_free_deep(Token_Array* arr)
 
 void user_words_table_add(User_Words_Table* t, String key, Token_Array arr)
 {
-   // 1) try to overwrite existing entry
+   // try to overwrite existing entry
    for (uint i = 0; i < t->len; ++i) {
       if (string_compare(&t->entries[i].key, &key)) {
          token_array_free_deep(&t->entries[i].tokens);
@@ -134,7 +133,7 @@ void user_words_table_add(User_Words_Table* t, String key, Token_Array arr)
       }
    }
 
-   // 2) append new entry
+   // append new entry
    if (t->len >= t->cap) {
       user_words_table_grow(t);
    }
@@ -168,15 +167,14 @@ static void variable_table_grow(Variable_Table* t)
 
 void variable_table_add(Variable_Table* t, String key, double variable)
 {
-   // 1) try to overwrite existing entry
+   // try to overwrite existing entry
    for (uint i = 0; i < t->len; ++i) {
       if (string_compare(&t->entries[i].key, &key)) {
          t->entries[i].variable = variable;
          return;
       }
    }
-
-   // 2) append new entry
+   // append new entry
    if (t->len >= t->cap) {
       variable_table_grow(t);
    }
