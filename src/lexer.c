@@ -186,14 +186,16 @@ static Token new_token2(Token_Type type, Lexer* lexer)
 
 static Token new_word_token(Lexer* lexer)
 {
-   String str = read_word(lexer);
-   return (Token) { .type = WORD, .pos = lexer->pos, .literal = str };
+   size_t start = lexer->pos;
+   String str   = read_word(lexer);
+   return (Token) { .type = WORD, .pos = start, .literal = str };
 }
 
 static Token new_number_token(Lexer* lexer)
 {
-   String str = read_number(lexer);
-   return (Token) { .type = NUMBER, .pos = lexer->pos, .literal = str };
+   size_t start = lexer->pos;
+   String str   = read_number(lexer);
+   return (Token) { .type = NUMBER, .pos = start, .literal = str };
 }
 
 static void next_token(Lexer* lexer)

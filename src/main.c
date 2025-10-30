@@ -5,15 +5,15 @@
 #include "raylib.h"
 #include "rlImGui.h"
 
+#include "common.h"
 #include "eval.h"
-
 #include "lexer.h"
 
 // font
 #include "embedded_font.inc"
 
-char input_buffer[2048]   = { 0 };
-char previous_input[2048] = { 0 };
+char input_buffer[KB(2)]   = { 0 };
+char previous_input[KB(2)] = { 0 };
 
 int main()
 {
