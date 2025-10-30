@@ -31,7 +31,7 @@ typedef struct {
 
 void    keywords_table_init(Keyword_Table* t);
 void    keywords_table_add(Keyword_Table* t, const char* key, Keyword func);
-Keyword keywords_table_get(Keyword_Table* t, const char* key);
+Keyword keywords_table_get(Keyword_Table* t, const char* key, size_t key_length);
 
 typedef struct {
    String      key;

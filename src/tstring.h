@@ -76,7 +76,7 @@ inline void string_builder_append(String_Builder* str_builder, const char* str, 
       return;
    }
 
-   memcpy(str_builder->data + len, str, len);
+   memcpy(str_builder->data + str_builder->len, str, len);
    str_builder->len += len;
 }
 

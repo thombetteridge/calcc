@@ -1,6 +1,5 @@
 add_rules("mode.debug", "mode.release")
 add_requires("raylib")
-add_requires("bdwgc")
 
 if is_mode("debug") then
     set_optimize("none")
@@ -36,7 +35,6 @@ target("stack_calc")
     set_kind("binary")
     add_files("src/*.c")
     add_includedirs("dat")
-    add_packages("bdwgc")
     add_packages("raylib")
     add_deps("cimgui")
     add_defines("CIMGUI_DEFINE_ENUMS_AND_STRUCTS")

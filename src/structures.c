@@ -75,10 +75,12 @@ void keywords_table_add(Keyword_Table* t, const char* key, Keyword func)
    t->len++;
 }
 
-Keyword keywords_table_get(Keyword_Table* t, const char* key)
+Keyword keywords_table_get(Keyword_Table* t, const char* key, size_t key_length)
 {
    for (uint i = 0; i < t->len; i++) {
-      if (strcmp(t->entries[i].key, key) == 0) {
+      size_t len = strlen(t->entries[i].key);
+      if (len != key_length) { continue; }
+      if (strncmp(t->entries[i].key, key, key_length) == 0) {
          return t->entries[i].func;
       }
    }

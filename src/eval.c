@@ -70,7 +70,7 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
       case EOF_:
       case WORD: {
          Keyword f;
-         if ((f = keywords_table_get(&keywords, token.literal.data))) {
+         if ((f = keywords_table_get(&keywords, token.literal.data, token.literal.len))) {
             f(stack);
             break;
          }
