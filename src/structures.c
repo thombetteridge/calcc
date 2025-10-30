@@ -113,12 +113,22 @@ static Token_Array token_array_clone_flat(const Token_Array* a)
    return out;
 }
 
+static void token_array_free_deep(Token_Array* arr)
+{
+   for (uint i = 0; i < arr->len; ++i) {
+      string_free(&arr->data[i].literal);
+   }
+   free(arr->data);
+   arr->data = NULL;
+   arr->len = arr->cap = 0;
+}
+
 void user_words_table_add(User_Words_Table* t, String key, Token_Array arr)
 {
    // 1) try to overwrite existing entry
    for (uint i = 0; i < t->len; ++i) {
       if (string_compare(&t->entries[i].key, &key)) {
-         token_array_free(&t->entries[i].tokens);
+         token_array_free_deep(&t->entries[i].tokens);
          t->entries[i].tokens = token_array_clone_flat(&arr);
          return;
       }
