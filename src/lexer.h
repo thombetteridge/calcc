@@ -1,7 +1,6 @@
 #pragma once
 
-#include "common.h"
-#include "gcstring.h"
+#include "tstring.h"
 
 typedef enum Token_Type {
    ILLEGAL,
@@ -57,21 +56,30 @@ typedef enum Token_Type {
 
 typedef struct Token {
    Token_Type type;
-   uint       pos;
-   GC_String  literal;
+   size_t     pos;
+   String     literal;
 } Token;
 
+typedef struct Token_Array {
+   Token* data;
+   size_t len;
+   size_t cap;
+} Token_Array;
+
+void token_array_init(Token_Array* arr);
+void token_array_push(Token_Array* arr, Token x);
+void token_array_pop(Token_Array* arr);
+void token_array_free(Token_Array* arr);
+
 typedef struct Lexer {
-   char*  input;
-   uint   input_len;
-   Token* tokens;
-   uint   tokens_len;
-   uint   tokens_cap;
-   uint   pos;
-   uint   read_pos;
-   char   ch;
+   String      input;
+   Token_Array tokens;
+   size_t      pos;
+   size_t      read_pos;
+   char        ch;
 } Lexer;
 
-void lexer_feed(Lexer* lexer, char* input_, uint input_len_);
+void lexer_feed(Lexer* lexer, char* input_, size_t input_len_);
 void lexer_init(Lexer* lexer);
 void lexer_run(Lexer* lexer);
+void lexer_shutdown(Lexer* lexer);

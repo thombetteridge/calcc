@@ -1,11 +1,11 @@
 add_rules("mode.debug", "mode.release")
 add_requires("raylib")
-add_requires("bdwgc")
 
 if is_mode("debug") then
     set_optimize("none")
     set_symbols("debug")
 end
+
 if is_mode("release") then
     set_optimize("fastest")
     add_defines("NDEBUG")
@@ -13,20 +13,19 @@ if is_mode("release") then
     set_strip ("all")
 end
 
-
 target("cimgui")
     set_kind("static")
-    add_files("third_party/cimgui/*.cpp")
-    add_files("third_party/cimgui/imgui/*.cpp")
-    add_includedirs("third_party/cimgui/imgui")
-    add_includedirs("third_party/cimgui/", {public = true})
+    add_files("ext/cimgui/*.cpp")
+    add_files("ext/cimgui/imgui/*.cpp")
+    add_includedirs("ext/cimgui/imgui")
+    add_includedirs("ext/cimgui/", {public = true})
     set_warnings("none")
 
 target("rlimgui")
     set_kind("static")
-    add_files("third_party/rlImGui/*.cpp")
-    add_includedirs("third_party/cimgui/imgui")
-    add_includedirs("third_party/rlImGui/", {public = true})
+    add_files("ext/rlImGui/*.cpp")
+    add_includedirs("ext/cimgui/imgui")
+    add_includedirs("ext/rlImGui/", {public = true})
     add_packages("raylib")
     set_warnings("none")
 
@@ -36,7 +35,6 @@ target("stack_calc")
     set_kind("binary")
     add_files("src/*.c")
     add_includedirs("dat")
-    add_packages("bdwgc")
     add_packages("raylib")
     add_deps("cimgui")
     add_defines("CIMGUI_DEFINE_ENUMS_AND_STRUCTS")
