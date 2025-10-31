@@ -166,8 +166,9 @@ static void variable_table_grow(Variable_Table* t)
    t->entries = (Variable_Table_Entry*)realloc(t->entries, t->cap * sizeof(Variable_Table_Entry));
 }
 
-void variable_table_add(Variable_Table* t, String key, double variable)
+void variable_table_add(Variable_Table* t, String key, Value variable)
 {
+   // TODO need to copy Values!!!
    // try to overwrite existing entry
    for (uint i = 0; i < t->len; ++i) {
       if (string_compare(&t->entries[i].key, &key)) {
@@ -184,7 +185,7 @@ void variable_table_add(Variable_Table* t, String key, double variable)
    t->len++;
 }
 
-double* variable_table_get(Variable_Table* t, String* key)
+Value* variable_table_get(Variable_Table* t, String* key)
 {
    for (uint i = 0; i < t->len; i++) {
       if (string_compare(&t->entries[i].key, key)) {

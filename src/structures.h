@@ -51,7 +51,7 @@ Token_Array* user_words_table_get(User_Words_Table* t, String* key);
 
 typedef struct {
    String key;
-   double variable;
+   Value  variable;
 } Variable_Table_Entry;
 
 typedef struct {
@@ -60,6 +60,6 @@ typedef struct {
    uint                  cap;
 } Variable_Table;
 
-void    variable_table_init(Variable_Table* t);
-void    variable_table_add(Variable_Table* t, String key, double variable);
-double* variable_table_get(Variable_Table* t, String* key);
+void   variable_table_init(Variable_Table* t);
+void   variable_table_add(Variable_Table* t, String key, Value variable);
+Value* variable_table_get(Variable_Table* t, String* key);

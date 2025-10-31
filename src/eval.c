@@ -58,6 +58,20 @@ static bool pop_number_2(Stack* stack, double* x, double* y)
    return false;
 }
 
+static void push_quote(Stack* stack, Quote quote)
+{
+   Value val = { .tag = V_QUOTE, .quote = quote };
+   stack_push(stack, val);
+}
+
+static void print_tokens(Token* tokens, size_t len)
+{
+   for (size_t i = 0; i < len; ++i) {
+      printf("%.*s ", (int)tokens[i].literal.len, tokens[i].literal.data);
+   }
+   printf("\n");
+}
+
 void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
 {
    for (size_t i = 0; i < tokens_len; ++i) {
@@ -114,9 +128,17 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
             break;
          }
 
-         double* variable = NULL;
+         Value* variable = NULL;
          if ((variable = variable_table_get(&variables, &token.literal))) {
-            push_number(stack, *variable);
+            if (variable->tag == V_NUMBER) {
+               push_number(stack, variable->num);
+               break;
+            }
+            else if (variable->tag == V_QUOTE) {
+               print_tokens(variable->quote.data, variable->quote.len);
+               evaluate_tokens(variable->quote.data, variable->quote.len, stack);
+               break;
+            }
             break;
          }
 
@@ -147,10 +169,10 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
             string_builder_append(&error, buf, (size_t)n);
             break;
          }
-         double x;
-         if (pop_number(stack, &x)) {
+         Value val;
+         if (stack_pop(stack, &val)) {
             // var name is next token
-            variable_table_add(&variables, tokens[++i].literal, x);
+            variable_table_add(&variables, tokens[++i].literal, val);
          }
          else {
             char buf[64];
@@ -207,12 +229,31 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
          if (tokens[i].type == SEMICOLON) {
             user_words_table_add(&user_words, word_name, definition);
          }
-
-      } break;
+         break;
       case SEMICOLON: break;
       case LPAREN: break;
       case RPAREN: break;
-      case LBRACE: break;
+      case LBRACE: {
+         Quote  quote = { 0 };
+         size_t start = i;
+         size_t count = 0;
+         while (++i < tokens_len && tokens[i].type != RBRACE) {
+            ++count;
+         }
+         if (count == 0) { break; }
+         if (tokens[i].type == RBRACE) {
+            Token_Array quote_tokens;
+            token_array_init(&quote_tokens);
+            for (size_t j = 1; j <= count; ++j) {
+               size_t index = j + start;
+               token_array_push(&quote_tokens, tokens[index]);
+            }
+            print_tokens(quote_tokens.data, quote_tokens.len);
+            quote.data = quote_tokens.data;
+            quote.len  = count;
+            push_quote(stack, quote);
+         }
+      } break;
       case RBRACE: break;
       case LBRACKET: break;
       case RBRACKET: break;
@@ -220,20 +261,21 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
       case QUOTE: break;
       }
 
-      continue;
+         continue;
 
-   underflow: {
-      char buf[64];
-      int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", (u32)i);
-      if (n < 0) {
-         return; // ignore on error
+      underflow: {
+         char buf[64];
+         int  n = snprintf(buf, sizeof(buf), "Stack underflow while evaluating\ntoken at index %u\n", (u32)i);
+         if (n < 0) {
+            return; // ignore on error
+         }
+         if ((size_t)n >= sizeof(buf)) {
+            n = (int)(sizeof(buf) - 1);
+         }
+         string_builder_append(&error, buf, (size_t)n);
+         continue;
       }
-      if ((size_t)n >= sizeof(buf)) {
-         n = (int)(sizeof(buf) - 1);
       }
-      string_builder_append(&error, buf, (size_t)n);
-      continue;
-   }
    }
 }
 
@@ -467,6 +509,10 @@ String run_calculator(Lexer* lexer)
       char fmt_buffer[32];
       if (stack.data[i].tag == V_NUMBER) {
          int fmt_len = sprintf(fmt_buffer, "%g\n", stack.data[i].num);
+         string_builder_append(&output_builder, fmt_buffer, fmt_len);
+      }
+      if (stack.data[i].tag == V_QUOTE) {
+         int fmt_len = sprintf(fmt_buffer, "{ ... }\n");
          string_builder_append(&output_builder, fmt_buffer, fmt_len);
       }
    }
