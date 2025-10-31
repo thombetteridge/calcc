@@ -49,6 +49,23 @@ inline String string_from_c_str(const char* c_str, char* buffer)
    return (String) { .data = buffer, .len = length };
 }
 
+static char string_to_c_string_buffer[1024];
+/* this is a temp string use it quickly */
+inline const char* string_to_c_fmt(const String* string)
+{
+   static bool   once = true;
+   static size_t offset;
+   if (once) {
+      offset = 0;
+   }
+   if (string->len + offset > sizeof(string_to_c_string_buffer)) {
+      offset = 0;
+   }
+   char* ptr = string_to_c_string_buffer + offset;
+   offset += sprintf(string_to_c_string_buffer, "%.*s", (int)string->len, string->data);
+   return ptr;
+}
+
 // you own it!
 inline String string_clone(String* str)
 {
