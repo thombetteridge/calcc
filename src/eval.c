@@ -68,6 +68,7 @@ static bool pop_number_2(Stack* stack, double* x, double* y)
 //    stack_push(stack, val);
 // }
 
+/*
 static void print_tokens(Token* tokens, size_t len)
 {
    for (size_t i = 0; i < len; ++i) {
@@ -75,6 +76,7 @@ static void print_tokens(Token* tokens, size_t len)
    }
    printf("\n");
 }
+*/
 
 static String string_clone_onto_arena(String* str, Arena* a)
 {
