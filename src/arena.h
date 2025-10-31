@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 typedef uint8_t byte;
 
