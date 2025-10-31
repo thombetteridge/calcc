@@ -22,17 +22,18 @@ inline static size_t align_forward(size_t ptr)
 {
    static const size_t alignment = sizeof(void*);
    size_t const        modulo    = ptr & (alignment - 1);
-   return ptr + alignment - modulo;
+   return modulo ? (ptr + (alignment - modulo)) : ptr;
 }
 
-inline void* arena_alloc(Arena* arena, size_t size)
+inline void* arena_alloc(Arena* a, size_t size)
 {
-   if (arena->offset + size > arena->cap) {
+   if (a->offset + size > a->cap) {
+      fprintf(stderr, "arena overflow\n");
       return NULL;
    }
-   void* ptr          = arena->buffer + arena->offset + size;
-   arena->prev_offset = arena->offset;
-   arena->offset      = align_forward(arena->offset + size);
+   void* ptr      = a->buffer + a->offset;
+   a->prev_offset = a->offset;
+   a->offset      = align_forward(a->offset + size);
    return ptr;
 }
 

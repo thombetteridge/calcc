@@ -1,5 +1,6 @@
 #include "eval.h"
 
+#include "arena.h"
 #include "common.h"
 #include "lexer.h"
 #include "structures.h"
@@ -19,10 +20,14 @@ static Variable_Table   variables;
 static String_Builder error;
 static String_Builder output_builder;
 
+static Arena arena;
+
 static char error_string_buffer[KB(1)];
-static char output_string_buffer[MB(2)];
+static char output_string_buffer[MB(1)];
 
 static Value stack_buffer[2048];
+
+static byte arena_buffer[MB(1)];
 
 static void push_number(Stack* stack, double x)
 {
@@ -71,8 +76,31 @@ static void print_tokens(Token* tokens, size_t len)
    printf("\n");
 }
 
+static String string_clone_onto_arena(String* str, Arena* a)
+{
+   char* buffer = (char*)arena_alloc(a, str->len);
+   memcpy(buffer, str->data, str->len);
+   return (String) { .data = buffer, .len = str->len };
+}
+
+static Quote quote_clone_deep_onto_arena(const Quote* quote, Arena* a)
+{
+   Quote out = { 0 };
+   if (quote->len == 0) {
+      return out;
+   }
+   out.len  = quote->len;
+   out.data = (Token*)arena_alloc(a, out.len * sizeof(Token));
+   for (size_t i = 0; i < out.len; ++i) {
+      out.data[i]         = quote->data[i];
+      out.data[i].literal = string_clone_onto_arena(&quote->data[i].literal, a);
+   }
+   return out;
+}
+
 void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
 {
+   arena_reset(&arena);
    for (size_t i = 0; i < tokens_len; ++i) {
       Token token = tokens[i];
       switch (token.type) {
@@ -248,7 +276,7 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
             }
 
             Quote quote_temp = { .data = quote_tokens.data, .len = quote_tokens.len };
-            Value val        = { .tag = V_QUOTE, .quote = quote_clone_deep(&quote_temp) };
+            Value val        = { .tag = V_QUOTE, .quote = quote_clone_deep_onto_arena(&quote_temp, &arena) };
             stack_push(stack, val);
          }
          break;
@@ -374,7 +402,7 @@ static void calc_dup(Stack* s)
 static void calc_swap(Stack* stack)
 {
    double x, y;
-   if (pop_number_2(stack, &y, &x)) {
+   if (pop_number_2(stack, &x, &y)) {
       push_number(stack, x);
       push_number(stack, y);
    }
@@ -481,6 +509,7 @@ void eval_init()
    add_keywords(&keywords);
    user_words_table_init(&user_words);
    variable_table_init(&variables);
+   arena          = arena_new(arena_buffer, sizeof(arena_buffer));
    error          = (String_Builder) { .data = error_string_buffer, .len = 0, .cap = sizeof(error_string_buffer) };
    output_builder = (String_Builder) { .data = output_string_buffer, .len = 0, .cap = sizeof(output_string_buffer) };
 }
