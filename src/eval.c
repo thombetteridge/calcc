@@ -4,7 +4,6 @@
 #include "lexer.h"
 #include "structures.h"
 #include "tstring.h"
-#include "value.h"
 
 #include <assert.h>
 #include <math.h>
@@ -58,11 +57,11 @@ static bool pop_number_2(Stack* stack, double* x, double* y)
    return false;
 }
 
-static void push_quote(Stack* stack, Quote quote)
-{
-   Value val = { .tag = V_QUOTE, .quote = quote };
-   stack_push(stack, val);
-}
+// static void push_quote(Stack* stack, Quote quote)
+// {
+//    Value val = { .tag = V_QUOTE, .quote = quote };
+//    stack_push(stack, val);
+// }
 
 static void print_tokens(Token* tokens, size_t len)
 {
@@ -82,36 +81,35 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
          break;
 
       case PLUS: {
-         double a, b;
-         if (!pop_number_2(stack, &a, &b)) {
+         double x, y;
+         if (!pop_number_2(stack, &x, &y)) {
             goto underflow;
          }
-         push_number(stack, a + b);
+         push_number(stack, y + x);
       } break;
 
       case MINUS: {
-         double a, b;
-         if (!pop_number_2(stack, &a, &b)) {
+         double x, y;
+         if (!pop_number_2(stack, &x, &y)) {
             goto underflow;
          }
-         push_number(stack, a - b);
+         push_number(stack, y - x);
       } break;
 
       case ASTRIX: {
-         double a, b;
-         if (!pop_number_2(stack, &a, &b)) {
+         double x, y;
+         if (!pop_number_2(stack, &x, &y)) {
             goto underflow;
          }
-         push_number(stack, a * b);
+         push_number(stack, y * x);
       } break;
 
       case SLASH: {
-         double a, b;
-         if (!pop_number_2(stack, &a, &b)) {
+         double x, y;
+         if (!pop_number_2(stack, &x, &y)) {
             goto underflow;
          }
-         // Optional: check divide-by-zero; here we mimic C (inf/nan)
-         push_number(stack, a / b);
+         push_number(stack, y / x);
       } break;
 
       case ILLEGAL:
@@ -135,7 +133,7 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
                break;
             }
             else if (variable->tag == V_QUOTE) {
-               print_tokens(variable->quote.data, variable->quote.len);
+               // print_tokens(variable->quote.data, variable->quote.len);
                evaluate_tokens(variable->quote.data, variable->quote.len, stack);
                break;
             }
@@ -234,26 +232,27 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
       case LPAREN: break;
       case RPAREN: break;
       case LBRACE: {
-         Quote  quote = { 0 };
          size_t start = i;
          size_t count = 0;
          while (++i < tokens_len && tokens[i].type != RBRACE) {
             ++count;
          }
-         if (count == 0) { break; }
+         if (count == 0) {
+            break;
+         }
          if (tokens[i].type == RBRACE) {
             Token_Array quote_tokens;
             token_array_init(&quote_tokens);
             for (size_t j = 1; j <= count; ++j) {
-               size_t index = j + start;
-               token_array_push(&quote_tokens, tokens[index]);
+               token_array_push(&quote_tokens, tokens[start + j]);
             }
-            print_tokens(quote_tokens.data, quote_tokens.len);
-            quote.data = quote_tokens.data;
-            quote.len  = count;
-            push_quote(stack, quote);
+
+            Quote quote_temp = { .data = quote_tokens.data, .len = quote_tokens.len };
+            Value val        = { .tag = V_QUOTE, .quote = quote_clone_deep(&quote_temp) };
+            stack_push(stack, val);
          }
-      } break;
+         break;
+      }
       case RBRACE: break;
       case LBRACKET: break;
       case RBRACKET: break;
@@ -364,11 +363,11 @@ static void calc_pi(Stack* stack)
 
 /* stack ops */
 
-static void calc_dup(Stack* stack)
+static void calc_dup(Stack* s)
 {
-   double x;
-   if (pop_number(stack, &x)) {
-      push_number(stack, x);
+   Value val;
+   if (stack_top(s, &val)) {
+      stack_push(s, val);
    }
 }
 

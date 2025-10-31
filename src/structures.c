@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void stack_push(Stack* stack, Value x)
 {
@@ -166,22 +167,60 @@ static void variable_table_grow(Variable_Table* t)
    t->entries = (Variable_Table_Entry*)realloc(t->entries, t->cap * sizeof(Variable_Table_Entry));
 }
 
+Quote quote_clone_deep(const Quote* quote)
+{
+   Quote out = { 0 };
+   if (quote->len == 0) {
+      return out;
+   }
+
+   out.len  = quote->len;
+   out.data = malloc(out.len * sizeof(Token));
+   for (size_t i = 0; i < out.len; ++i) {
+      out.data[i]         = quote->data[i];
+      out.data[i].literal = string_clone(&quote->data[i].literal);
+   }
+   return out;
+}
+
+static void quote_free_deep(Quote* quote)
+{
+   if (!quote || !quote->data) {
+      quote->len = 0;
+      return;
+   }
+   for (size_t i = 0; i < quote->len; ++i) {
+      string_free(&quote->data[i].literal);
+   }
+   free(quote->data);
+   quote->data = NULL;
+   quote->len  = 0;
+}
+
 void variable_table_add(Variable_Table* t, String key, Value variable)
 {
-   // TODO need to copy Values!!!
-   // try to overwrite existing entry
+   /* overwrite if exists */
    for (uint i = 0; i < t->len; ++i) {
       if (string_compare(&t->entries[i].key, &key)) {
+         if (t->entries[i].variable.tag == V_QUOTE) {
+            quote_free_deep(&t->entries[i].variable.quote);
+         }
          t->entries[i].variable = variable;
+         if (variable.tag == V_QUOTE) {
+            t->entries[i].variable.quote = quote_clone_deep(&variable.quote);
+         }
          return;
       }
    }
-   // append new entry
+   /* append new */
    if (t->len >= t->cap) {
       variable_table_grow(t);
    }
    t->entries[t->len].key      = string_clone(&key);
    t->entries[t->len].variable = variable;
+   if (variable.tag == V_QUOTE) {
+      t->entries[t->len].variable.quote = quote_clone_deep(&variable.quote);
+   }
    t->len++;
 }
 

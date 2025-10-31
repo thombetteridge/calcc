@@ -4,7 +4,35 @@
 #include "common.h"
 #include "lexer.h"
 #include "tstring.h"
-#include "value.h"
+
+typedef enum {
+   V_INVALID,
+   V_NUMBER,
+   V_QUOTE,
+   V_LIST
+} Val_Tag;
+
+typedef struct Quote {
+   Token* data;
+   size_t len;
+} Quote;
+
+Quote quote_clone_deep(const Quote* quote);
+
+typedef struct List {
+   struct Value* data;
+   size_t        len;
+   size_t        cap;
+} List;
+
+typedef struct Value {
+   union {
+      List   list;
+      Quote  quote;
+      double num;
+   };
+   Val_Tag tag;
+} Value;
 
 typedef struct Stack {
    Value* data;
