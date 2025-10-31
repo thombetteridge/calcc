@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void stack_push(Stack* stack, double x)
+void stack_push(Stack* stack, Value x)
 {
    if (stack->len == stack->cap) {
       fprintf(stderr, "stack overflow\n");
@@ -18,7 +18,7 @@ void stack_push(Stack* stack, double x)
    stack->len++;
 }
 
-bool stack_top(const Stack* stack, double* out)
+bool stack_top(const Stack* stack, Value* out)
 {
    if (stack->len == 0) {
       return false;
@@ -27,7 +27,7 @@ bool stack_top(const Stack* stack, double* out)
    return true;
 }
 
-bool stack_pop(Stack* stack, double* out)
+bool stack_pop(Stack* stack, Value* out)
 {
    if (stack->len == 0) {
       return false;
@@ -37,9 +37,10 @@ bool stack_pop(Stack* stack, double* out)
    return true;
 }
 
-bool stack_pop_2(Stack* stack, double* y_out, double* x_out)
+bool stack_pop_2(Stack* stack, Value* y_out, Value* x_out)
 {
-   double x, y;
+   Value x = { 0 };
+   Value y = { 0 };
    if (!stack_pop(stack, &x)) {
       return false;
    }

@@ -24,10 +24,10 @@ typedef struct List {
 } List;
 
 typedef struct Value {
-   Val_Tag tag;
    union {
-      double num;
-      Quote  quote;
       List   list;
+      Quote  quote;
+      double num;
    };
+   Val_Tag tag;
 } Value;
