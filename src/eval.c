@@ -410,6 +410,12 @@ static void calc_swap(Stack* stack)
    }
 }
 
+static void calc_pop(Stack* stack)
+{
+   double _;
+   pop_number(stack, &_);
+}
+
 /* sequences */
 
 static void calc_sum(Stack* stack)
@@ -496,6 +502,7 @@ static void add_keywords(Keyword_Table* keywords_)
 
    keywords_table_add(keywords_, "dup", calc_dup);
    keywords_table_add(keywords_, "swap", calc_swap);
+   keywords_table_add(keywords_, "pop", calc_pop);
 
    keywords_table_add(keywords_, "sum", calc_sum);
    keywords_table_add(keywords_, "mean", calc_mean);

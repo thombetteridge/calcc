@@ -23,7 +23,7 @@ int main()
    Lexer lexer = { 0 };
    lexer_init(&lexer);
 
-   InitWindow(screen_width, screen_height, "test");
+   InitWindow(screen_width, screen_height, "Stack Calcc");
 
    rlImGuiSetup(true);
    ImGuiContext* ctx = igGetCurrentContext();
