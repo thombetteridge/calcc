@@ -4,17 +4,18 @@
 #include "common.h"
 #include "lexer.h"
 #include "tstring.h"
+#include "value.h"
 
 typedef struct Stack {
-   f64* data;
-   u32  len;
-   u32  cap;
+   Value* data;
+   size_t len;
+   size_t cap;
 } Stack;
 
-void stack_push(Stack* stack, f64 x);
-bool stack_top(const Stack* stack, f64* out);
-bool stack_pop(Stack* stack, f64* out);
-bool stack_pop_2(Stack* stack, f64* y_out, f64* x_out);
+void stack_push(Stack* stack, Value x);
+bool stack_top(const Stack* stack, Value* out);
+bool stack_pop(Stack* stack, Value* out);
+bool stack_pop_2(Stack* stack, Value* y_out, Value* x_out);
 
 typedef void (*Keyword)(Stack*);
 

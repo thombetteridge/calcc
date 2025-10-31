@@ -4,6 +4,7 @@
 #include "lexer.h"
 #include "structures.h"
 #include "tstring.h"
+#include "value.h"
 
 #include <assert.h>
 #include <math.h>
@@ -22,7 +23,40 @@ static String_Builder output_builder;
 static char error_string_buffer[KB(1)];
 static char output_string_buffer[MB(2)];
 
-static double stack_buffer[2048];
+static Value stack_buffer[2048];
+
+static void push_number(Stack* stack, double x)
+{
+   Value val = { .tag = V_NUMBER, .num = x };
+   stack_push(stack, val);
+}
+
+static bool pop_number(Stack* stack, double* x)
+{
+   Value out = { 0 };
+   stack_top(stack, &out);
+   if (out.tag == V_NUMBER) {
+      if (stack_pop(stack, &out)) {
+         *x = out.num;
+         return true;
+      }
+   }
+   return false;
+}
+
+static bool pop_number_2(Stack* stack, double* x, double* y)
+{
+   Value out_x = { 0 };
+   Value out_y = { 0 };
+   if (stack_pop_2(stack, &out_y, &out_x)) {
+      if (out_x.tag == V_NUMBER && out_y.tag == V_NUMBER) {
+         *x = out_x.num;
+         *y = out_y.num;
+         return true;
+      }
+   }
+   return false;
+}
 
 void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
 {
@@ -30,40 +64,40 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
       Token token = tokens[i];
       switch (token.type) {
       case NUMBER:
-         stack_push(stack, atof(token.literal.data));
+         push_number(stack, atof(token.literal.data));
          break;
 
       case PLUS: {
          double a, b;
-         if (!stack_pop_2(stack, &a, &b)) {
+         if (!pop_number_2(stack, &a, &b)) {
             goto underflow;
          }
-         stack_push(stack, a + b);
+         push_number(stack, a + b);
       } break;
 
       case MINUS: {
          double a, b;
-         if (!stack_pop_2(stack, &a, &b)) {
+         if (!pop_number_2(stack, &a, &b)) {
             goto underflow;
          }
-         stack_push(stack, a - b);
+         push_number(stack, a - b);
       } break;
 
       case ASTRIX: {
          double a, b;
-         if (!stack_pop_2(stack, &a, &b)) {
+         if (!pop_number_2(stack, &a, &b)) {
             goto underflow;
          }
-         stack_push(stack, a * b);
+         push_number(stack, a * b);
       } break;
 
       case SLASH: {
          double a, b;
-         if (!stack_pop_2(stack, &a, &b)) {
+         if (!pop_number_2(stack, &a, &b)) {
             goto underflow;
          }
          // Optional: check divide-by-zero; here we mimic C (inf/nan)
-         stack_push(stack, a / b);
+         push_number(stack, a / b);
       } break;
 
       case ILLEGAL:
@@ -82,7 +116,7 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
 
          double* variable = NULL;
          if ((variable = variable_table_get(&variables, &token.literal))) {
-            stack_push(stack, *variable);
+            push_number(stack, *variable);
             break;
          }
 
@@ -114,7 +148,7 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
             break;
          }
          double x;
-         if (stack_pop(stack, &x)) {
+         if (pop_number(stack, &x)) {
             // var name is next token
             variable_table_add(&variables, tokens[++i].literal, x);
          }
@@ -208,48 +242,48 @@ void evaluate_tokens(const Token* tokens, size_t tokens_len, Stack* stack)
 static void calc_sin(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, sin(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, sin(x));
    }
 }
 
 static void calc_cos(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, cos(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, cos(x));
    }
 }
 
 static void calc_tan(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, tan(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, tan(x));
    }
 }
 
 static void calc_asin(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, asin(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, asin(x));
    }
 }
 
 static void calc_acos(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, acos(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, acos(x));
    }
 }
 
 static void calc_atan(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, atan(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, atan(x));
    }
 }
 
@@ -258,24 +292,24 @@ static void calc_atan(Stack* stack)
 static void calc_sqrt(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, sqrt(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, sqrt(x));
    }
 }
 
 static void calc_sq(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, x * x);
+   if (pop_number(stack, &x)) {
+      push_number(stack, x * x);
    }
 }
 
 static void calc_abs(Stack* stack)
 {
    double x;
-   if (stack_pop(stack, &x)) {
-      stack_push(stack, fabs(x));
+   if (pop_number(stack, &x)) {
+      push_number(stack, fabs(x));
    }
 }
 
@@ -283,7 +317,7 @@ static void calc_abs(Stack* stack)
 
 static void calc_pi(Stack* stack)
 {
-   stack_push(stack, 3.14159265358979323846);
+   push_number(stack, 3.14159265358979323846);
 }
 
 /* stack ops */
@@ -291,17 +325,17 @@ static void calc_pi(Stack* stack)
 static void calc_dup(Stack* stack)
 {
    double x;
-   if (stack_top(stack, &x)) {
-      stack_push(stack, x);
+   if (pop_number(stack, &x)) {
+      push_number(stack, x);
    }
 }
 
 static void calc_swap(Stack* stack)
 {
    double x, y;
-   if (stack_pop_2(stack, &y, &x)) {
-      stack_push(stack, x);
-      stack_push(stack, y);
+   if (pop_number_2(stack, &y, &x)) {
+      push_number(stack, x);
+      push_number(stack, y);
    }
 }
 
@@ -311,22 +345,22 @@ static void calc_sum(Stack* stack)
 {
    double result = 0;
    double x;
-   while (stack_pop(stack, &x)) {
+   while (pop_number(stack, &x)) {
       result += x;
    }
-   stack_push(stack, result);
+   push_number(stack, result);
 }
 
 static void calc_mean(Stack* stack)
 {
-   double len = stack->len;
+   double len = (double)stack->len;
    if (len == 0) {
       return;
    }
    calc_sum(stack);
    double sum;
-   stack_pop(stack, &sum);
-   stack_push(stack, sum / len);
+   pop_number(stack, &sum);
+   push_number(stack, sum / len);
 }
 
 static void calc_range(Stack* stack)
@@ -336,9 +370,9 @@ static void calc_range(Stack* stack)
    }
    double step, end, start;
 
-   stack_pop(stack, &step);
-   stack_pop(stack, &end);
-   stack_pop(stack, &start);
+   pop_number(stack, &step);
+   pop_number(stack, &end);
+   pop_number(stack, &start);
 
    if (step == 0 || ((end - start) / step < 0)) {
       return;
@@ -348,7 +382,7 @@ static void calc_range(Stack* stack)
    size_t const fail_max = (size_t)1e6;
    if (step > 0) {
       for (double x = start; x < end; x += step) {
-         stack_push(stack, x);
+         push_number(stack, x);
          if (++failsafe > fail_max) {
             return;
          }
@@ -356,7 +390,7 @@ static void calc_range(Stack* stack)
    }
    else {
       for (double x = start; x > end; x += step) {
-         stack_push(stack, x);
+         push_number(stack, x);
          if (++failsafe > fail_max) {
             return;
          }
@@ -367,10 +401,10 @@ static void calc_range(Stack* stack)
 static void calc_iota(Stack* stack)
 {
    double x;
-   stack_pop(stack, &x);
+   pop_number(stack, &x);
    int n = (int)x;
    for (int i = 1; i <= n; ++i) {
-      stack_push(stack, i);
+      push_number(stack, i);
    }
 }
 
@@ -431,8 +465,10 @@ String run_calculator(Lexer* lexer)
 
    for (size_t i = 0; i < stack.len; ++i) {
       char fmt_buffer[32];
-      int  fmt_len = sprintf(fmt_buffer, "%g\n", stack.data[i]);
-      string_builder_append(&output_builder, fmt_buffer, fmt_len);
+      if (stack.data[i].tag == V_NUMBER) {
+         int fmt_len = sprintf(fmt_buffer, "%g\n", stack.data[i].num);
+         string_builder_append(&output_builder, fmt_buffer, fmt_len);
+      }
    }
 
    string_builder_append(&output_builder, "\0", sizeof("\0"));
