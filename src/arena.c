@@ -36,6 +36,7 @@ void arena_pop(Arena* arena)
    size_t const length = arena->offset - arena->prev_offset;
    arena->offset       = arena->prev_offset;
    memset(arena->buffer + arena->offset, 0, length);
+   arena->prev_offset = 0;
 }
 
 void arena_reset(Arena* arena)
