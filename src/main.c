@@ -17,8 +17,8 @@ char previous_input[KB(2)] = { 0 };
 
 int main()
 {
-   int const screen_width  = 400;
-   int const screen_height = 600;
+   int const screen_width  = 384;
+   int const screen_height = 576;
 
    Lexer lexer = { 0 };
    lexer_init(&lexer);
