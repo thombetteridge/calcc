@@ -5,7 +5,6 @@
 #include "raylib.h"
 #include "rlImGui.h"
 
-#include "common.h"
 #include "eval.h"
 #include "lexer.h"
 

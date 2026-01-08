@@ -17,32 +17,6 @@ static Token  new_word_token(Lexer* lexer);
 static Token  new_number_token(Lexer* lexer);
 static void   next_token(Lexer* lexer);
 
-void token_array_init(Token_Array* arr)
-{
-   arr->len  = 0;
-   arr->cap  = 8;
-   arr->data = (Token*)malloc(arr->cap * sizeof(Token));
-}
-
-void token_array_push(Token_Array* arr, Token x)
-{
-   if (arr->len == arr->cap) {
-      arr->cap *= 2;
-      arr->data = (Token*)realloc(arr->data, sizeof(Token) * arr->cap);
-   }
-   arr->data[arr->len] = x;
-   arr->len++;
-}
-void token_array_pop(Token_Array* arr)
-{
-   arr->len--;
-}
-
-void token_array_free(Token_Array* arr)
-{
-   free(arr->data);
-}
-
 void lexer_run(Lexer* lexer)
 {
    while (lexer->pos < lexer->input.len) {

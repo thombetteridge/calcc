@@ -1,10 +1,8 @@
 #include "eval.h"
 
 #include "arena.h"
-#include "common.h"
 #include "lexer.h"
-#include "structures.h"
-#include "tstring.h"
+#include "base.h"
 
 #include <assert.h>
 #include <math.h>
