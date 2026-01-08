@@ -1,0 +1,5 @@
+#include "src/arena.c"
+#include "src/base.c"
+#include "src/eval.c"
+#include "src/lexer.c"
+#include "src/main.c"
