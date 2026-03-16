@@ -1,4 +1,5 @@
 #pragma once
+<<<<<<< Updated upstream
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -201,3 +202,5 @@ Token_Array* user_words_table_get(User_Words_Table* t, String* key);
 void   variable_table_init(Variable_Table* t);
 void   variable_table_add(Variable_Table* t, String key, Value variable);
 Value* variable_table_get(Variable_Table* t, String* key);
+=======
+>>>>>>> Stashed changes

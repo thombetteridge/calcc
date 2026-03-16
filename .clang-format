@@ -1,4 +1,4 @@
-BasedOnStyle: Webkit
+BasedOnStyle: LLVM
 IndentWidth: 3
 ColumnLimit: 0
 # BreakBeforeBraces: Custom
