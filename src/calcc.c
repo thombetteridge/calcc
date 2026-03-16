@@ -1,6 +1,7 @@
 #include <assert.h>
-#include <float.h>
+#include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,10 +52,10 @@ static void lx_advance(lex_t *lx)
    ++lx->read_pos;
 }
 
-void lex_init(lex_t *lx, const char *str)
+void lx_init(lex_t *lx, const char *str)
 {
    lx->src.ptr  = str;
-   lx->src.len  = strlen(str);
+   lx->src.len  = strlen(str)+1;
    lx->read_pos = 0;
    lx->pos      = 0;
    lx_advance(lx);
@@ -117,7 +118,12 @@ static tok_t lx_next(lex_t *lx)
    }
 
    switch (lx->ch) {
-   case '\0': return lx_new_token(lx, TK_EOF);
+   case '\0': {
+      tok_t result = {
+          .kind = TK_EOF,
+          .text = {.len = sizeof("EOF"), .ptr = "EOF"}};
+      return result;
+   }
    case '+': return lx_new_token(lx, TK_PLUS);
    case '-': return lx_new_token(lx, TK_MINUS);
    case '/': return lx_new_token(lx, TK_SLASH);
@@ -135,7 +141,7 @@ static tok_t lx_next(lex_t *lx)
    }
 }
 
-void lex_to_tokens(lex_t *lx, tok_array_t *toks)
+void lx_to_tokens(lex_t *lx, tok_array_t *toks)
 {
    tok_t tok = {};
    do {
@@ -174,33 +180,83 @@ double stack_pop(stack_t *s)
    --s->len;
    return x;
 }
+
+void stack_clear(stack_t *s)
+{
+   s->len = 0;
+}
+
 void stack_free(stack_t *s)
 {
    free(s->ptr);
    memzero(s, sizeof(stack_t));
 }
 
-void compile(vm_t *vm, tok_array_t *toks)
+double string_to_double(string_t s)
 {
-   for (size_t i = 0; /* */; ++i) {
-      tok_t const *tok = tok_get(toks, i);
-      op_t         op  = {};
-      switch (tok->kind) {
+   static char buffer[128];
+   sprintf(buffer, "%*.s", (int)s.len, s.ptr);
+   return atof(buffer);
+}
 
-      case TK_EOF: return;
+#define BIN_OP(_op_)                                                    \
+   do {                                                                 \
+      if (stack->len < 2) { fprintf(stderr, "bin_op underflow flow"); } \
+      double const x = stack_pop(stack);                                \
+      double const y = stack_pop(stack);                                \
+      stack_push(stack, y _op_ x);                                      \
+   } while (0)
+
+void eval_tokens(tok_array_t *toks, stack_t *stack)
+{
+   for (size_t i = 0; i < toks->len; ++i) {
+      tok_t tok = *tok_get(toks, i);
+
+      switch (tok.kind) {
+
+      case TK_EOF:
+         return;
       case TK_NUM:
+         stack_push(stack, string_to_double(tok.text));
+         break;
       case TK_WORD:
-      case TK_PLUS: op.kind = OP_ADD;
+         assert(0 && "WORDS TODO");
+      case TK_PLUS:
+         BIN_OP(+);
       case TK_MINUS:
+         BIN_OP(-);
       case TK_STAR:
-      case TK_CARET:
+         BIN_OP(*);
+      case TK_CARET: {
+         if (stack->len < 2) {
+            fprintf(stderr, "bin_op underflow flow");
+            double const x = stack_pop(stack);
+            double const y = stack_pop(stack);
+            stack_push(stack, pow(y, x));
+         }
+      }
       case TK_SLASH:
+         BIN_OP(/);
       case TK_COLON:
       case TK_SEMI: break;
       }
    }
 }
 
-void eval(vm_t *vm)
+void eval(tok_array_t *toks, char *output)
 {
+   static stack_t stack;
+   static int     once = 1;
+   if (once) {
+      once = 0;
+      stack_init(&stack);
+   }
+   stack_clear(&stack);
+
+   eval_tokens(toks, &stack);
+
+   size_t offset = 0;
+   for (size_t i = 0; i < stack.len; ++i) {
+      offset += sprintf(output + offset, "%g\n", stack.ptr[i]);
+   }
 }

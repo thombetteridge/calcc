@@ -33,11 +33,12 @@ target("stack_calc")
     set_languages("c11")
     set_warnings("all", "extra", "error")
     set_kind("binary")
-    add_files("build.c")
+    add_files("src/*.c")
     add_includedirs("dat")
     add_packages("raylib")
     add_deps("cimgui")
     add_defines("CIMGUI_DEFINE_ENUMS_AND_STRUCTS")
+    add_defines("_CRT_SECURE_NO_WARNINGS")
     add_deps("rlimgui")
 
 --

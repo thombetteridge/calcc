@@ -45,8 +45,8 @@ struct lex {
    char     ch;
 };
 
-void lex_init(lex_t *lx, char const *str);
-void lex_to_tokens(lex_t *lx, tok_array_t *toks);
+void lx_init(lex_t *lx, char const *str);
+void lx_to_tokens(lex_t *lx, tok_array_t *toks);
 
 typedef enum {
    OP_ADD,
@@ -89,3 +89,5 @@ struct vm {
    stack_t    stack;
    op_array_t ops;
 };
+
+void eval(tok_array_t *toks, char *output);
