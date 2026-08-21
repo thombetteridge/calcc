@@ -1,7 +1,9 @@
-BasedOnStyle: LLVM
-IndentWidth: 3
+BasedOnStyle: Webkit
+IndentWidth: 4
+ContinuationIndentWidth: 4
 ColumnLimit: 0
-# BreakBeforeBraces: Custom
+BreakBeforeBraces: Custom
+# BreakBeforeBraces: Allman
 BraceWrapping:
     AfterClass: false
     AfterCaseLabel: false
@@ -11,26 +13,41 @@ BraceWrapping:
     AfterStruct: false
     AfterUnion: false
     BeforeLambdaBody: false
-    BeforeWhile: true
-    BeforeCatch: true
+    BeforeWhile: false
+    BeforeCatch: false
     BeforeElse: true
     SplitEmptyFunction: false
     SplitEmptyRecord: false
-BreakBeforeBraces: Stroustrup
+
+IndentCaseBlocks: false
+IndentCaseLabels: false
 
 AllowShortBlocksOnASingleLine: Always
-AllowShortCaseLabelsOnASingleLine: true
+# AllowShortCaseExpressionOnASingleLine: true
+# AllowShortCaseLabelsOnASingleLine: true
 AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
 AllowShortLambdasOnASingleLine: All
-AllowShortLoopsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
+
+PointerAlignment: Middle
 
 UseTab: Never
 
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+# AlignConsecutiveShortCaseStatements: true
+
 AlignTrailingComments: true
+AlignOperands: true
+AlignConsecutiveMacros: true
 
-InsertBraces: true
+InsertBraces: false
 
+MaxEmptyLinesToKeep: 2
+
+QualifierAlignment: Custom
+QualifierOrder: [inline, static, constexpr, type, const]
+
+SpaceBeforeCpp11BracedList: true

@@ -1,139 +1,123 @@
-#include <stddef.h>
-#include <string.h>
 
-#include "cimgui.h"
-#include "raylib.h"
-#include "rlImGui.h"
+#include "base.h"
+#include "editor.h"
+#include "platform.h"
 
-#include "calcc.h"
+#include <stdio.h>
 
-// font
-#include "embedded_font.inc"
-
-char input_buffer[2048]   = {0};
-char previous_input[2048] = {0};
-char output_buffer[2048]  = {0};
-
-int main()
+int main(/*i32 argc, char ** argv*/ void)
 {
-   int const screen_width  = 384;
-   int const screen_height = 576;
+    Allocator allocator = default_allocator_init();
 
-   lex_t lex = {0};
-   lx_init(&lex, input_buffer);
+    printf("calcc2\n");
 
-   tok_array_t toks;
-   tok_array_init(&toks);
+    i32 const initial_width  = 300;
+    i32 const initial_height = 400;
 
-   InitWindow(screen_width, screen_height, "Stack Calcc");
+    if (!p_init(&allocator, "calcc2", initial_width, initial_height)) {
+        return 1;
+    }
 
-   rlImGuiSetup(true);
-   ImGuiContext *ctx = igGetCurrentContext();
+    surface_t sur_out = surface_init(&allocator, 300, 200);
+    draw_clear(&sur_out, WHITE);
 
-   ImGuiIO io = ctx->IO;
+    surface_t sur_in = surface_init(&allocator, 300, 200);
+    draw_clear(&sur_in, WHITE);
 
-   ImFontAtlas *atlas = io.Fonts;
+    Editor ed_out = ed_init(&allocator);
+    Editor ed_in  = ed_init(&allocator);
 
-   ImFontConfig *cfg;
-   cfg                       = ImFontConfig_ImFontConfig();
-   cfg->FontDataOwnedByAtlas = false;
+    // if (argc > 1) {
+    //     char const * file_path = argv[1];
+    //     // fprintf(stderr, "file:%s\n", file_path);
+    //     bool const success = ed_open_file(&ed, file_path);
+    //     if (!success)
+    //         fprintf(stderr, "ERROR: Could not read file %s: %s\n", file_path, strerror(errno));
+    // }
 
-   float font_size = 20.0f;
+    while (p_running()) {
+        p_wait_for_event(1000);
 
-   ImFont *mono = ImFontAtlas_AddFontFromMemoryTTF(
-       atlas,
-       (void *)JetBrainsMono_Regular_ttf,
-       (int)JetBrainsMono_Regular_ttf_len,
-       font_size,
-       cfg,
-       NULL);
+        if (!p_poll()) {
+            continue;
+        }
 
-   SetTargetFPS(30);
-   string_t output = {0};
+        if (p_is_mouse_pressed(PLATFORM_MOUSE_LEFT)) {
+            point_t m = p_mouse_pos();
 
-   bool update = true;
+            ed_mouse_click(&ed_in, m.x, m.y);
+        }
 
-   while (!WindowShouldClose()) {
+        PKey key;
 
-      BeginDrawing();
-      ClearBackground(RAYWHITE);
-      rlImGuiBegin();
-      igPushFont(mono, font_size);
+        if (p_get_pressed_key(&key)) {
+            bool ctrl_down  = p_is_key_down(PKEY_controlL) || p_is_key_down(PKEY_controlR) ? true : false;
+            bool shift_down = p_is_key_down(PKEY_shiftL) || p_is_key_down(PKEY_shiftR) ? true : false;
+            bool alt_down   = p_is_key_down(PKEY_altL) || p_is_key_down(PKEY_altR) ? true : false;
 
-      igSetNextWindowPos((ImVec2){0, 0}, ImGuiCond_Always, (ImVec2){0, 0});
-      igSetNextWindowSize((ImVec2){(float)screen_width, (float)screen_height}, ImGuiCond_Always);
-      igBegin("Calculator", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+            KeyMod mod = { .shift = shift_down, .ctrl = ctrl_down, .alt = alt_down };
 
-      /* output window */
-      igBeginChild_Str("Results", (ImVec2){0, screen_height * 0.3819660112501453f}, 0, 0);
-      igText("Output: ");
-      igPushStyleColor_Vec4(ImGuiCol_FrameBg, (ImVec4){0, 0, 0, 0});
-      igPushStyleVar_Vec2(ImGuiStyleVar_FramePadding, (ImVec2){0, 0});
+            ed_edit_key(&ed_in, key, mod);
+        }
 
-      ImVec2 out_avail;
-      igGetContentRegionAvail(&out_avail);
-      igBeginChild_Str("OutputText", (ImVec2){out_avail.x, out_avail.y}, false, ImGuiWindowFlags_HorizontalScrollbar);
+        // if (p_window_width() != sur.width || p_window_height() != sur.height) {
+        //     printf("window.w %d, window.h %d, sur.w %d, sur.h %i\n",
+        //         p_window_width(), p_window_height(), sur.width, sur.height);
 
-      if (update) {
-         lx_init(&lex, input_buffer);
-         lx_to_tokens(&lex, &toks);
-         for (size_t i =0; i<toks.len; ++i) {
-            tok_t tok = toks.ptr[i];
-            printf("Tok:%d, Text:%.*s\n",tok.kind, (int)tok.text.len, tok.text.ptr);
-         }
-         eval(&toks, output_buffer);
-         update = false;
-      }
+        //     surface_resize(&sur, p_window_width(), p_window_height());
+        // }
 
-      if (output.len > 0) {
-         ImVec2 inner_avail;
-         igGetContentRegionAvail(&inner_avail);
-         igInputTextMultiline("##output", output_buffer, sizeof(output_buffer),
-                              (ImVec2){inner_avail.x, inner_avail.y},
-                              ImGuiInputTextFlags_ReadOnly, 0, 0);
-      }
 
-      igPopStyleVar(1);
-      igPopStyleColor(1);
+        if (p_is_window_valid()) {
+            p_clear(RGB_COLOUR(42u, 42u, 46u));
 
-      igEndChild();
-      igEndChild();
+            draw_clear(&sur_out, BACKGROUND_COLOUR);
+            ed_render(&ed_out, &sur_out, 3, 3, 290, 190);
+            draw_rect_lines(&sur_out,
+                (i32)OFFSET_X,
+                (i32)OFFSET_Y,
+                sur_out.width - (2 * (i32)OFFSET_X),
+                sur_out.height - (2 * (i32)OFFSET_Y),
+                BLACK);
 
-      /* input window */
+            draw_clear(&sur_in, BACKGROUND_COLOUR);
+            ed_render(&ed_in, &sur_in, 3, 3, 290, 190);
+            draw_rect_lines(&sur_in,
+                (i32)OFFSET_X,
+                (i32)OFFSET_Y,
+                sur_in.width - (2 * (i32)OFFSET_X),
+                sur_in.height - (2 * (i32)OFFSET_Y),
+                BLACK);
 
-      igBeginChild_Str("Editor", (ImVec2){0, 0}, 0, 0);
-      igText("Input: ");
-      igPushStyleVar_Vec2(ImGuiStyleVar_FramePadding, (ImVec2){4, 4});
-      igPushStyleVar_Vec2(ImGuiStyleVar_ItemSpacing, (ImVec2){4, 4});
+            push_surface(&sur_out, 0, 0);
+            push_surface(&sur_in, 0, sur_in.height);
 
-      ImVec2 avail;
-      igGetContentRegionAvail(&avail);
-      float right_margin  = 0.0f;
-      float bottom_margin = 2.0f;
+            p_present();
+        }
 
-      if (igInputTextMultiline("##editor", input_buffer, sizeof(input_buffer),
-                               (ImVec2){avail.x - right_margin, avail.y - bottom_margin},
-                               ImGuiInputTextFlags_AllowTabInput, 0, 0)) {
-         if (strcmp(previous_input, input_buffer) != 0) {
-            memcpy(previous_input, input_buffer, sizeof(input_buffer));
-            lx_init(&lex, previous_input);
-            update = true;
-         }
-      }
+        p_sleep(16);
+    }
 
-      igPopStyleVar(2);
-      igEndChild();
-      igEnd();
-      igPopFont();
+    // if (argc > 1) {
+    //     char const * file_path = argv[1];
+    //     bool const   success   = ed_write_file(&ed, file_path);
 
-      rlImGuiEnd();
-      EndDrawing();
-   }
-   rlImGuiShutdown();
-   CloseWindow();
+    //     if (!success)
+    //         fprintf(stderr, "ERROR: Could not write file %s: %s\n", file_path, strerror(errno));
+    // }
 
-   // lexer_shutdown(&lexer);
-   // eval_shutdown();
-
-   return 0;
+    ed_deinit(&ed_in);
+    ed_deinit(&ed_out);
+    surface_deinit(&sur_in);
+    surface_deinit(&sur_out);
+    p_deinit();
+    default_allocator_deinit(&allocator);
+    return 0;
 }
+
+
+// SINGLE TRANSLATION UNIT
+
+#include "base.c"
+#include "editor.c"
+#include "platform.c"

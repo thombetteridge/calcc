@@ -1,0 +1,5 @@
+
+
+cl /nologo src\main.c src\3rd.c /std:clatest /Iinc /W4 /MT /D_CRT_SECURE_NO_WARNINGS
+
+cl /nologo src\main.c src\3rd.c /std:clatest /Iinc /O2 /Gy /MT /link /OPT:REF /OPT:ICF /INCREMENTAL:NO /MANIFEST:NO

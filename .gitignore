@@ -4,8 +4,11 @@
 build/
 
 *.o
+*.obj
 
 compile_commands.json
 
 # MacOS Cache
 .DS_Store
+
+*.exe

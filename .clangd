@@ -1,0 +1,54 @@
+CompileFlags:
+  Add:
+    - -std=c17
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -Wconversion
+    - -Wdouble-promotion
+    - -Wno-unused-parameter
+    - -Wno-unused-function
+    - -Wno-sign-conversion
+    - -I../inc
+    - -x
+    - c
+    - -D_CRT_SECURE_NO_WARNINGS
+
+# Diagnostics:
+#   ClangTidy:
+#     FastCheckFilter: None
+#     # FastCheckFilter: Loose
+#     Add: [
+#       modernize-*,
+#       performance-*,
+#       bugprone-*,
+#       clang-analyzer-*,
+#       portability-*,
+#       misc-unused-parameters,
+#       cppcoreguidelines-*,
+
+#       misc-const-correctness,
+#       misc-definitions-in-headers,
+#       misc-misplaced-const,
+#       misc-redundant-expression,
+#       misc-static-assert,
+#       misc-throw-by-value-catch-by-reference,
+#       misc-include-cleaner,
+
+#       readability-implicit-bool-conversion,
+#       readability-redundant-control-flow,
+#       readability-simplify-boolean-expr
+#     ]
+#     Remove: [
+#       readability-identifier-length,
+#       readability-magic-numbers,
+#       cppcoreguidelines-avoid-magic-numbers,
+#       cppcoreguidelines-pro-type-vararg,
+
+#       cppcoreguidelines-avoid-c-arrays,
+#       cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+#       cppcoreguidelines-pro-bounds-constant-array-index,
+#     ]
+
+Index:
+  Background: Build
