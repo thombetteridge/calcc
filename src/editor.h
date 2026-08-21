@@ -60,6 +60,8 @@ typedef enum {
 
 typedef u32 EditorFlags_t;
 
+
+// TODO do we need to save the text window size & pos?
 typedef struct {
     Data  data;
     Lines lines;
@@ -71,9 +73,13 @@ typedef struct {
     usize scroll_offset_y;
     usize scroll_offset_x;
 
+    EditorFlags_t flags; // Doesnt do anything yet
+
     Allocator * allocator;
 
 } Editor;
+
+
 
 Editor ed_init(Allocator * a);
 void   ed_deinit(Editor * ed);
@@ -81,6 +87,8 @@ void   ed_render(Editor * ed, surface_t * sur, i32 x, i32 y, i32 w, i32 h);
 bool   ed_edit_key(Editor * ed, PKey key, KeyMod mod);
 bool   ed_open_file(Editor * ed, char const * file_path);
 bool   ed_write_file(Editor * ed, char const * file_path);
+void   ed_push_text(Editor * ed, char const * text, usize text_len);
+void   ed_clear(Editor * ed);
 
 void ed_mouse_click(Editor * ed, i32 x, i32 y);
 

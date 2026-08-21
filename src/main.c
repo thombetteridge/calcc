@@ -1,5 +1,6 @@
 
 #include "base.h"
+#include "calcc.h"
 #include "editor.h"
 #include "platform.h"
 
@@ -26,6 +27,9 @@ int main(/*i32 argc, char ** argv*/ void)
 
     Editor ed_out = ed_init(&allocator);
     Editor ed_in  = ed_init(&allocator);
+
+    TokenArray toks = { 0 };
+    arr_init(&toks, &allocator);
 
     // if (argc > 1) {
     //     char const * file_path = argv[1];
@@ -66,6 +70,33 @@ int main(/*i32 argc, char ** argv*/ void)
 
         //     surface_resize(&sur, p_window_width(), p_window_height());
         // }
+        //
+
+        // arr_clear(&ed_out.data);
+
+        // for (iterate(i, ed_in.data.len)) {
+        //     arr_push(&ed_out.data, ed_in.data.ptr[i]);
+        // }
+
+        Lexer lx = { 0 };
+
+        lx_init(&lx, ed_in.data.ptr, ed_in.data.len);
+
+        arr_clear(&toks);
+
+        lx_to_tokens(&lx, &toks);
+
+        for (iterate(i, toks.len))
+        {
+            fprintf(stderr, "Kind=%d, Text= %.*s\n", toks.ptr[i].kind, (i32)toks.ptr[i].text.len, toks.ptr[i].text.ptr);
+        }
+
+        ed_clear(&ed_out);
+
+        char        result[2048];
+        usize const result_len = eval(&allocator, &toks, result);
+
+        ed_push_text(&ed_out, result, result_len);
 
 
         if (p_is_window_valid()) {
@@ -106,6 +137,7 @@ int main(/*i32 argc, char ** argv*/ void)
     //         fprintf(stderr, "ERROR: Could not write file %s: %s\n", file_path, strerror(errno));
     // }
 
+    arr_deinit(&toks);
     ed_deinit(&ed_in);
     ed_deinit(&ed_out);
     surface_deinit(&sur_in);
@@ -119,5 +151,6 @@ int main(/*i32 argc, char ** argv*/ void)
 // SINGLE TRANSLATION UNIT
 
 #include "base.c"
+#include "calcc.c"
 #include "editor.c"
 #include "platform.c"

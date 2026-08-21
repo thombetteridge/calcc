@@ -2,14 +2,12 @@
 
 #include <stdint.h>
 
-typedef struct string string_t;
-struct string {
-   const char *ptr;
-   size_t      len;
-};
+#include "base.h"
+
 
 typedef enum {
    TK_EOF,
+   TK_ILLEGAL,
    TK_NUM,
    TK_WORD,
    TK_PLUS,
@@ -19,75 +17,81 @@ typedef enum {
    TK_SLASH,
    TK_COLON,
    TK_SEMI,
-} tok_kind;
+} TokKind;
 
-typedef struct tok tok_t;
-struct tok {
-   tok_kind kind;
-   string_t text;
+typedef struct Token Token;
+struct Token {
+   TokKind kind;
+   StringV text;
 };
 
-typedef struct tok_array tok_array_t;
-struct tok_array {
-   size_t len, cap;
-   tok_t *ptr;
+typedef struct TokenArray TokenArray;
+struct TokenArray {
+   Token *ptr;
+   usize len, cap;
+
+   Allocator* allocator;
 };
 
-void tok_array_init(tok_array_t *toks);
-void tok_array_push(tok_array_t *toks, tok_t t);
-void tok_array_free(tok_array_t *toks);
 
-typedef struct lex lex_t;
-struct lex {
-   string_t src;
-   size_t   read_pos;
-   size_t   pos;
+typedef struct Lexer Lexer;
+struct Lexer {
+   StringV src;
+   usize   read_pos;
+   usize   pos;
    char     ch;
 };
 
-void lx_init(lex_t *lx, char const *str);
-void lx_to_tokens(lex_t *lx, tok_array_t *toks);
+void lx_init(Lexer *lx, char const *str, usize len);
+void lx_to_tokens(Lexer *lx, TokenArray *toks);
 
-typedef enum {
-   OP_ADD,
-   OP_SUB,
-   OP_DIV,
-   OP_MUL,
-   OP_POW,
-   OP_DROP,
-   OP_SWAP,
-   OP_DUP,
-   OP_LET
-} op_kind;
-
-typedef struct op op_t;
-struct op {
-   op_kind kind;
-   union {
-      double value;
-      struct {
-         string_t text;
-         uint8_t len;
-      } ident;
-   } as;
-};
-
-typedef struct op_array op_array_t;
-struct op_array {
-   size_t len, cap;
-   op_t  *ptr;
-};
-
-typedef struct stack stack_t;
-struct stack {
-   size_t  len, cap;
+typedef struct Stack Stack;
+struct Stack {
+   usize  len, cap;
    double *ptr;
+
+   Allocator * allocator;
 };
 
-typedef struct vm vm_t;
-struct vm {
-   stack_t    stack;
-   op_array_t ops;
-};
 
-void eval(tok_array_t *toks, char *output);
+usize eval(Allocator * allocator, TokenArray *toks, char *output);
+
+
+// typedef enum {
+//    OP_ADD,
+//    OP_SUB,
+//    OP_DIV,
+//    OP_MUL,
+//    OP_POW,
+//    OP_DROP,
+//    OP_SWAP,
+//    OP_DUP,
+//    OP_LET
+// } op_kind;
+
+// typedef struct op op_t;
+// struct op {
+//    op_kind kind;
+//    union {
+//       double value;
+//       struct {
+//          StringV text;
+//          uint8_t len;
+//       } ident;
+//    } as;
+// };
+
+// typedef struct op_array op_array_t;
+// struct op_array {
+//    usize len, cap;
+//    op_t  *ptr;
+// };
+//
+
+// typedef struct vm vm_t;
+// struct vm {
+//    Stack    stack;
+//    op_array_t ops;
+// };
+
+

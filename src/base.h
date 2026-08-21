@@ -134,6 +134,14 @@ typedef union {
         abort();                                            \
     } while (0)
 
+// STRINGS
+
+typedef struct StringV StringV;
+struct StringV {
+    char const * ptr;
+    size_t       len;
+};
+
 
 // ALLOCATORS
 

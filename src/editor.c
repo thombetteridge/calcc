@@ -437,6 +437,21 @@ void ed_deinit(Editor * ed)
     arr_deinit(&ed->lines);
 }
 
+void ed_push_text(Editor * ed, char const * text, usize text_len)
+{
+    for (iterate(i, text_len)) {
+        ed_insert_char(ed, text[i]);
+    }
+}
+
+void ed_clear(Editor * ed)
+{
+    arr_clear(&ed->data);
+    ed->cursor = 0;
+    ed->anchor = 0;
+    ed_compute_lines(ed);
+}
+
 
 bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
 {
