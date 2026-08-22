@@ -6,6 +6,19 @@
 
 #include <stdio.h>
 
+usize hash_editor(Editor const * ed)
+{
+    usize hash = 0;
+
+    for (iterate(i, ed->data.len)) {
+        hash = hash + (usize)ed->data.ptr[i];
+    }
+    return hash;
+}
+
+static char result[2048];
+
+
 int main(/*i32 argc, char ** argv*/ void)
 {
     Allocator allocator = default_allocator_init();
@@ -38,6 +51,8 @@ int main(/*i32 argc, char ** argv*/ void)
     //     if (!success)
     //         fprintf(stderr, "ERROR: Could not read file %s: %s\n", file_path, strerror(errno));
     // }
+
+    usize ed_hash = 0;
 
     while (p_running()) {
         p_wait_for_event(1000);
@@ -78,26 +93,27 @@ int main(/*i32 argc, char ** argv*/ void)
         //     arr_push(&ed_out.data, ed_in.data.ptr[i]);
         // }
 
-        Lexer lx = { 0 };
+        usize const ed_hash_cur = hash_editor(&ed_in);
+        if (ed_hash != ed_hash_cur) {
+            ed_hash  = ed_hash_cur;
+            Lexer lx = { 0 };
 
-        lx_init(&lx, ed_in.data.ptr, ed_in.data.len);
+            lx_init(&lx, ed_in.data.ptr, ed_in.data.len);
 
-        arr_clear(&toks);
+            arr_clear(&toks);
 
-        lx_to_tokens(&lx, &toks);
+            lx_to_tokens(&lx, &toks);
 
-        for (iterate(i, toks.len))
-        {
-            fprintf(stderr, "Kind=%d, Text= %.*s\n", toks.ptr[i].kind, (i32)toks.ptr[i].text.len, toks.ptr[i].text.ptr);
+            for (iterate(i, toks.len)) {
+                fprintf(stderr, "Kind=%d, Text= %.*s\n", toks.ptr[i].kind, (i32)toks.ptr[i].text.len, toks.ptr[i].text.ptr);
+            }
+
+            ed_clear(&ed_out);
+
+            usize const result_len = eval(&allocator, &toks, result);
+
+            ed_push_text(&ed_out, result, result_len);
         }
-
-        ed_clear(&ed_out);
-
-        char        result[2048];
-        usize const result_len = eval(&allocator, &toks, result);
-
-        ed_push_text(&ed_out, result, result_len);
-
 
         if (p_is_window_valid()) {
             p_clear(RGB_COLOUR(42u, 42u, 46u));

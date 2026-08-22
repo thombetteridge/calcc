@@ -142,6 +142,9 @@ struct StringV {
     size_t       len;
 };
 
+#define SVLIT(s) (StringV) {.ptr=(s), .len=sizeof(s)-1 }
+#define SVFMT "%.*s"
+#define SVARGS(s) (int)(s).len, (s).ptr
 
 // ALLOCATORS
 

@@ -8,6 +8,25 @@
 #include "base.h"
 #include "calcc.h"
 
+
+typedef struct Keyword_Table_Entry Keyword_Table_Entry;
+struct Keyword_Table_Entry {
+    StringV key;
+    void (*value)(Stack *);
+    bool occupied;
+};
+
+typedef struct Keyword_Table Keyword_Table;
+struct Keyword_Table {
+    Keyword_Table_Entry * entries;
+    usize                 count, capacity;
+
+    Allocator * allocator;
+};
+
+static Keyword_Table KEYWORD_TABLE;
+
+
 inline static void memzero(void * ptr, size_t n)
 {
     memset(ptr, 0, n);
@@ -17,7 +36,7 @@ static void lx_advance(Lexer * lx)
 {
     if (lx->read_pos >= lx->src.len) {
         lx->pos = lx->read_pos;
-        lx->ch = '\0';
+        lx->ch  = '\0';
         return;
     }
     lx->pos = lx->read_pos;
@@ -100,19 +119,26 @@ static Token lx_next(Lexer * lx)
             .text = { .len = sizeof("EOF"), .ptr = "EOF" }
         };
     }
-    case '+': return lx_new_token(lx, TK_PLUS);
-    case '-': return lx_new_token(lx, TK_MINUS);
-    case '/': return lx_new_token(lx, TK_SLASH);
-    case '*': return lx_new_token(lx, TK_STAR);
-    case ':': return lx_new_token(lx, TK_COLON);
-    case '^': return lx_new_token(lx, TK_CARET);
-    case ';': return lx_new_token(lx, TK_SEMI);
+    case '+':
+        return lx_new_token(lx, TK_PLUS);
+    case '-':
+        return lx_new_token(lx, TK_MINUS);
+    case '/':
+        return lx_new_token(lx, TK_SLASH);
+    case '*':
+        return lx_new_token(lx, TK_STAR);
+    case ':':
+        return lx_new_token(lx, TK_COLON);
+    case '^':
+        return lx_new_token(lx, TK_CARET);
+    case ';':
+        return lx_new_token(lx, TK_SEMI);
 
     default:
         if (is_digit(lx->ch)) {
             return lx_new_number(lx);
         }
-        else if (is_letter(lx->ch)){
+        else if (is_letter(lx->ch)) {
             return lx_new_word(lx);
         }
         else {
@@ -133,13 +159,19 @@ void lx_to_tokens(Lexer * lx, TokenArray * toks)
 
 double stack_top(Stack * s)
 {
-    assert(s->len > 0);
+    if (s->len == 0) {
+        fprintf(stderr, "Stack underflow\n");
+        return 0;
+    }
     return s->ptr[s->len - 1];
 }
 
 double stack_pop(Stack * s)
 {
-    assert(s->len > 0 && "stack underflow");
+    if (s->len == 0) {
+        fprintf(stderr, "Stack underflow\n");
+        return 0;
+    }
     double const x = s->ptr[s->len - 1];
     s->len -= 1;
     return x;
@@ -154,14 +186,144 @@ double string_to_double(StringV s)
     return atof(buffer);
 }
 
-#define BIN_OP(_op_)                                  \
-    do {                                              \
-        if (stack->len < 2) {                         \
-            fprintf(stderr, "bin_op underflow flow"); \
-        }                                             \
-        double const x = stack_pop(stack);            \
-        double const y = stack_pop(stack);            \
-        arr_push(stack, y  _op_  x);                    \
+
+// KEYWORDS
+
+usize sv_hash37(StringV s)
+{
+    usize hash = 123456789;
+    for (iterate(i, s.len)) {
+        hash = hash * 37 + (usize)s.ptr[i];
+    }
+    return hash;
+}
+
+static void calc_dup(Stack * s)
+{
+    if (s->len == 0) {
+        arr_push(s, 0);
+        return;
+    }
+    double const top = s->ptr[s->len - 1];
+    arr_push(s, top);
+}
+
+static void calc_swap(Stack * s)
+{
+    double const x = stack_pop(s);
+    double const y = stack_pop(s);
+
+    arr_push(s, x);
+    arr_push(s, y);
+}
+
+static void calc_sqrt(Stack * s)
+{
+    double const x = stack_pop(s);
+    arr_push(s, sqrt(x));
+}
+
+static void calc_sin(Stack * s)
+{
+    double const x = stack_pop(s);
+    arr_push(s, sin(x));
+}
+
+static void calc_cos(Stack * s)
+{
+    double const x = stack_pop(s);
+    arr_push(s, cos(x));
+}
+
+static void calc_tan(Stack * s)
+{
+    double const x = stack_pop(s);
+    arr_push(s, tan(x));
+}
+
+
+void keyword_table_insert(Keyword_Table * t, StringV key, void (*value)(Stack *))
+{
+    usize h = sv_hash37(key) % t->capacity;
+
+    while (t->entries[h].occupied) {
+        h = (h + 1) % t->capacity;
+    }
+
+    Keyword_Table_Entry new_entry = {
+        .key      = key,
+        .value    = value,
+        .occupied = true,
+    };
+
+    t->entries[h] = new_entry;
+}
+
+static bool sv_key_eq(StringV a, StringV b)
+{
+    if (a.len != b.len)
+        return false;
+    for (iterate(i, a.len)) {
+        if (a.ptr[i] != b.ptr[i])
+            return false;
+    }
+    return true;
+}
+
+bool keyword_table_get(Keyword_Table * t, StringV key, void (**value)(Stack *))
+{
+    usize h = sv_hash37(key) % t->capacity;
+
+    while (t->entries[h].occupied) {
+        if (sv_key_eq(t->entries[h].key, key)) {
+            *value = t->entries[h].value;
+            return true;
+        }
+        h = (h + 1) % t->capacity;
+    }
+
+    return false;
+}
+
+Keyword_Table keywords_table_init(Allocator * a)
+{
+    Keyword_Table result = { 0 };
+    result.capacity      = 256;
+    result.allocator     = a;
+    result.entries       = ALLOC(result.allocator, Keyword_Table_Entry, result.capacity);
+
+    // stack
+    keyword_table_insert(&result, SVLIT("dup"), calc_dup);
+    keyword_table_insert(&result, SVLIT("swap"), calc_swap);
+
+    // maths
+    keyword_table_insert(&result, SVLIT("sqrt"), calc_sqrt);
+    keyword_table_insert(&result, SVLIT("sin"), calc_sin);
+    keyword_table_insert(&result, SVLIT("cos"), calc_cos);
+    keyword_table_insert(&result, SVLIT("tan"), calc_tan);
+
+    for (iterate(i, result.capacity))
+    {
+        if (result.entries[i].occupied)
+        {
+            fprintf(stderr, "i:%zu k:'"SVFMT"'\n",i, SVARGS(result.entries[i].key));
+        }
+    }
+
+    return result;
+}
+
+
+//
+
+#define BIN_OP(_op_)                                           \
+    do {                                                       \
+        if (stack->len < 2) {                                  \
+            fprintf(stderr, "bin_op underflow '" #_op_ "'\n"); \
+        }                                                      \
+        double const x = stack_pop(stack);                     \
+        double const y = stack_pop(stack);                     \
+        arr_push(stack, y _op_ x);                             \
     } while (0)
 
 
@@ -177,8 +339,16 @@ void eval_tokens(TokenArray * toks, Stack * stack)
         case TK_NUM:
             arr_push(stack, string_to_double(tok.text));
             break;
-        case TK_WORD:
-            assert(0 && "WORDS TODO");
+        case TK_WORD: {
+            void (*keyword)(Stack *);
+            if (keyword_table_get(&KEYWORD_TABLE, tok.text, &keyword)) {
+                keyword(stack);
+            }
+            else {
+                fprintf(stderr, "Unknown Word:'" SVFMT "'\n", SVARGS(tok.text));
+            }
+            break;
+        }
         case TK_PLUS:
             BIN_OP(+);
             break;
@@ -190,7 +360,9 @@ void eval_tokens(TokenArray * toks, Stack * stack)
             break;
         case TK_CARET: {
             if (stack->len < 2) {
-                fprintf(stderr, "bin_op underflow flow");
+                fprintf(stderr, "bin_op underflow '^'");
+            }
+            else {
                 double const x = stack_pop(stack);
                 double const y = stack_pop(stack);
                 arr_push(stack, pow(y, x));
@@ -217,6 +389,7 @@ usize eval(Allocator * allocator, TokenArray * toks, char * output)
     if (once) {
         once = 0;
         arr_init(&stack, allocator);
+        KEYWORD_TABLE = keywords_table_init(allocator);
     }
     arr_clear(&stack);
 
