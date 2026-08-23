@@ -9,22 +9,9 @@
 #include "calcc.h"
 
 
-typedef struct Keyword_Table_Entry Keyword_Table_Entry;
-struct Keyword_Table_Entry {
-    StringV key;
-    void (*value)(Stack *);
-    bool occupied;
-};
 
-typedef struct Keyword_Table Keyword_Table;
-struct Keyword_Table {
-    Keyword_Table_Entry * entries;
-    usize                 count, capacity;
 
-    Allocator * allocator;
-};
 
-static Keyword_Table KEYWORD_TABLE;
 
 
 inline static void memzero(void * ptr, size_t n)
@@ -380,6 +367,13 @@ void eval_tokens(TokenArray * toks, Stack * stack)
             break;
         }
     }
+}
+
+
+Calculator calc_init(Allocator *allocator)
+{
+
+
 }
 
 usize eval(Allocator * allocator, TokenArray * toks, char * output)

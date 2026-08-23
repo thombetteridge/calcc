@@ -6,55 +6,81 @@
 
 
 typedef enum {
-   TK_EOF,
-   TK_ILLEGAL,
-   TK_NUM,
-   TK_WORD,
-   TK_PLUS,
-   TK_MINUS,
-   TK_STAR,
-   TK_CARET,
-   TK_SLASH,
-   TK_COLON,
-   TK_SEMI,
+    TK_EOF,
+    TK_ILLEGAL,
+    TK_NUM,
+    TK_WORD,
+    TK_PLUS,
+    TK_MINUS,
+    TK_STAR,
+    TK_CARET,
+    TK_SLASH,
+    TK_COLON,
+    TK_SEMI,
 } TokKind;
 
 typedef struct Token Token;
 struct Token {
-   TokKind kind;
-   StringV text;
+    TokKind kind;
+    StringV text;
 };
 
 typedef struct TokenArray TokenArray;
 struct TokenArray {
-   Token *ptr;
-   usize len, cap;
+    Token * ptr;
+    usize   len, cap;
 
-   Allocator* allocator;
+    Allocator * allocator;
 };
 
 
 typedef struct Lexer Lexer;
 struct Lexer {
-   StringV src;
-   usize   read_pos;
-   usize   pos;
-   char     ch;
+    StringV src;
+    usize   read_pos;
+    usize   pos;
+    char    ch;
 };
 
-void lx_init(Lexer *lx, char const *str, usize len);
-void lx_to_tokens(Lexer *lx, TokenArray *toks);
+void lx_init(Lexer * lx, char const * str, usize len);
+void lx_to_tokens(Lexer * lx, TokenArray * toks);
 
 typedef struct Stack Stack;
 struct Stack {
-   usize  len, cap;
-   double *ptr;
+    usize    len, cap;
+    double * ptr;
 
-   Allocator * allocator;
+    Allocator * allocator;
 };
 
 
-usize eval(Allocator * allocator, TokenArray *toks, char *output);
+typedef struct Keyword_Table_Entry Keyword_Table_Entry;
+struct Keyword_Table_Entry {
+    StringV key;
+    void (*value)(Stack *);
+    bool occupied;
+};
+
+typedef struct Keyword_Table Keyword_Table;
+struct Keyword_Table {
+    Keyword_Table_Entry * entries;
+    usize                 count, capacity;
+
+    Allocator * allocator;
+};
+
+typedef struct Calculator Calculator;
+struct Calculator {
+    Stack         stack;
+    Keyword_Table keywords;
+
+    Allocator allocator;
+};
+
+Calculator calc_init(Allocator * allocator);
+void calc_deinit(Calculator* calc);
+
+usize calc_eval(Calculator* calc, TokenArray * toks, char * output);
 
 
 // typedef enum {
@@ -93,5 +119,3 @@ usize eval(Allocator * allocator, TokenArray *toks, char *output);
 //    Stack    stack;
 //    op_array_t ops;
 // };
-
-

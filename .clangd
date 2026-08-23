@@ -10,6 +10,7 @@ CompileFlags:
     - -Wno-unused-function
     - -Wno-sign-conversion
     - -I../inc
+    - -Iinc
     - -x
     - c
     - -D_CRT_SECURE_NO_WARNINGS
