@@ -114,35 +114,3 @@ void fixed_allocator_deinit(Allocator * self)
 {
     *self = (Allocator) { 0 };
 }
-
-
-////////////////////////////////////
-// Hash Table
-////////////////////////////////////
-
-
-size_t ht_hash37(char const * key)
-{
-    size_t hash = 0;
-
-    for (size_t i = 0; key[i] != '\0'; i += 1) {
-        hash = hash * 37 + (uint8_t)key[i];
-    }
-
-    return hash;
-}
-
-bool ht_key_eq(char const * a, char const * b)
-{
-    return (strcmp(a, b) == 0);
-}
-
-char * ht_key_dup(char const * s, Allocator * a)
-{
-    size_t len    = strlen(s);
-    char * buffer = a->alloc(a, len + 1, alignof(char));
-    memcpy(buffer, s, len);
-    buffer[len] = '\0';
-
-    return buffer;
-}
