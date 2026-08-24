@@ -42,7 +42,7 @@ struct Lexer {
     char    ch;
 };
 
-void lx_init(Lexer * lx, char const * str, usize len);
+Lexer lx_init( char const * str, usize len);
 void lx_to_tokens(Lexer * lx, TokenArray * toks);
 
 typedef struct Stack Stack;
@@ -54,33 +54,58 @@ struct Stack {
 };
 
 
-typedef struct Keyword_Table_Entry Keyword_Table_Entry;
-struct Keyword_Table_Entry {
+typedef struct KeywordTableEntry KeywordTableEntry;
+struct KeywordTableEntry {
     StringV key;
     void (*value)(Stack *);
     bool occupied;
 };
 
-typedef struct Keyword_Table Keyword_Table;
-struct Keyword_Table {
-    Keyword_Table_Entry * entries;
+typedef struct KeywordTable KeywordTable;
+struct KeywordTable {
+    KeywordTableEntry * entries;
     usize                 count, capacity;
 
     Allocator * allocator;
 };
 
+
+typedef struct UserwordTableEntry UserwordTableEntry ;
+struct UserwordTableEntry
+{
+    StringV key;
+    TokenArray value;
+    bool occupied;
+};
+
+typedef struct UserwordTable UserwordTable ;
+struct UserwordTable {
+    UserwordTableEntry *  entries;
+    usize                 count, capacity;
+
+
+    Allocator * allocator;
+    Allocator  buffer; //  fixed size buffer;
+};
+
 typedef struct Calculator Calculator;
 struct Calculator {
+    Lexer lx;
+    TokenArray tokens;
     Stack         stack;
-    Keyword_Table keywords;
+    KeywordTable keywords;
+    UserwordTable userwords;
 
-    Allocator allocator;
+    char * output_buffer;
+    usize output_len;
+
+    Allocator * allocator;
 };
 
 Calculator calc_init(Allocator * allocator);
 void calc_deinit(Calculator* calc);
 
-usize calc_eval(Calculator* calc, TokenArray * toks, char * output);
+StringV calc_eval(Calculator* calc, StringV src);
 
 
 // typedef enum {

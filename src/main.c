@@ -16,9 +16,6 @@ usize hash_editor(Editor const * ed)
     return hash;
 }
 
-static char result[2048];
-
-
 int main(/*i32 argc, char ** argv*/ void)
 {
     Allocator allocator = default_allocator_init();
@@ -32,17 +29,19 @@ int main(/*i32 argc, char ** argv*/ void)
         return 1;
     }
 
-    surface_t sur_out = surface_init(&allocator, 300, 200);
+    surface_t sur_out = surface_init(&allocator, 300, 160);
     draw_clear(&sur_out, WHITE);
 
-    surface_t sur_in = surface_init(&allocator, 300, 200);
+    surface_t sur_in = surface_init(&allocator, 300, initial_height-sur_out.height);
     draw_clear(&sur_in, WHITE);
 
     Editor ed_out = ed_init(&allocator);
     Editor ed_in  = ed_init(&allocator);
 
-    TokenArray toks = { 0 };
-    arr_init(&toks, &allocator);
+
+    Calculator calc = calc_init(&allocator);
+
+
 
     // if (argc > 1) {
     //     char const * file_path = argv[1];
@@ -96,23 +95,16 @@ int main(/*i32 argc, char ** argv*/ void)
         usize const ed_hash_cur = hash_editor(&ed_in);
         if (ed_hash != ed_hash_cur) {
             ed_hash  = ed_hash_cur;
-            Lexer lx = { 0 };
 
-            lx_init(&lx, ed_in.data.ptr, ed_in.data.len);
+           StringV result =  calc_eval(&calc, (StringV) {.ptr= ed_in.data.ptr, .len=ed_in.data.len});
 
-            arr_clear(&toks);
-
-            lx_to_tokens(&lx, &toks);
-
-            for (iterate(i, toks.len)) {
-                fprintf(stderr, "Kind=%d, Text= %.*s\n", toks.ptr[i].kind, (i32)toks.ptr[i].text.len, toks.ptr[i].text.ptr);
+            for (iterate(i, calc.tokens.len)) {
+                fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (i32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);
             }
 
             ed_clear(&ed_out);
 
-            usize const result_len = eval(&allocator, &toks, result);
-
-            ed_push_text(&ed_out, result, result_len);
+            ed_push_text(&ed_out, result.ptr, result.len);
         }
 
         if (p_is_window_valid()) {
@@ -137,7 +129,7 @@ int main(/*i32 argc, char ** argv*/ void)
                 BLACK);
 
             push_surface(&sur_out, 0, 0);
-            push_surface(&sur_in, 0, sur_in.height);
+            push_surface(&sur_in, 0, sur_out.height);
 
             p_present();
         }
@@ -153,7 +145,9 @@ int main(/*i32 argc, char ** argv*/ void)
     //         fprintf(stderr, "ERROR: Could not write file %s: %s\n", file_path, strerror(errno));
     // }
 
-    arr_deinit(&toks);
+
+    calc_deinit(&calc);
+
     ed_deinit(&ed_in);
     ed_deinit(&ed_out);
     surface_deinit(&sur_in);

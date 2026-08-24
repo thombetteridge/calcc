@@ -85,6 +85,8 @@ static void * fixed_alloc(Allocator * self, size_t size, size_t alignment)
     void * ptr = a->buffer + aligned;
     a->offset  = aligned + size;
 
+    memset(ptr, 0, size);
+
     return ptr;
 }
 

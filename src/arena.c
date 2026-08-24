@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-void arena_init(arena_t *a, byte_t *buffer, size_t buffer_size)
+void arena_init(Arena *a, byte_t *buffer, size_t buffer_size)
 {
    a->len = 0;
    a->cap = buffer_size;
@@ -22,7 +22,7 @@ static inline void  memzero(void *ptr, size_t n)
    memset(ptr, 0, n);
 }
 
-void *arena_push(arena_t *a, size_t size)
+void *arena_push(Arena *a, size_t size)
 {
    if (a->len + size > a->cap) {
       fprintf(stderr, "arena overflow\n");
@@ -34,17 +34,17 @@ void *arena_push(arena_t *a, size_t size)
    return ptr;
 }
 
-size_t arena_mark(arena_t a) {
+size_t arena_mark(Arena a) {
    return a.len;
 }
 
-void arena_pop(arena_t *a, size_t mark)
+void arena_pop(Arena *a, size_t mark)
 {
    assert(mark <= a->len);
    a->len = mark;
 }
 
-void arena_reset(arena_t *a)
+void arena_reset(Arena *a)
 {
    a->len = 0;
 }

@@ -5,16 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arena.h"
 #include "base.h"
 #include "calcc.h"
 
+static u8 temp_alloc_buffer[4096];
 
 
-
-
-
-
-inline static void memzero(void * ptr, size_t n)
+inline static void
+memzero(void * ptr, size_t n)
 {
     memset(ptr, 0, n);
 }
@@ -31,13 +30,17 @@ static void lx_advance(Lexer * lx)
     ++lx->read_pos;
 }
 
-void lx_init(Lexer * lx, char const * str, usize len)
+Lexer lx_init(char const * str, usize len)
 {
-    lx->src.ptr  = str;
-    lx->src.len  = len;
-    lx->read_pos = 0;
-    lx->pos      = 0;
-    lx_advance(lx);
+    Lexer lx = { 0 };
+
+    lx.src.ptr  = str;
+    lx.src.len  = len;
+    lx.read_pos = 0;
+    lx.pos      = 0;
+    lx_advance(&lx);
+
+    return lx;
 }
 
 static bool is_white(char c)
@@ -229,7 +232,7 @@ static void calc_tan(Stack * s)
 }
 
 
-void keyword_table_insert(Keyword_Table * t, StringV key, void (*value)(Stack *))
+void keyword_table_insert(KeywordTable * t, StringV key, void (*value)(Stack *))
 {
     usize h = sv_hash37(key) % t->capacity;
 
@@ -237,7 +240,7 @@ void keyword_table_insert(Keyword_Table * t, StringV key, void (*value)(Stack *)
         h = (h + 1) % t->capacity;
     }
 
-    Keyword_Table_Entry new_entry = {
+    KeywordTableEntry new_entry = {
         .key      = key,
         .value    = value,
         .occupied = true,
@@ -257,7 +260,7 @@ static bool sv_key_eq(StringV a, StringV b)
     return true;
 }
 
-bool keyword_table_get(Keyword_Table * t, StringV key, void (**value)(Stack *))
+bool keyword_table_get(KeywordTable * t, StringV key, void (**value)(Stack *))
 {
     usize h = sv_hash37(key) % t->capacity;
 
@@ -272,12 +275,12 @@ bool keyword_table_get(Keyword_Table * t, StringV key, void (**value)(Stack *))
     return false;
 }
 
-Keyword_Table keywords_table_init(Allocator * a)
+KeywordTable keywords_table_init(Allocator * a)
 {
-    Keyword_Table result = { 0 };
-    result.capacity      = 256;
-    result.allocator     = a;
-    result.entries       = ALLOC(result.allocator, Keyword_Table_Entry, result.capacity);
+    KeywordTable result = { 0 };
+    result.capacity     = 256;
+    result.allocator    = a;
+    result.entries      = ALLOC(result.allocator, KeywordTableEntry, result.capacity);
 
     // stack
     keyword_table_insert(&result, SVLIT("dup"), calc_dup);
@@ -289,48 +292,144 @@ Keyword_Table keywords_table_init(Allocator * a)
     keyword_table_insert(&result, SVLIT("cos"), calc_cos);
     keyword_table_insert(&result, SVLIT("tan"), calc_tan);
 
-    for (iterate(i, result.capacity))
-    {
-        if (result.entries[i].occupied)
-        {
-            fprintf(stderr, "i:%zu k:'"SVFMT"'\n",i, SVARGS(result.entries[i].key));
+    for (iterate(i, result.capacity)) {
+        if (result.entries[i].occupied) {
+            fprintf(stderr, "i:%zu k:'" SVFMT "'\n", i, SVARGS(result.entries[i].key));
         }
     }
 
     return result;
 }
 
+void keywords_table_deinit(KeywordTable * t)
+{
+    DEALLOC(t->allocator, t->entries, t->capacity);
+}
+
+UserwordTable userword_table_init(Allocator * a, usize inital_size)
+{
+    UserwordTable user = { 0 };
+
+    user.allocator = a;
+
+    usize const inital_buffer_size = sizeof(UserwordTableEntry) * inital_size + // inital array cap,
+                                     24 * inital_size +                         // assume keys of max len 24
+                                     sizeof(Token) * 10 * inital_size;          // assume 10 tokens per word?
+
+    u8 * buffer = ALLOC(user.allocator, u8, inital_buffer_size);
+    user.buffer = fixed_allocator_init(buffer, inital_buffer_size);
+
+    user.entries  = ALLOC(&user.buffer, UserwordTableEntry, inital_size);
+    user.capacity = inital_size;
+
+    return user;
+}
+
+void userword_table_deinit(UserwordTable * user)
+{
+    FixedAllocator * fixed = (FixedAllocator *)(user->buffer.ctx);
+    DEALLOC(user->allocator, fixed, fixed->capacity);
+}
+
+StringV sv_dup(Allocator * a, StringV s)
+{
+    char * buffer = ALLOC(a, char, s.len);
+    memcpy(buffer, s.ptr, s.len);
+    return (StringV) { .ptr = buffer, .len = s.len };
+}
+
+static TokenArray user_tokens_dup(Allocator * a, TokenArray arr)
+{
+    TokenArray dup_arr = { 0 };
+    dup_arr.ptr        = ALLOC(a, Token, arr.len);
+    dup_arr.cap        = arr.len;
+
+    for (iterate(i, arr.len)) {
+        Token dup_t    = { .kind = arr.ptr[i].kind, .text = sv_dup(a, arr.ptr[i].text) };
+        dup_arr.ptr[i] = dup_t;
+        dup_arr.len += 1;
+    }
+
+    return dup_arr;
+}
+
+
+void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens)
+{
+    usize h = sv_hash37(key) % user->capacity;
+
+    // TODO CHECK FOR RUNNING OUT OF SPACE AND REALLOC
+
+    while (user->entries[h].occupied) {
+        if (sv_key_eq(user->entries[h].key, key)) {
+            // replace
+            user->entries[h].value = user_tokens_dup(&user->buffer, tokens);
+            return;
+        }
+        h = (h + 1) % user->capacity;
+    }
+
+    // new entry;
+    UserwordTableEntry entry = { 0 };
+    entry.key                = sv_dup(&user->buffer, key);
+    entry.value              = user_tokens_dup(&user->buffer, tokens);
+    entry.occupied           = true;
+    user->entries[h]         = entry;
+
+    user->count += 1;
+}
+
+bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out)
+{
+    usize h = sv_hash37(key) % user->capacity;
+
+    while (user->entries[h].occupied) {
+        if (sv_key_eq(user->entries[h].key, key)) {
+            *out = user->entries[h].value;
+            return true;
+        }
+        h = (h + 1) % user->capacity;
+    }
+    return false;
+}
 
 //
 
 #define BIN_OP(_op_)                                           \
     do {                                                       \
-        if (stack->len < 2) {                                  \
+        if (calc->stack.len < 2) {                             \
             fprintf(stderr, "bin_op underflow '" #_op_ "'\n"); \
         }                                                      \
-        double const x = stack_pop(stack);                     \
-        double const y = stack_pop(stack);                     \
-        arr_push(stack, y _op_ x);                             \
+        double const x = stack_pop(&calc->stack);              \
+        double const y = stack_pop(&calc->stack);              \
+        arr_push(&calc->stack, y _op_ x);                      \
     } while (0)
 
 
-void eval_tokens(TokenArray * toks, Stack * stack)
+static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 {
-    for (size_t i = 0; i < toks->len; ++i) {
-        Token tok = toks->ptr[i];
+    for (iterate(i, tokens->len)) {
+        Token tok = tokens->ptr[i];
 
         switch (tok.kind) {
 
         case TK_EOF:
             return;
         case TK_NUM:
-            arr_push(stack, string_to_double(tok.text));
+            arr_push(&calc->stack, string_to_double(tok.text));
             break;
         case TK_WORD: {
             void (*keyword)(Stack *);
-            if (keyword_table_get(&KEYWORD_TABLE, tok.text, &keyword)) {
-                keyword(stack);
+            if (keyword_table_get(&calc->keywords, tok.text, &keyword)) {
+                keyword(&calc->stack);
             }
+
+            TokenArray user_word = { 0 };
+            if ((userword_table_get(&calc->userwords, tok.text, &user_word))) {
+                calc_eval_tokens(calc, &user_word);
+                break;
+            }
+
             else {
                 fprintf(stderr, "Unknown Word:'" SVFMT "'\n", SVARGS(tok.text));
             }
@@ -346,21 +445,41 @@ void eval_tokens(TokenArray * toks, Stack * stack)
             BIN_OP(*);
             break;
         case TK_CARET: {
-            if (stack->len < 2) {
+            if (calc->stack.len < 2) {
                 fprintf(stderr, "bin_op underflow '^'");
             }
             else {
-                double const x = stack_pop(stack);
-                double const y = stack_pop(stack);
-                arr_push(stack, pow(y, x));
+                double const x = stack_pop(&calc->stack);
+                double const y = stack_pop(&calc->stack);
+                arr_push(&calc->stack, pow(y, x));
             }
             break;
         }
         case TK_SLASH:
             BIN_OP(/);
             break;
-        case TK_COLON:
-            break;
+        case TK_COLON: {
+            StringV    word_name  = { 0 };
+            TokenArray definition = { 0 };
+            Allocator  temp_alloc = fixed_allocator_init(temp_alloc_buffer, sizeof(temp_alloc_buffer));
+
+            arr_init(&definition, &temp_alloc);
+
+            if (++i < tokens->len && tokens->ptr[i].kind == TK_WORD) {
+                word_name = tokens->ptr[i].text;
+            }
+            else {
+                break;
+            }
+
+            while (++i < tokens->len && tokens->ptr[i].kind != TK_SEMI) {
+                arr_push(&definition, tokens->ptr[i]);
+            }
+
+            if (tokens->ptr[i].kind == TK_SEMI) {
+                userword_table_add(&calc->userwords, word_name, definition);
+            }
+        } break;
         case TK_SEMI:
             break;
         case TK_ILLEGAL:
@@ -370,29 +489,60 @@ void eval_tokens(TokenArray * toks, Stack * stack)
 }
 
 
-Calculator calc_init(Allocator *allocator)
+Calculator calc_init(Allocator * allocator)
 {
+    Calculator calc = { 0 };
+    calc.allocator  = allocator;
 
+    arr_init(&calc.stack, calc.allocator);
+    arr_init(&calc.tokens, calc.allocator);
+    calc.keywords = keywords_table_init(calc.allocator);
 
+    usize const inital_buffer_len = 2048;
+
+    calc.output_buffer = ALLOC(calc.allocator, char, inital_buffer_len);
+    calc.output_len    = inital_buffer_len;
+
+    calc.userwords = userword_table_init(calc.allocator, 64);
+
+    return calc;
 }
 
-usize eval(Allocator * allocator, TokenArray * toks, char * output)
+void calc_deinit(Calculator * calc)
 {
-    static Stack stack;
-    static int   once = 1;
-    if (once) {
-        once = 0;
-        arr_init(&stack, allocator);
-        KEYWORD_TABLE = keywords_table_init(allocator);
+    arr_deinit(&calc->stack);
+    arr_deinit(&calc->tokens);
+    DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);
+    userword_table_deinit(&calc->userwords);
+    keywords_table_deinit(&calc->keywords);
+}
+
+
+StringV calc_eval(Calculator * calc, StringV src)
+{
+    calc->lx = lx_init(src.ptr, src.len);
+    arr_clear(&calc->tokens);
+
+    lx_to_tokens(&calc->lx, &calc->tokens);
+
+    arr_clear(&calc->stack);
+
+    calc_eval_tokens(calc, &calc->tokens);
+
+    usize offset = 0;
+    for (iterate(i, calc->stack.len)) {
+        if (offset + 64 > calc->output_len) {
+            usize  new_len    = calc->output_len * 2;
+            char * new_buffer = ALLOC(calc->allocator, char, new_len);
+            memcpy(new_buffer, calc->output_buffer, calc->output_len);
+            DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);
+
+            calc->output_buffer = new_buffer;
+            calc->output_len    = new_len;
+        }
+
+        offset += sprintf(calc->output_buffer + offset, "%g\n", calc->stack.ptr[i]);
     }
-    arr_clear(&stack);
 
-    eval_tokens(toks, &stack);
-
-    size_t offset = 0;
-    for (size_t i = 0; i < stack.len; ++i) {
-        offset += sprintf(output + offset, "%g\n", stack.ptr[i]);
-    }
-
-    return offset;
+    return (StringV) { .ptr = calc->output_buffer, .len = offset };
 }
