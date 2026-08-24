@@ -32,7 +32,7 @@ int main(/*i32 argc, char ** argv*/ void)
     surface_t sur_out = surface_init(&allocator, 300, 160);
     draw_clear(&sur_out, WHITE);
 
-    surface_t sur_in = surface_init(&allocator, 300, initial_height-sur_out.height);
+    surface_t sur_in = surface_init(&allocator, 300, initial_height - sur_out.height);
     draw_clear(&sur_in, WHITE);
 
     Editor ed_out = ed_init(&allocator);
@@ -40,7 +40,6 @@ int main(/*i32 argc, char ** argv*/ void)
 
 
     Calculator calc = calc_init(&allocator);
-
 
 
     // if (argc > 1) {
@@ -94,9 +93,9 @@ int main(/*i32 argc, char ** argv*/ void)
 
         usize const ed_hash_cur = hash_editor(&ed_in);
         if (ed_hash != ed_hash_cur) {
-            ed_hash  = ed_hash_cur;
+            ed_hash = ed_hash_cur;
 
-           StringV result =  calc_eval(&calc, (StringV) {.ptr= ed_in.data.ptr, .len=ed_in.data.len});
+            StringV result = calc_eval(&calc, (StringV) { .ptr = ed_in.data.ptr, .len = ed_in.data.len });
 
             for (iterate(i, calc.tokens.len)) {
                 fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (i32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);

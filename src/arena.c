@@ -1,50 +1,51 @@
 #include "arena.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
-void arena_init(Arena *a, byte_t *buffer, size_t buffer_size)
+void arena_init(Arena * a, byte_t * buffer, size_t buffer_size)
 {
-   a->len = 0;
-   a->cap = buffer_size;
-   a->ptr = buffer;
+    a->len = 0;
+    a->cap = buffer_size;
+    a->ptr = buffer;
 }
 
 static size_t align_forward(size_t ptr, size_t align)
 {
-   size_t const modulo = ptr & (align - 1);
-   return modulo ? (ptr + (align - modulo)) : ptr;
+    size_t const modulo = ptr & (align - 1);
+    return modulo ? (ptr + (align - modulo)) : ptr;
 }
 
-static inline void  memzero(void *ptr, size_t n)
+inline static void memzero(void * ptr, size_t n)
 {
-   memset(ptr, 0, n);
+    memset(ptr, 0, n);
 }
 
-void *arena_push(Arena *a, size_t size)
+void * arena_push(Arena * a, size_t size)
 {
-   if (a->len + size > a->cap) {
-      fprintf(stderr, "arena overflow\n");
-      assert(0);
-   }
-   void *ptr = a->ptr + a->len;
-   memzero(ptr, size);
-   a->len = align_forward(a->len + size, sizeof(void*));
-   return ptr;
+    if (a->len + size > a->cap) {
+        fprintf(stderr, "arena overflow\n");
+        assert(0);
+    }
+    void * ptr = a->ptr + a->len;
+    memzero(ptr, size);
+    a->len = align_forward(a->len + size, sizeof(void *));
+    return ptr;
 }
 
-size_t arena_mark(Arena a) {
-   return a.len;
-}
-
-void arena_pop(Arena *a, size_t mark)
+size_t arena_mark(Arena a)
 {
-   assert(mark <= a->len);
-   a->len = mark;
+    return a.len;
 }
 
-void arena_reset(Arena *a)
+void arena_pop(Arena * a, size_t mark)
 {
-   a->len = 0;
+    assert(mark <= a->len);
+    a->len = mark;
+}
+
+void arena_reset(Arena * a)
+{
+    a->len = 0;
 }

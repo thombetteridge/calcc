@@ -80,7 +80,6 @@ typedef struct {
 } Editor;
 
 
-
 Editor ed_init(Allocator * a);
 void   ed_deinit(Editor * ed);
 void   ed_render(Editor * ed, surface_t * sur, i32 x, i32 y, i32 w, i32 h);
