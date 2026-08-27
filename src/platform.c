@@ -75,7 +75,7 @@ bool p_init(Allocator * allocator, char const * title, i32 width, i32 height)
     return true;
 }
 
-void p_deinit()
+void p_deinit(void)
 {
     if (g_ctx.surface) {
         RGFW_surface_free(g_ctx.surface);
@@ -99,7 +99,7 @@ void p_request_close(void)
     g_ctx.running = false;
 }
 
-bool p_running()
+bool p_running(void)
 {
     if (!g_ctx.window)
         return false;
@@ -126,7 +126,7 @@ bool p_get_released_key(PKey * key)
     return false;
 }
 
-char p_get_last_key_char()
+char p_get_last_key_char(void)
 {
     return g_ctx.key_char;
 }
@@ -136,7 +136,7 @@ void p_wait_for_event(i32 ms)
     RGFW_waitForEvent(ms);
 }
 
-bool p_poll()
+bool p_poll(void)
 {
     bool       any = false;
     RGFW_event event;
@@ -201,7 +201,7 @@ bool p_poll()
     return any;
 }
 
-void p_present()
+void p_present(void)
 {
     if (g_ctx.window && g_ctx.surface && g_ctx.window_valid) {
         RGFW_window_blitSurface(g_ctx.window, g_ctx.surface);
@@ -214,22 +214,22 @@ void p_sleep(u64 ms)
 }
 
 
-i32 p_window_width()
+i32 p_window_width(void)
 {
     return g_ctx.window_width;
 }
 
-i32 p_window_height()
+i32 p_window_height(void)
 {
     return g_ctx.window_height;
 }
 
-bool p_is_window_valid()
+bool p_is_window_valid(void)
 {
     return g_ctx.window_valid;
 }
 
-point_t p_mouse_pos()
+point_t p_mouse_pos(void)
 {
     i32 x = 0, y = 0;
     if (g_ctx.window)
@@ -237,7 +237,7 @@ point_t p_mouse_pos()
     return (point_t) { (i32)x, (i32)y };
 }
 
-point_t p_mouse_delta()
+point_t p_mouse_delta(void)
 {
     point_t delta = {
         g_ctx.current_mouse.x - g_ctx.prev_mouse.x,
@@ -267,7 +267,7 @@ bool p_is_mouse_pressed(PMouseButton button)
     return RGFW_isMousePressed(b);
 }
 
-f32 p_mouse_scroll()
+f32 p_mouse_scroll(void)
 {
     f32 s        = g_ctx.scroll;
     g_ctx.scroll = 0.0f;

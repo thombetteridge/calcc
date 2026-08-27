@@ -156,22 +156,22 @@ typedef enum {
 
 // Lifecycle
 bool p_init(Allocator * allocator, char const * title, i32 width, i32 height);
-void p_deinit();
-void p_request_close();
+void p_deinit(void);
+void p_request_close(void);
 void p_sleep(u64 ms);
 
 // Per-frame
-bool p_running();              //
-bool p_poll();                 //
-void p_present();              //
+bool p_running(void);          //
+bool p_poll(void);             //
+void p_present(void);          //
 void p_wait_for_event(i32 ms); //
 
 // Queries
-i32     p_window_width();
-i32     p_window_height();
-bool    p_is_window_valid(); // false when minimized
-point_t p_mouse_pos();
-point_t p_mouse_delta();
+i32     p_window_width(void);
+i32     p_window_height(void);
+bool    p_is_window_valid(void); // false when minimized
+point_t p_mouse_pos(void);
+point_t p_mouse_delta(void);
 bool    p_is_mouse_down(PMouseButton button);
 bool    p_is_mouse_pressed(PMouseButton button);
 bool    p_is_key_pressed(PKey key);
@@ -179,8 +179,8 @@ bool    p_is_key_released(PKey key);
 bool    p_is_key_down(PKey key);
 bool    p_get_pressed_key(PKey * key);
 bool    p_get_released_key(PKey * key);
-char    p_get_last_key_char();
-f32     p_mouse_scroll();
+char    p_get_last_key_char(void);
+f32     p_mouse_scroll(void);
 
 // Clipboard
 
