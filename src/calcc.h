@@ -53,17 +53,20 @@ struct Stack {
     Allocator * allocator;
 };
 
+typedef int StackError;
 
-typedef struct KeywordTableEntry KeywordTableEntry;
-struct KeywordTableEntry {
+typedef StackError (*Builtin)(Stack *);
+
+typedef struct BuiltinTableEntry BuiltinTableEntry;
+struct BuiltinTableEntry {
     StringV key;
-    void (*value)(Stack *);
+    Builtin value;
     bool occupied;
 };
 
-typedef struct KeywordTable KeywordTable;
-struct KeywordTable {
-    KeywordTableEntry * entries;
+typedef struct BuiltinTable BuiltinTable;
+struct BuiltinTable {
+    BuiltinTableEntry * entries;
     usize               count, capacity;
 
     Allocator * allocator;
@@ -74,7 +77,9 @@ typedef struct UserwordTableEntry UserwordTableEntry;
 struct UserwordTableEntry {
     StringV    key;
     TokenArray value;
+    usize hash;
     bool       occupied;
+
 };
 
 typedef struct UserwordTable UserwordTable;
@@ -92,7 +97,7 @@ struct Calculator {
     Lexer         lx;
     TokenArray    tokens;
     Stack         stack;
-    KeywordTable  keywords;
+    BuiltinTable  builtins;
     UserwordTable userwords;
 
     char * output_buffer;

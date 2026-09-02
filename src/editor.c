@@ -238,7 +238,7 @@ ed_delete_line(Editor * ed, usize line)
 static bool
 is_word_delim(char c)
 {
-    return isspace(c) || ispunct(c);
+    return c == ' ' || c == '\t' || c == '\r' || ispunct(c);
 }
 
 

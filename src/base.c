@@ -1,4 +1,5 @@
 #include "base.h"
+#include <stdio.h>
 
 ////////////////////////////////////
 // Allocators
@@ -18,6 +19,10 @@ static void * default_alloc(Allocator * self, size_t size, size_t alignment)
     (void)alignment;
 
     void * buffer = malloc(size);
+
+    if (!buffer) {
+        fprintf(stderr, "%s %d malloc of size %zu failed\n\n ", __FILE__, __LINE__, size);
+    }
 
     if (buffer) {
         memset(buffer, 0, size);
@@ -80,6 +85,7 @@ static void * fixed_alloc(Allocator * self, size_t size, size_t alignment)
     FixedAllocator * a       = (FixedAllocator *)self->ctx;
     size_t           aligned = (a->offset + alignment - 1) & ~(alignment - 1);
     if (aligned + size > a->capacity) {
+        fprintf(stderr, "fixed allocator OOM\n");
         return NULL;
     }
     void * ptr = a->buffer + aligned;

@@ -1,4 +1,4 @@
-TARGET := notepad2
+TARGET := calcc
 CC := gcc
 CFLAGS := -Wall -Wextra -Wpedantic -Wconversion -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion
 CFLAGS += -std=c17 -g3 -MMD -MP #-fsanitize=address
