@@ -160,6 +160,12 @@ void lx_to_tokens(Lexer * lx, TokenArray * toks)
 }
 
 
+static void stack_push(Stack * s, f64 x)
+{
+    arr_push(s, x);
+}
+
+
 static f64 stack_top(Stack * s)
 {
     if (s->len == 0) {
@@ -204,11 +210,11 @@ static usize sv_hash37(StringV s)
 static void calc_dup(Stack * s)
 {
     if (s->len == 0) {
-        arr_push(s, 0);
+        stack_push(s, 0);
         return;
     }
     f64 const top = s->ptr[s->len - 1];
-    arr_push(s, top);
+    stack_push(s, top);
 }
 
 static void calc_swap(Stack * s)
@@ -216,8 +222,8 @@ static void calc_swap(Stack * s)
     f64 const x = stack_pop(s);
     f64 const y = stack_pop(s);
 
-    arr_push(s, x);
-    arr_push(s, y);
+    stack_push(s, x);
+    stack_push(s, y);
 }
 
 static void calc_drop(Stack * s)
@@ -233,15 +239,15 @@ static void calc_clear(Stack * s)
 
 static void calc_count(Stack * s)
 {
-    arr_push(s, (f64)s->len);
+    stack_push(s, (f64)s->len);
 }
 
 static void calc_over(Stack * s)
 {
     if (s->len < 2)
-        arr_push(s, 0);
+        stack_push(s, 0);
     else
-        arr_push(s, s->ptr[s->len - 2]);
+        stack_push(s, s->ptr[s->len - 2]);
 }
 
 static void calc_roll(Stack * s)
@@ -258,105 +264,105 @@ static void calc_roll(Stack * s)
 static void calc_sqrt(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, sqrt(x));
+    stack_push(s, sqrt(x));
 }
 
 static void calc_sin(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, sin(x));
+    stack_push(s, sin(x));
 }
 
 static void calc_cos(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, cos(x));
+    stack_push(s, cos(x));
 }
 
 static void calc_tan(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, tan(x));
+    stack_push(s, tan(x));
 }
 
 static void calc_asin(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, asin(x));
+    stack_push(s, asin(x));
 }
 
 static void calc_acos(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, acos(x));
+    stack_push(s, acos(x));
 }
 
 static void calc_atan(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, atan(x));
+    stack_push(s, atan(x));
 }
 
 static void calc_atan2(Stack * s)
 {
     f64 const x = stack_pop(s);
     f64 const y = stack_pop(s);
-    arr_push(s, atan2(y, x));
+    stack_push(s, atan2(y, x));
 }
 
 static void calc_pi(Stack * s)
 {
-    arr_push(s, 3.14159265358979323846);
+    stack_push(s, 3.14159265358979323846);
 }
 
 static void calc_mod(Stack * s)
 {
     f64 const x = stack_pop(s);
     f64 const y = stack_pop(s);
-    arr_push(s, (i32)y % (i32)x);
+    stack_push(s, (i32)y % (i32)x);
 }
 
 static void calc_neg(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, x * -1);
+    stack_push(s, x * -1);
 }
 
 static void calc_abs(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, fabs(x));
+    stack_push(s, fabs(x));
 }
 
 static void calc_floor(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, floor(x));
+    stack_push(s, floor(x));
 }
 
 static void calc_ceil(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, ceil(x));
+    stack_push(s, ceil(x));
 }
 
 static void calc_round(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, round(x));
+    stack_push(s, round(x));
 }
 
 
 static void calc_log(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, log(x));
+    stack_push(s, log(x));
 }
 
 static void calc_exp(Stack * s)
 {
     f64 const x = stack_pop(s);
-    arr_push(s, exp(x));
+    stack_push(s, exp(x));
 }
 
 
@@ -551,7 +557,7 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
         }                                                      \
         f64 const x = stack_pop(&calc->stack);                 \
         f64 const y = stack_pop(&calc->stack);                 \
-        arr_push(&calc->stack, y _op_ x);                      \
+        stack_push(&calc->stack, y _op_ x);                      \
     } while (0)
 
 
@@ -565,7 +571,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
         case TK_EOF:
             return;
         case TK_NUM:
-            arr_push(&calc->stack, string_to_f64(tok.text));
+            stack_push(&calc->stack, string_to_f64(tok.text));
             break;
         case TK_WORD: {
             void (*keyword)(Stack *);
@@ -600,7 +606,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
             else {
                 f64 const x = stack_pop(&calc->stack);
                 f64 const y = stack_pop(&calc->stack);
-                arr_push(&calc->stack, pow(y, x));
+                stack_push(&calc->stack, pow(y, x));
             }
             break;
         }
@@ -613,6 +619,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
             Allocator  temp_alloc = fixed_allocator_init(temp_alloc_buffer, sizeof(temp_alloc_buffer));
 
             arr_init(&definition, &temp_alloc);
+            arr_reserve(&definition, 32);
 
             if (++i < tokens->len && tokens->ptr[i].kind == TK_WORD) {
                 word_name = tokens->ptr[i].text;
