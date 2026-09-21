@@ -176,43 +176,8 @@ void lx_to_tokens(Lexer * lx, TokenArray * toks)
 }
 
 
-typedef struct StackMaybe StackMaybe;
-struct StackMaybe {
-    bool ok;
-    F64  value;
-};
-
-typedef struct StackMaybePair StackMaybePair;
-struct StackMaybePair {
-    bool ok;
-    struct {
-        F64 x, y;
-    } value;
-};
-
-
-static StackMaybe stack_some(F64 x)
-{
-    return (StackMaybe) { .ok = true, .value = x };
-}
-
-static StackMaybe stack_none(void)
-{
-    return (StackMaybe) { 0 };
-}
-
-static StackMaybePair stack_some_pair(F64 x, F64 y)
-{
-    return (StackMaybePair) {
-        .ok    = true,
-        .value = { .x = x, .y = y },
-    };
-}
-
-static StackMaybePair stack_none_pair(void)
-{
-    return (StackMaybePair) { 0 };
-}
+typedef Opt(F64) OptF64;
+typedef Opt(struct { F64 x, y; }) OptF64Pair;
 
 
 static void stack_push(Stack * s, F64 x)
@@ -221,34 +186,34 @@ static void stack_push(Stack * s, F64 x)
 }
 
 
-static StackMaybe stack_top(Stack * s)
+static OptF64 stack_top(Stack * s)
 {
     if (s->len == 0) {
-        return stack_none();
+        return OptNone(OptF64);
     }
-    return stack_some(s->ptr[s->len - 1]);
+    return OptSome(OptF64, s->ptr[s->len - 1]);
 }
 
-static StackMaybe stack_pop(Stack * s)
+static OptF64 stack_pop(Stack * s)
 {
     if (s->len == 0) {
         fprintf(stderr, "Stack underflow\n");
-        return stack_none();
+        return OptNone(OptF64);
     }
     F64 const x = s->ptr[s->len - 1];
     s->len -= 1;
-    return stack_some(x);
+    return OptSome(OptF64, x);
 }
 
-static StackMaybePair stack_pop2(Stack * s)
+static OptF64Pair stack_pop2(Stack * s)
 {
     if (s->len < 2)
-        return stack_none_pair();
+        return OptNone(OptF64Pair);
     F64 const x = s->ptr[s->len - 1];
     s->len -= 1;
     F64 const y = s->ptr[s->len - 1];
     s->len -= 1;
-    return stack_some_pair(x, y);
+    return OptSome(OptF64Pair, { .x = x, .y = y });
 }
 
 static F64 string_to_F64(StringV s)
@@ -285,7 +250,7 @@ static StackError calc_dup(Stack * s)
 
 static StackError calc_swap(Stack * s)
 {
-    StackMaybePair const opt = stack_pop2(s);
+    OptF64Pair const opt = stack_pop2(s);
 
     if (opt.ok) {
         stack_push(s, opt.value.x);
@@ -299,7 +264,7 @@ static StackError calc_swap(Stack * s)
 
 static StackError calc_drop(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
 
     if (opt.ok) {
         return STACK_SUCCESS;
@@ -348,7 +313,7 @@ static StackError calc_roll(Stack * s)
 
 static StackError calc_sqrt(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, sqrt(opt.value));
         return STACK_SUCCESS;
@@ -360,7 +325,7 @@ static StackError calc_sqrt(Stack * s)
 
 static StackError calc_sin(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
 
         stack_push(s, sin(opt.value));
@@ -373,7 +338,7 @@ static StackError calc_sin(Stack * s)
 
 static StackError calc_cos(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, cos(opt.value));
         return STACK_SUCCESS;
@@ -385,7 +350,7 @@ static StackError calc_cos(Stack * s)
 
 static StackError calc_tan(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, tan(opt.value));
         return STACK_SUCCESS;
@@ -397,7 +362,7 @@ static StackError calc_tan(Stack * s)
 
 static StackError calc_asin(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, asin(opt.value));
         return STACK_SUCCESS;
@@ -409,7 +374,7 @@ static StackError calc_asin(Stack * s)
 
 static StackError calc_acos(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, acos(opt.value));
         return STACK_SUCCESS;
@@ -421,7 +386,7 @@ static StackError calc_acos(Stack * s)
 
 static StackError calc_atan(Stack * s)
 {
-    StackMaybe const opt = stack_pop(s);
+    OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, atan(opt.value));
         return STACK_SUCCESS;
@@ -433,7 +398,7 @@ static StackError calc_atan(Stack * s)
 
 static StackError calc_atan2(Stack * s)
 {
-    StackMaybePair opt = stack_pop2(s);
+    OptF64Pair opt = stack_pop2(s);
     if (opt.ok) {
         F64 const x = opt.value.x;
         F64 const y = opt.value.y;
@@ -453,7 +418,7 @@ static StackError calc_pi(Stack * s)
 
 static StackError calc_mod(Stack * s)
 {
-    StackMaybePair opt = stack_pop2(s);
+    OptF64Pair opt = stack_pop2(s);
     if (opt.ok) {
         F64 const x = opt.value.x;
         F64 const y = opt.value.y;
@@ -467,7 +432,7 @@ static StackError calc_mod(Stack * s)
 
 static StackError calc_neg(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, x * -1);
@@ -480,7 +445,7 @@ static StackError calc_neg(Stack * s)
 
 static StackError calc_abs(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, fabs(x));
@@ -493,7 +458,7 @@ static StackError calc_abs(Stack * s)
 
 static StackError calc_floor(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, floor(x));
@@ -506,7 +471,7 @@ static StackError calc_floor(Stack * s)
 
 static StackError calc_ceil(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, ceil(x));
@@ -519,7 +484,7 @@ static StackError calc_ceil(Stack * s)
 
 static StackError calc_round(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, round(x));
@@ -533,7 +498,7 @@ static StackError calc_round(Stack * s)
 
 static StackError calc_log(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, log(x));
@@ -546,7 +511,7 @@ static StackError calc_log(Stack * s)
 
 static StackError calc_exp(Stack * s)
 {
-    StackMaybe opt = stack_pop(s);
+    OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, exp(x));
@@ -777,8 +742,9 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
     while (user->entries[h].occupied) {
         if (sv_key_eq(user->entries[h].key, key)) {
             // replace if hash if different
-            if (userword_hash(tokens) != userword_hash(user->entries[h].value)) {
+            if (userword_hash(tokens) != user->entries[h].hash) {
                 user->entries[h].value = user_tokens_dup(&user->allocator, tokens);
+                user->entries[h].hash  = userword_hash(tokens);
                 return;
             }
             else {
@@ -816,14 +782,14 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
 
 //
 
-#define BIN_OP(_op_)                                         \
-    do {                                                     \
-        StackMaybePair const opt = stack_pop2(&calc->stack); \
-        if (opt.ok) {                                        \
-            F64 const x = opt.value.x;                       \
-            F64 const y = opt.value.y;                       \
-            stack_push(&calc->stack, y _op_ x);              \
-        }                                                    \
+#define BIN_OP(_op_)                                     \
+    do {                                                 \
+        OptF64Pair const opt = stack_pop2(&calc->stack); \
+        if (opt.ok) {                                    \
+            F64 const x = opt.value.x;                   \
+            F64 const y = opt.value.y;                   \
+            stack_push(&calc->stack, y _op_ x);          \
+        }                                                \
     } while (0)
 
 
@@ -863,7 +829,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
                 fprintf(stderr, "bin_op underflow '^'");
             }
             else {
-                StackMaybePair const opt = stack_pop2(&calc->stack);
+                OptF64Pair const opt = stack_pop2(&calc->stack);
                 if (opt.ok) {
                     F64 const x = opt.value.x;
                     F64 const y = opt.value.y;
@@ -934,7 +900,6 @@ void calc_deinit(Calculator * calc)
     DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);
     userword_table_deinit(&calc->userwords);
 }
-
 
 StringV calc_eval(Calculator * calc, StringV src)
 {

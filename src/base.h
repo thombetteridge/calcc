@@ -54,11 +54,11 @@ typedef double    F64;
         " and " #T2                                                              \
         " must be the same type")
 
-#define Swap(a, b)                 \
-    do {                           \
-        __typeof__(*(a)) t = *(a); \
-        *(a)               = *(b); \
-        *(b)               = t;    \
+#define Swap(a, b)           \
+    do {                     \
+        __typeof__(a) t = a; \
+        a               = b; \
+        b               = t; \
     } while (0)
 
 
@@ -107,6 +107,7 @@ typedef union {
     } while (0)
 
 #endif // RELEASE
+
 
 #define dump(fmt, ...)                                    \
     do {                                                  \
@@ -197,6 +198,10 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 #define DEALLOC(allocator, ptr, n) (allocator)->dealloc((allocator), (ptr), sizeof(__typeof__(*(ptr))) * (n))
 
 #endif
+
+#define Opt(... /*type*/ ) struct { __VA_ARGS__ value; int ok; }
+#define OptSome( Type, ...) (Type) {.value = __VA_ARGS__, .ok=true}
+#define OptNone(Type) (Type) {0}
 
 #define arr_t(arr) __typeof__(*(arr)->ptr) // type helper
 

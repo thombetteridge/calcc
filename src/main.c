@@ -3,11 +3,19 @@
 #include "calcc.h"
 #include "editor.h"
 #include "platform.h"
+#include "arena.h"
 
 #include <stdio.h>
 
 #include "config.h"
 
+#define SUR_OUT_W  300
+#define SUR_OUT_H  160
+#define SUR_IN_W  SUR_OUT_W
+#define SUR_IN_H  (WINDOW_HEIGHT - SUR_OUT_H)
+
+static U32 sur_out_buffer[SUR_OUT_W * SUR_OUT_H];
+static U32 sur_in_buffer[SUR_IN_W * SUR_IN_H];
 
 int main(/*I32 argc, char ** argv*/ void)
 {
@@ -16,15 +24,17 @@ int main(/*I32 argc, char ** argv*/ void)
     printf("calcc2\n");
 
 
-
     if (!p_init("calcc2")) {
         return 1;
     }
 
-    surface_t sur_out = surface_init(&allocator, 300, 160);
+    // surface_t sur_out = surface_init(&allocator, 300, 160);
+    surface_t sur_out = (surface_t) {.buffer=sur_out_buffer, .width=SUR_OUT_W, .height=SUR_OUT_H} ;
     draw_clear(&sur_out, WHITE);
 
-    surface_t sur_in = surface_init(&allocator, 300, WINDOW_HEIGHT - sur_out.height);
+    // surface_t sur_in = surface_init(&allocator, 300, WINDOW_HEIGHT - sur_out.height);
+    surface_t sur_in = (surface_t) { .buffer = sur_in_buffer, .width = SUR_IN_W, .height = SUR_IN_H };
+
     draw_clear(&sur_in, WHITE);
 
     Editor ed_out = ed_init(&allocator);
@@ -136,8 +146,8 @@ int main(/*I32 argc, char ** argv*/ void)
 
     ed_deinit(&ed_in);
     ed_deinit(&ed_out);
-    surface_deinit(&sur_in);
-    surface_deinit(&sur_out);
+    // surface_deinit(&sur_in);
+    // surface_deinit(&sur_out);
     p_deinit();
     default_allocator_deinit(&allocator);
     return 0;
