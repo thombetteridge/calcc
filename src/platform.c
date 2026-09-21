@@ -186,7 +186,6 @@ bool p_poll(void)
             }
             */
             break;
-
         }
         case RGFW_mouseScroll:
             g_ctx.scroll += event.scroll.y;
@@ -476,26 +475,22 @@ static unsigned int stb_decompress(unsigned char * output, unsigned char const *
 
 static bool font_load(U8 const * data, u32 data_size, F32 pixel_height)
 {
-
-    U8 ttf_buffer[41208]; // will the stack explode?
-
-    if (stb_decompress_length(data) > sizeof ttf_buffer) {
-        fprintf(stderr, "font too big: %u > %zu\n", stb_decompress_length(data), sizeof ttf_buffer);
-        return false;
-    }
+    U8 * ttf_buffer = malloc(stb_decompress_length(data) + 1); // extra byte for sentinel valuie
 
     // u32 const decompressed_size = stb_decompress_length(data);
-    // fprintf(stderr, "BYTES NEEDED FOR FONT DECOMPRESS = %u\n", decompressed_size);
     // U8 *      ttf_buffer        = ALLOC(allocator, U8, decompressed_size);
 
     if (!stb_decompress(ttf_buffer, data, data_size)) {
-        // DEALLOC(allocator, ttf_buffer, decompressed_size);
+        free(ttf_buffer);
+
         return false;
     }
 
     I32 ok = stbtt_BakeFontBitmap(ttf_buffer, 0, pixel_height,
         g_font.atlas, g_font.atlas_w, g_font.atlas_h,
         32, 96, g_font.cdata);
+
+    free(ttf_buffer);
 
     // DEALLOC(allocator, ttf_buffer, decompressed_size);
     return ok > 0;
@@ -662,7 +657,6 @@ void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32
         arc_pixel(sur, centre_x - y, centre_y - x, centre_x, centre_y, start_angle, end_angle, colour);
     }
 }
-
 
 
 #ifdef _WIN32
