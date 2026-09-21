@@ -48,7 +48,6 @@ static void default_dealloc(Allocator * self, void * ptr, size_t size)
     stats->total_freed += size;
     stats->dealloc_count += 1;
     free(ptr);
-
 }
 
 Allocator default_allocator_init(void)
@@ -63,7 +62,7 @@ Allocator default_allocator_init(void)
     };
 }
 
-void default_allocator_report(Allocator * self)
+static void default_allocator_report(Allocator * self)
 {
     DefaultAllocatorStats * stats = self->ctx;
 

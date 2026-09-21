@@ -6,34 +6,25 @@
 
 #include <stdio.h>
 
+#include "config.h"
 
-usize hash_editor(Editor const * ed)
-{
-    usize hash = 0;
 
-    for (iterate(i, ed->data.len)) {
-        hash = hash + (usize)ed->data.ptr[i];
-    }
-    return hash;
-}
-
-int main(/*i32 argc, char ** argv*/ void)
+int main(/*I32 argc, char ** argv*/ void)
 {
     Allocator allocator = default_allocator_init();
 
     printf("calcc2\n");
 
-    i32 const initial_width  = 300;
-    i32 const initial_height = 400;
 
-    if (!p_init(&allocator, "calcc2", initial_width, initial_height)) {
+
+    if (!p_init("calcc2")) {
         return 1;
     }
 
     surface_t sur_out = surface_init(&allocator, 300, 160);
     draw_clear(&sur_out, WHITE);
 
-    surface_t sur_in = surface_init(&allocator, 300, initial_height - sur_out.height);
+    surface_t sur_in = surface_init(&allocator, 300, WINDOW_HEIGHT - sur_out.height);
     draw_clear(&sur_in, WHITE);
 
     Editor ed_out = ed_init(&allocator);
@@ -50,8 +41,6 @@ int main(/*i32 argc, char ** argv*/ void)
     //     if (!success)
     //         fprintf(stderr, "ERROR: Could not read file %s: %s\n", file_path, strerror(errno));
     // }
-
-    usize ed_hash = 0;
 
     while (p_running()) {
         p_wait_for_event(1000);
@@ -92,14 +81,11 @@ int main(/*i32 argc, char ** argv*/ void)
         //     arr_push(&ed_out.data, ed_in.data.ptr[i]);
         // }
 
-        usize const ed_hash_cur = hash_editor(&ed_in);
-        if (ed_hash != ed_hash_cur) {
-            ed_hash = ed_hash_cur;
-
+        if (ed_in.dirty == true) {
             StringV result = calc_eval(&calc, (StringV) { .ptr = ed_in.data.ptr, .len = ed_in.data.len });
 
             // for (iterate(i, calc.tokens.len)) {
-            //     fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (i32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);
+            //     fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (I32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);
             // }
 
             ed_clear(&ed_out);
@@ -113,19 +99,19 @@ int main(/*i32 argc, char ** argv*/ void)
             draw_clear(&sur_out, BACKGROUND_COLOUR);
             ed_render(&ed_out, &sur_out, 3, 3, 290, 190);
             draw_rect_lines(&sur_out,
-                (i32)OFFSET_X,
-                (i32)OFFSET_Y,
-                sur_out.width - (2 * (i32)OFFSET_X),
-                sur_out.height - (2 * (i32)OFFSET_Y),
+                (I32)OFFSET_X,
+                (I32)OFFSET_Y,
+                sur_out.width - (2 * (I32)OFFSET_X),
+                sur_out.height - (2 * (I32)OFFSET_Y),
                 BLACK);
 
             draw_clear(&sur_in, BACKGROUND_COLOUR);
             ed_render(&ed_in, &sur_in, 3, 3, 290, 190);
             draw_rect_lines(&sur_in,
-                (i32)OFFSET_X,
-                (i32)OFFSET_Y,
-                sur_in.width - (2 * (i32)OFFSET_X),
-                sur_in.height - (2 * (i32)OFFSET_Y),
+                (I32)OFFSET_X,
+                (I32)OFFSET_Y,
+                sur_in.width - (2 * (I32)OFFSET_X),
+                sur_in.height - (2 * (I32)OFFSET_Y),
                 BLACK);
 
             push_surface(&sur_out, 0, 0);
@@ -164,3 +150,4 @@ int main(/*i32 argc, char ** argv*/ void)
 #include "calcc.c"
 #include "editor.c"
 #include "platform.c"
+#include "arena.c"

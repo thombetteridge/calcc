@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "base.h"
+#include "arena.h"
 
 typedef enum {
     TK_EOF,
@@ -27,7 +28,7 @@ struct Token {
 typedef struct TokenArray TokenArray;
 struct TokenArray {
     Token * ptr;
-    usize   len, cap;
+    Sz      len, cap;
 
     Allocator * allocator;
 };
@@ -36,17 +37,17 @@ struct TokenArray {
 typedef struct Lexer Lexer;
 struct Lexer {
     StringV src;
-    usize   read_pos;
-    usize   pos;
+    Sz      read_pos;
+    Sz      pos;
     char    ch;
 };
 
-Lexer lx_init(char const * str, usize len);
+Lexer lx_init(char const * str, Sz len);
 void  lx_to_tokens(Lexer * lx, TokenArray * toks);
 
 typedef struct Stack Stack;
 struct Stack {
-    usize    len, cap;
+    Sz       len, cap;
     double * ptr;
 
     Allocator * allocator;
@@ -58,17 +59,15 @@ typedef StackError (*Builtin)(Stack *);
 
 typedef struct BuiltinTableEntry BuiltinTableEntry;
 struct BuiltinTableEntry {
-    StringV key;
+    U64 key;
     Builtin value;
-    bool occupied;
+    bool    occupied;
 };
 
 typedef struct BuiltinTable BuiltinTable;
 struct BuiltinTable {
     BuiltinTableEntry * entries;
-    usize               count, capacity;
-
-    Allocator * allocator;
+    Sz                  count, capacity;
 };
 
 
@@ -76,19 +75,19 @@ typedef struct UserwordTableEntry UserwordTableEntry;
 struct UserwordTableEntry {
     StringV    key;
     TokenArray value;
-    usize hash;
+    U64         hash;
     bool       occupied;
-
 };
 
 typedef struct UserwordTable UserwordTable;
 struct UserwordTable {
     UserwordTableEntry * entries;
-    usize                count, capacity;
+    Sz                   count, capacity;
 
 
-    Allocator * allocator;
-    Allocator   buffer; //  fixed size buffer;
+
+    Allocator allocator;
+    Arena arena;
 };
 
 typedef struct Calculator Calculator;
@@ -100,7 +99,7 @@ struct Calculator {
     UserwordTable userwords;
 
     char * output_buffer;
-    usize  output_len;
+    Sz     output_len;
 
     Allocator * allocator;
 };
@@ -137,7 +136,7 @@ StringV calc_eval(Calculator * calc, StringV src);
 
 // typedef struct op_array op_array_t;
 // struct op_array {
-//    usize len, cap;
+//    Sz len, cap;
 //    op_t  *ptr;
 // };
 //

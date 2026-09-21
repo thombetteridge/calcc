@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arena.h"
 #include "base.h"
 #include "calcc.h"
 
-static u8 temp_alloc_buffer[4096];
+static U8 temp_alloc_buffer[4096];
 
 
 enum StackError {
@@ -18,7 +19,7 @@ enum StackError {
     STACK_OUT_OF_RANGE,
 };
 
-char const * stack_error_to_stringz(StackError err)
+static char const * stack_error_to_stringz(StackError err)
 {
     switch (err) {
 
@@ -50,7 +51,7 @@ static void lx_advance(Lexer * lx)
     ++lx->read_pos;
 }
 
-Lexer lx_init(char const * str, usize len)
+Lexer lx_init(char const * str, Sz len)
 {
     Lexer lx = { 0 };
 
@@ -178,19 +179,19 @@ void lx_to_tokens(Lexer * lx, TokenArray * toks)
 typedef struct StackMaybe StackMaybe;
 struct StackMaybe {
     bool has_value;
-    f64  unwrap;
+    F64  unwrap;
 };
 
 typedef struct StackMaybePair StackMaybePair;
 struct StackMaybePair {
     bool has_value;
     struct {
-        f64 x, y;
+        F64 x, y;
     } unwrap;
 };
 
 
-static StackMaybe stack_some(f64 x)
+static StackMaybe stack_some(F64 x)
 {
     return (StackMaybe) { .has_value = true, .unwrap = x };
 }
@@ -200,7 +201,7 @@ static StackMaybe stack_none(void)
     return (StackMaybe) { 0 };
 }
 
-static StackMaybePair stack_some_pair(f64 x, f64 y)
+static StackMaybePair stack_some_pair(F64 x, F64 y)
 {
     return (StackMaybePair) {
         .has_value = true,
@@ -214,7 +215,7 @@ static StackMaybePair stack_none_pair(void)
 }
 
 
-static void stack_push(Stack * s, f64 x)
+static void stack_push(Stack * s, F64 x)
 {
     arr_push(s, x);
 }
@@ -234,7 +235,7 @@ static StackMaybe stack_pop(Stack * s)
         fprintf(stderr, "Stack underflow\n");
         return stack_none();
     }
-    f64 const x = s->ptr[s->len - 1];
+    F64 const x = s->ptr[s->len - 1];
     s->len -= 1;
     return stack_some(x);
 }
@@ -243,17 +244,17 @@ static StackMaybePair stack_pop2(Stack * s)
 {
     if (s->len < 2)
         return stack_none_pair();
-    f64 const x = s->ptr[s->len - 1];
+    F64 const x = s->ptr[s->len - 1];
     s->len -= 1;
-    f64 const y = s->ptr[s->len - 1];
+    F64 const y = s->ptr[s->len - 1];
     s->len -= 1;
     return stack_some_pair(x, y);
 }
 
-static f64 string_to_f64(StringV s)
+static F64 string_to_F64(StringV s)
 {
     static char buffer[128];
-    usize const len = Min(s.len, sizeof(buffer) - 1);
+    Sz const    len = $min(s.len, $cast(Sz, sizeof(buffer) - 1));
 
     sprintf(buffer, "%.*s", (int)len, s.ptr);
     return atof(buffer);
@@ -262,11 +263,11 @@ static f64 string_to_f64(StringV s)
 
 // KEYWORDS
 
-static usize sv_hash37(StringV s)
+static Sz sv_hash37(StringV s)
 {
-    usize hash = 0;
-    for (iterate(i, s.len)) {
-        hash = hash * 37 + (usize)s.ptr[i];
+    Sz hash = 0;
+    for ($it(i, s.len)) {
+        hash = hash * 37 + (Sz)s.ptr[i];
     }
     return hash;
 }
@@ -277,7 +278,7 @@ static StackError calc_dup(Stack * s)
         stack_push(s, 0);
         return STACK_UNDERFLOW;
     }
-    f64 const top = s->ptr[s->len - 1];
+    F64 const top = s->ptr[s->len - 1];
     stack_push(s, top);
     return STACK_SUCCESS;
 }
@@ -316,7 +317,7 @@ static StackError calc_clear(Stack * s)
 
 static StackError calc_count(Stack * s)
 {
-    stack_push(s, (f64)s->len);
+    stack_push(s, (F64)s->len);
     return STACK_SUCCESS;
 }
 
@@ -337,9 +338,9 @@ static StackError calc_roll(Stack * s)
     if (s->len < 2)
         return STACK_OUT_OF_RANGE;
 
-    f64 const t = stack_top(s).unwrap;
+    F64 const t = stack_top(s).unwrap;
 
-    memmove(s->ptr + 1, s->ptr, sizeof(f64) * (s->len - 1));
+    memmove(s->ptr + 1, s->ptr, sizeof(F64) * (s->len - 1));
     s->ptr[0] = t;
     return STACK_SUCCESS;
 }
@@ -434,8 +435,8 @@ static StackError calc_atan2(Stack * s)
 {
     StackMaybePair opt = stack_pop2(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap.x;
-        f64 const y = opt.unwrap.y;
+        F64 const x = opt.unwrap.x;
+        F64 const y = opt.unwrap.y;
         stack_push(s, atan2(y, x));
         return STACK_SUCCESS;
     }
@@ -454,9 +455,9 @@ static StackError calc_mod(Stack * s)
 {
     StackMaybePair opt = stack_pop2(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap.x;
-        f64 const y = opt.unwrap.y;
-        stack_push(s, (i32)y % (i32)x);
+        F64 const x = opt.unwrap.x;
+        F64 const y = opt.unwrap.y;
+        stack_push(s, (I32)y % (I32)x);
         return STACK_SUCCESS;
     }
     else {
@@ -468,7 +469,7 @@ static StackError calc_neg(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, x * -1);
         return STACK_SUCCESS;
     }
@@ -481,7 +482,7 @@ static StackError calc_abs(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, fabs(x));
         return STACK_SUCCESS;
     }
@@ -494,7 +495,7 @@ static StackError calc_floor(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, floor(x));
         return STACK_SUCCESS;
     }
@@ -507,7 +508,7 @@ static StackError calc_ceil(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, ceil(x));
         return STACK_SUCCESS;
     }
@@ -520,7 +521,7 @@ static StackError calc_round(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, round(x));
         return STACK_SUCCESS;
     }
@@ -534,7 +535,7 @@ static StackError calc_log(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, log(x));
         return STACK_SUCCESS;
     }
@@ -547,7 +548,7 @@ static StackError calc_exp(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
     if (opt.has_value) {
-        f64 const x = opt.unwrap;
+        F64 const x = opt.unwrap;
         stack_push(s, exp(x));
         return STACK_SUCCESS;
     }
@@ -556,56 +557,69 @@ static StackError calc_exp(Stack * s)
     }
 }
 
+static U64 builtin_table_hash(StringV s)
+{
+    U64 hash = 14695981039346656037ULL;
+
+    for ($it(i, s.len)) {
+        U8 const c = $cast(U8, s.ptr[i]);
+        hash ^= $cast(U64, c);
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+
 
 static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value)
 {
-    usize h = sv_hash37(key) % t->capacity;
+    U64 h = builtin_table_hash(key);
+    Sz  i = $cast(Sz, h % t->capacity);
 
-    while (t->entries[h].occupied) {
-        h = (h + 1) % t->capacity;
+    while (t->entries[i].occupied) {
+        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
     }
 
     BuiltinTableEntry new_entry = {
-        .key      = key,
+        .key      = h,
         .value    = value,
         .occupied = true,
     };
 
-    t->entries[h] = new_entry;
+    t->entries[i] = new_entry;
 }
 
-static bool sv_key_eq(StringV a, StringV b)
-{
-    if (a.len != b.len)
-        return false;
-    for (iterate(i, a.len)) {
-        if (a.ptr[i] != b.ptr[i])
-            return false;
-    }
-    return true;
-}
 
 static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value)
 {
-    usize h = sv_hash37(key) % t->capacity;
+    U64 h = builtin_table_hash(key);
+    Sz  i = $cast(Sz, h % t->capacity);
 
-    while (t->entries[h].occupied) {
-        if (sv_key_eq(t->entries[h].key, key)) {
-            *value = t->entries[h].value;
+
+    while (t->entries[i].occupied) {
+        if (t->entries[i].key == h) {
+            *value = t->entries[i].value;
             return true;
         }
-        h = (h + 1) % t->capacity;
+        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
     }
 
     return false;
 }
 
-static BuiltinTable builtins_table_init(Allocator * a)
+#define BUILTIN_TABLE_ENTRIES 64
+
+static BuiltinTable builtins_table_init(void)
 {
+    static bool once = true;
+
+    assert(once && "builtins_table_init called twice");
+
+    once = false;
+
     BuiltinTable result = { 0 };
-    result.capacity     = 256;
-    result.allocator    = a;
-    result.entries      = ALLOC(result.allocator, BuiltinTableEntry, result.capacity);
+    result.capacity     = BUILTIN_TABLE_ENTRIES;
+    static BuiltinTableEntry entries[BUILTIN_TABLE_ENTRIES];
+    result.entries = entries;
 
     // stack
     builtin_table_insert(&result, SVLIT("dup"), calc_dup);
@@ -638,34 +652,59 @@ static BuiltinTable builtins_table_init(Allocator * a)
     // constants
     builtin_table_insert(&result, SVLIT("pi"), calc_pi);
 
-    // for (iterate(i, result.capacity)) {
+    // for ($it(i, result.capacity)) {
     //     if (result.entries[i].occupied) {
-    //         fprintf(stderr, "i:%zu k:'" SVFMT "'\n", i, SVARGS(result.entries[i].key));
+    //         fprintf(stderr, "i:%" PRId64 " k: %" PRIu64 "\n", i, result.entries[i].key);
     //     }
     // }
 
     return result;
 }
 
-static void builtins_table_deinit(BuiltinTable * t)
+static void * arena_allocator_alloc(Allocator * self, size_t size, size_t alignment)
 {
-    DEALLOC(t->allocator, t->entries, t->capacity);
+    (void)(alignment);
+    Arena * arena = $ptrCast(Arena, self->ctx);
+
+    return arena_alloc(arena, size);
 }
 
-static UserwordTable userword_table_init(Allocator * a, usize inital_size)
+static void arena_allocator_dealloc(Allocator * self, void * ptr, size_t size)
+{
+    (void)self;
+    (void)ptr;
+    (void)size;
+}
+
+
+static Allocator arena_allocator_init(Arena * arena)
+{
+
+    Allocator a = {
+        .ctx     = arena,
+        .alloc   = arena_allocator_alloc,
+        .dealloc = arena_allocator_dealloc,
+    };
+    return a;
+}
+
+
+static UserwordTable userword_table_init(Allocator * a, Sz inital_size)
 {
     UserwordTable user = { 0 };
 
-    user.allocator = a;
 
-    usize const inital_buffer_size = sizeof(UserwordTableEntry) * inital_size + // inital array cap,
-                                     24 * inital_size +                         // assume keys of max len 24
-                                     sizeof(Token) * 10 * inital_size;          // assume 10 tokens per word?
+    Sz const inital_buffer_size = sizeof(UserwordTableEntry) * inital_size; // inital array cap,
+                                  // 24 * inital_size +                         // assume keys of max len 24
+                                  // sizeof(Token) * 10 * inital_size;          // assume 10 tokens per word?
 
-    u8 * buffer = ALLOC(user.allocator, u8, inital_buffer_size);
-    user.buffer = fixed_allocator_init(buffer, inital_buffer_size);
+    Arena arena = {0};
+    arena_reserve(&arena, inital_buffer_size);
 
-    user.entries  = ALLOC(&user.buffer, UserwordTableEntry, inital_size);
+    user.arena = arena;
+    user.allocator = arena_allocator_init(&user.arena);
+
+    user.entries  = ALLOC(&user.allocator, UserwordTableEntry, inital_size);
     user.capacity = inital_size;
 
     return user;
@@ -673,11 +712,10 @@ static UserwordTable userword_table_init(Allocator * a, usize inital_size)
 
 static void userword_table_deinit(UserwordTable * user)
 {
-    FixedAllocator * fixed = (FixedAllocator *)(user->buffer.ctx);
-    DEALLOC(user->allocator, fixed, fixed->capacity);
+   arena_destroy(&user->arena);
 }
 
-StringV sv_dup(Allocator * a, StringV s)
+static StringV sv_dup(Allocator * a, StringV s)
 {
     char * buffer = ALLOC(a, char, s.len);
     memcpy(buffer, s.ptr, s.len);
@@ -691,7 +729,7 @@ static TokenArray user_tokens_dup(Allocator * a, TokenArray arr)
     arr_init(&dup_arr, a);
     arr_reserve(&dup_arr, arr.len);
 
-    for (iterate(i, arr.len)) {
+    for ($it(i, arr.len)) {
         Token dup_t = { .kind = arr.ptr[i].kind, .text = sv_dup(a, arr.ptr[i].text) };
         arr_push(&dup_arr, dup_t);
     }
@@ -699,48 +737,43 @@ static TokenArray user_tokens_dup(Allocator * a, TokenArray arr)
     return dup_arr;
 }
 
-
-static usize userword_hash(TokenArray tokens)
+static U64 userword_hash(TokenArray tokens)
 {
-    usize result = 123456789;
+    U64 result = 123456789;
 
-    for (iterate(i, tokens.len)) {
+    for ($it(i, tokens.len)) {
         result = result * 33 + sv_hash37(tokens.ptr[i].text);
     }
 
     return result;
 }
 
+static bool sv_key_eq(StringV a, StringV b)
+{
+    if (a.len != b.len)
+        return false;
+    for ($it(i, a.len)) {
+        if (a.ptr[i] != b.ptr[i])
+            return false;
+    }
+    return true;
+}
+
+// struct Allocator {
+//     void * ctx;
+//     void * (*alloc)(Allocator * self, size_t size, size_t alignment);
+//     void (*dealloc)(Allocator * self, void * ptr, size_t size);
+// };
+
+
+
 static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens)
 {
-    usize h = sv_hash37(key) % user->capacity;
+    Sz h = sv_hash37(key) % user->capacity;
 
-
-    FixedAllocator * fixed = (FixedAllocator *)(user->buffer.ctx);
-
-    if ((f32)fixed->offset / (f32)fixed->capacity > 0.7f) {
-
-        usize const new_buffer_size = fixed->capacity * 2;
-
-        u8 * new_buffer = ALLOC(user->allocator, u8, new_buffer_size);
-
-        DEALLOC(user->allocator, &fixed->buffer, fixed->capacity);
-
-        user->buffer = fixed_allocator_init(new_buffer, new_buffer_size);
-
-        user->entries  = ALLOC(&user->buffer, UserwordTableEntry, user->capacity);
-        user->capacity = user->capacity;
-
-        for (iterate(i, user->capacity)) {
-            if (user->entries[i].occupied) {
-                userword_table_add(user, user->entries[i].key, user->entries[i].value);
-            }
-        }
-    }
-
-    if ((f32)user->count / (f32)user->capacity > 0.7f) {
-        UserwordTable new_user = userword_table_init(user->allocator, user->capacity * 2);
-        for (iterate(i, user->capacity)) {
+    if ((F32)user->count / (F32)user->capacity > 0.7f) {
+        UserwordTable new_user = userword_table_init(&user->allocator, user->capacity * 2);
+        for ($it(i, user->capacity)) {
             if (user->entries[i].occupied) {
                 userword_table_add(&new_user, user->entries[i].key, user->entries[i].value);
             }
@@ -756,7 +789,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
         if (sv_key_eq(user->entries[h].key, key)) {
             // replace if hash if different
             if (userword_hash(tokens) != userword_hash(user->entries[h].value)) {
-                user->entries[h].value = user_tokens_dup(&user->buffer, tokens);
+                user->entries[h].value = user_tokens_dup(&user->allocator, tokens);
                 return;
             }
             else {
@@ -769,8 +802,8 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
 
     // new entry;
     UserwordTableEntry entry = { 0 };
-    entry.key                = sv_dup(&user->buffer, key);
-    entry.value              = user_tokens_dup(&user->buffer, tokens);
+    entry.key                = sv_dup(&user->allocator, key);
+    entry.value              = user_tokens_dup(&user->allocator, tokens);
     entry.occupied           = true;
     entry.hash               = userword_hash(entry.value);
     user->entries[h]         = entry;
@@ -780,7 +813,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
 
 static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out)
 {
-    usize h = sv_hash37(key) % user->capacity;
+    Sz h = sv_hash37(key) % user->capacity;
 
     while (user->entries[h].occupied) {
         if (sv_key_eq(user->entries[h].key, key)) {
@@ -798,8 +831,8 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
     do {                                                     \
         StackMaybePair const opt = stack_pop2(&calc->stack); \
         if (opt.has_value) {                                 \
-            f64 const x = opt.unwrap.x;                      \
-            f64 const y = opt.unwrap.y;                      \
+            F64 const x = opt.unwrap.x;                      \
+            F64 const y = opt.unwrap.y;                      \
             stack_push(&calc->stack, y _op_ x);              \
         }                                                    \
     } while (0)
@@ -807,13 +840,13 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
 
 static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 {
-    for (iterate(i, tokens->len)) {
+    for ($it(i, tokens->len)) {
         Token tok = tokens->ptr[i];
 
         switch (tok.kind) {
 
         case TK_EOF: return;
-        case TK_NUM: stack_push(&calc->stack, string_to_f64(tok.text)); break;
+        case TK_NUM: stack_push(&calc->stack, string_to_F64(tok.text)); break;
 
         case TK_WORD: {
             Builtin builtin;
@@ -843,8 +876,8 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
             else {
                 StackMaybePair const opt = stack_pop2(&calc->stack);
                 if (opt.has_value) {
-                    f64 const x = opt.unwrap.x;
-                    f64 const y = opt.unwrap.y;
+                    F64 const x = opt.unwrap.x;
+                    F64 const y = opt.unwrap.y;
                     stack_push(&calc->stack, pow(y, x));
                 }
             }
@@ -892,9 +925,9 @@ Calculator calc_init(Allocator * allocator)
 
     arr_init(&calc.stack, calc.allocator);
     arr_init(&calc.tokens, calc.allocator);
-    calc.builtins = builtins_table_init(calc.allocator);
+    calc.builtins = builtins_table_init();
 
-    usize const inital_buffer_len = 2048;
+    Sz const inital_buffer_len = 2048;
 
     calc.output_buffer = ALLOC(calc.allocator, char, inital_buffer_len);
     calc.output_len    = inital_buffer_len;
@@ -910,7 +943,6 @@ void calc_deinit(Calculator * calc)
     arr_deinit(&calc->tokens);
     DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);
     userword_table_deinit(&calc->userwords);
-    builtins_table_deinit(&calc->builtins);
 }
 
 
@@ -925,10 +957,10 @@ StringV calc_eval(Calculator * calc, StringV src)
 
     calc_eval_tokens(calc, &calc->tokens);
 
-    usize offset = 0;
-    for (iterate(i, calc->stack.len)) {
+    Sz offset = 0;
+    for ($it(i, calc->stack.len)) {
         if (offset + 64 > calc->output_len) {
-            usize  new_len    = calc->output_len * 2;
+            Sz     new_len    = calc->output_len * 2;
             char * new_buffer = ALLOC(calc->allocator, char, new_len);
             memcpy(new_buffer, calc->output_buffer, calc->output_len);
             DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);

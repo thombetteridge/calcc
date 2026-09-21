@@ -3,7 +3,6 @@ CompileFlags:
     - -std=c17
     - -Wall
     - -Wextra
-    - -Wpedantic
     - -Wconversion
     - -Wdouble-promotion
     - -Wno-unused-parameter

@@ -1,16 +1,27 @@
 #pragma once
 
-typedef unsigned char byte_t;
+#include <stddef.h>
+
+typedef struct ArenaRegion ArenaRegion;
 
 typedef struct Arena Arena;
 struct Arena {
-    byte_t * ptr;
-    size_t   len, cap;
-    size_t   prev_offset;
+    ArenaRegion * head;
 };
 
-void   arena_init(Arena * a, byte_t * buffer, size_t buffer_size);
+typedef struct ArenaMarker ArenaMarker;
+struct ArenaMarker {
+    ArenaRegion * parent;
+    size_t        offset;
+};
+
+
+#define DEFAULT_REGION_SIZE 0x1000
+
 void * arena_alloc(Arena * a, size_t size);
-size_t arena_mark(Arena a);
-void   arena_pop(Arena * a, size_t mark);
-void   arena_reset(Arena * a);
+void   arena_clear(Arena * a);
+void   arena_destroy(Arena * a);
+void   arena_reserve(Arena * a, size_t cap);
+
+ArenaMarker arena_mark(Arena * a);
+void        arena_pop(Arena * a, ArenaMarker mark);

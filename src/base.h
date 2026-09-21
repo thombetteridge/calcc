@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <math.h>
 #include <stdalign.h>
 #include <stdbool.h>
@@ -12,46 +13,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <uchar.h>
 
-typedef uint8_t  u8;
-typedef int8_t   i8;
-typedef uint16_t u16;
-typedef int16_t  i16;
-typedef uint32_t u32;
-typedef int32_t  i32;
-typedef uint64_t u64;
-typedef int64_t  i64;
+typedef char      C8;
+typedef char16_t  C16;
+typedef uint8_t   U8;
+typedef uint16_t  U16;
+typedef uint32_t  U32;
+typedef uint64_t  U64;
+typedef int8_t    I8;
+typedef int16_t   I16;
+typedef int32_t   I32;
+typedef int64_t   I64;
+typedef ptrdiff_t Sz;
+typedef size_t    USz;
+typedef float     F32;
+typedef double    F64;
 
-typedef size_t    usize;
-typedef ptrdiff_t isize;
+#define $cast(T, in)    (T)(in)
+#define $ptrCast(T, in) (T *)(in)
+#define $bitCast(T, in) (*(T *)(&(in)))
 
-typedef float  f32;
-typedef double f64;
 
-typedef u8  b8;
-typedef u16 b16;
-typedef u32 b32;
-typedef u64 b64;
+#define Slice(T)   \
+    struct {       \
+        T * items; \
+        Sz  len;   \
+    }
 
-static_assert(sizeof(u8) == sizeof(i8), "");
-static_assert(sizeof(u16) == sizeof(i16), "");
-static_assert(sizeof(u32) == sizeof(i32), "");
-static_assert(sizeof(u64) == sizeof(i64), "");
-static_assert(sizeof(usize) == sizeof(isize), "");
+#define TYPE(name)            \
+    typedef struct name name; \
+    struct name
 
-static_assert(sizeof(bool) == 1, "");
-static_assert(sizeof(u8) == 1, "");
-static_assert(sizeof(u16) == 2, "");
-static_assert(sizeof(u32) == 4, "");
-static_assert(sizeof(u64) == 8, "");
-static_assert(sizeof(f32) == 4, "");
-static_assert(sizeof(f64) == 8, "");
-
-/* NULL value. */
-#define nil ((void *)0)
 
 #define UNUSED(... /* x */) (void)(__VA_ARGS__)
-
 
 #define static_assert_same_type(T1, T2)                                          \
     _Static_assert(__builtin_types_compatible_p(__typeof__(T1), __typeof__(T2)), \
@@ -76,19 +71,19 @@ typedef union {
 } max_align_t;
 #endif
 
-#define Max(a, b) (a > b ? a : b)
+#define $max(a, b) (a > b ? a : b)
 
-#define Min(a, b) (a < b ? a : b)
+#define $min(a, b) (a < b ? a : b)
 
-#define Clamp(x, lo, hi) (Max(Min(x, hi), lo))
+#define $clamp(x, lo, hi) (Max(Min(x, hi), lo))
 
 
-#define iterateEx(i, start, end) \
-    usize i = (start);           \
-    i < (end);                   \
+#define $itEx(i, start, end) \
+    Sz i = (start);          \
+    i < (end);               \
     i += 1
 
-#define iterate(i, n) iterateEx(i, 0, (n))
+#define $it(i, n) $itEx(i, 0, (n))
 
 // DEBUG
 
@@ -139,7 +134,7 @@ typedef union {
 typedef struct StringV StringV;
 struct StringV {
     char const * ptr;
-    size_t       len;
+    Sz           len;
 };
 
 #define SVLIT(s)  (StringV) { .ptr = (s), .len = sizeof(s) - 1 }
@@ -208,8 +203,8 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 #define ArrayList(T)           \
     struct {                   \
         T *         ptr;       \
-        size_t      len;       \
-        size_t      cap;       \
+        Sz          len;       \
+        Sz          cap;       \
         Allocator * allocator; \
     }
 
@@ -255,10 +250,10 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 
 #define arr_reserve(arr, n)                                                                           \
     do {                                                                                              \
-        size_t req = (n);                                                                             \
+        Sz req = (n);                                                                                 \
         if (req <= (arr)->cap)                                                                        \
             break;                                                                                    \
-        size_t new_cap = (arr)->cap ? (arr)->cap : 8;                                                 \
+        Sz new_cap = (arr)->cap ? (arr)->cap : 8;                                                     \
         while (new_cap < req)                                                                         \
             new_cap *= 2;                                                                             \
         arr_t(arr) * new_ptr = (arr)->allocator->alloc((arr)->allocator,                              \
@@ -278,7 +273,7 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 
 #define arr_resize(arr, n)                                                                   \
     do {                                                                                     \
-        size_t new_len = (n);                                                                \
+        Sz new_len = (n);                                                                    \
         arr_reserve((arr), (new_len));                                                       \
         if (new_len > (arr)->len)                                                            \
             memset((arr)->ptr + (arr)->len, 0, (new_len - (arr)->len) * sizeof(arr_t(arr))); \
@@ -324,7 +319,6 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
         (arr)->ptr[idx] = (arr)->ptr[(arr)->len - 1]; \
         arr_pop(arr);                                 \
     } while (0)
-
 
 
 #endif

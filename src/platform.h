@@ -8,16 +8,16 @@
 
 typedef struct surface_t surface_t;
 struct surface_t {
-    u32 * buffer;
-    i32   width;
-    i32   height;
+    U32 * buffer;
+    I32   width;
+    I32   height;
 
     Allocator * allocator;
 };
 
 typedef struct point_t point_t;
 struct point_t {
-    i32 x, y;
+    I32 x, y;
 };
 
 typedef enum {
@@ -155,20 +155,20 @@ typedef enum {
 
 
 // Lifecycle
-bool p_init(Allocator * allocator, char const * title, i32 width, i32 height);
+bool p_init(char const * title);
 void p_deinit(void);
 void p_request_close(void);
-void p_sleep(u64 ms);
+void p_sleep(U64 ms);
 
 // Per-frame
 bool p_running(void);          //
 bool p_poll(void);             //
 void p_present(void);          //
-void p_wait_for_event(i32 ms); //
+void p_wait_for_event(I32 ms); //
 
 // Queries
-i32     p_window_width(void);
-i32     p_window_height(void);
+I32     p_window_width(void);
+I32     p_window_height(void);
 bool    p_is_window_valid(void); // false when minimized
 point_t p_mouse_pos(void);
 point_t p_mouse_delta(void);
@@ -180,13 +180,16 @@ bool    p_is_key_down(PKey key);
 bool    p_get_pressed_key(PKey * key);
 bool    p_get_released_key(PKey * key);
 char    p_get_last_key_char(void);
-f32     p_mouse_scroll(void);
+F32     p_mouse_scroll(void);
 
 // Clipboard
 
-char const * p_read_clipboard(usize * length);
-void         p_write_clipboard(char const * text, u32 length);
+char const * p_read_clipboard(Sz * length);
+void         p_write_clipboard(char const * text, U32 length);
 
+
+void init_console(void);
+void shutdown_console(void);
 
 // Render
 typedef uint32_t Colour;
@@ -204,29 +207,29 @@ typedef uint32_t Colour;
 #define YELLOW                  RGB_COLOUR(255u, 255u, 0u)
 
 inline static Colour
-toRGB(u32 r, u32 g, u32 b)
+toRGB(U32 r, U32 g, U32 b)
 {
     return RGB_COLOUR(r, g, b);
 }
 
 inline static Colour
-toRGBA(u32 r, u32 g, u32 b, u32 a)
+toRGBA(U32 r, U32 g, U32 b, U32 a)
 {
     return RGBA_COLOUR(r, g, b, a);
 }
 
-surface_t surface_init(Allocator * allocator, i32 width, i32 height);
+surface_t surface_init(Allocator * allocator, I32 width, I32 height);
 void      surface_deinit(surface_t * sur);
-void      surface_resize(surface_t * sur, i32 width, i32 height);
-void      push_surface(surface_t const * sur, i32 x, i32 y);
+void      surface_resize(surface_t * sur, I32 width, I32 height);
+void      push_surface(surface_t const * sur, I32 x, I32 y);
 void      p_clear(Colour colour);
 
-void draw_pixel(surface_t * sur, i32 x, i32 y, Colour color);
+void draw_pixel(surface_t * sur, I32 x, I32 y, Colour color);
 void draw_clear(surface_t * sur, Colour color);
-void draw_text(surface_t * sur, char const * str, i32 len, i32 x, i32 y, Colour colour);
-void draw_rect(surface_t * sur, i32 x, i32 y, i32 w, i32 h, Colour colour);
-void draw_rect_lines(surface_t * sur, i32 x, i32 y, i32 w, i32 h, Colour colour);
-void draw_line(surface_t * sur, i32 start_x, i32 start_y, i32 end_x, i32 end_y, Colour colour);
-void draw_circle(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, Colour colour);
-void draw_circle_lines(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, Colour colour);
-void draw_arc_lines(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, f32 start_angle, f32 end_angle, Colour colour);
+void draw_text(surface_t * sur, char const * str, I32 len, I32 x, I32 y, Colour colour);
+void draw_rect(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour);
+void draw_rect_lines(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour);
+void draw_line(surface_t * sur, I32 start_x, I32 start_y, I32 end_x, I32 end_y, Colour colour);
+void draw_circle(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour);
+void draw_circle_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour);
+void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32 start_angle, F32 end_angle, Colour colour);

@@ -26,25 +26,25 @@ typedef struct {
 } KeyMod;
 
 typedef struct {
-    usize x;
-    usize y;
+    Sz x;
+    Sz y;
 } Pos;
 
 typedef struct {
-    usize begin;
-    usize end;
+    Sz begin;
+    Sz end;
 } Line;
 
 typedef struct {
     Line * ptr;
-    usize  len, cap;
+    Sz     len, cap;
 
     Allocator * allocator;
 } Lines;
 
 typedef struct {
     char * ptr;
-    usize  len, cap;
+    Sz     len, cap;
 
     Allocator * allocator;
 } Data;
@@ -58,7 +58,7 @@ typedef enum {
     ED_READ_ONLY = 1 << 2,
 } EditorFlags;
 
-typedef u32 EditorFlags_t;
+typedef U32 EditorFlags_t;
 
 
 // TODO do we need to save the text window size & pos?
@@ -66,12 +66,14 @@ typedef struct {
     Data  data;
     Lines lines;
 
-    usize cursor;
-    usize desired_col;
-    usize anchor;
+    Sz cursor;
+    Sz desired_col;
+    Sz anchor;
 
-    usize scroll_offset_y;
-    usize scroll_offset_x;
+    Sz scroll_offset_y;
+    Sz scroll_offset_x;
+
+    bool dirty;
 
     EditorFlags_t flags; // Doesnt do anything yet
 
@@ -82,14 +84,14 @@ typedef struct {
 
 Editor ed_init(Allocator * a);
 void   ed_deinit(Editor * ed);
-void   ed_render(Editor * ed, surface_t * sur, i32 x, i32 y, i32 w, i32 h);
+void   ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h);
 bool   ed_edit_key(Editor * ed, PKey key, KeyMod mod);
 bool   ed_open_file(Editor * ed, char const * file_path);
 bool   ed_write_file(Editor * ed, char const * file_path);
-void   ed_push_text(Editor * ed, char const * text, usize text_len);
+void   ed_push_text(Editor * ed, char const * text, Sz text_len);
 void   ed_clear(Editor * ed);
 
-void ed_mouse_click(Editor * ed, i32 x, i32 y);
+void ed_mouse_click(Editor * ed, I32 x, I32 y);
 
 
 #endif

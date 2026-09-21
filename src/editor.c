@@ -13,13 +13,13 @@
     } while (0)
 
 
-static usize
+static Sz
 ed_current_line(Editor const * ed)
 {
     VALIDATE_CURSOR();
     ENSURE(ed->lines.len >= 1);
 
-    for (iterate(i, ed->lines.len)) {
+    for ($it(i, ed->lines.len)) {
         if (ed->lines.ptr[i].begin <= ed->cursor && ed->cursor <= ed->lines.ptr[i].end) {
             return i;
         }
@@ -28,8 +28,8 @@ ed_current_line(Editor const * ed)
 }
 
 
-static usize
-ed_current_column(Editor const * ed, usize cur_line)
+static Sz
+ed_current_column(Editor const * ed, Sz cur_line)
 {
     VALIDATE_CURSOR();
     ENSURE(cur_line < ed->lines.len);
@@ -39,8 +39,8 @@ ed_current_column(Editor const * ed, usize cur_line)
 
 static void ed_set_desired_col(Editor * ed)
 {
-    usize const line = ed_current_line(ed);
-    ed->desired_col  = ed_current_column(ed, line);
+    Sz const line   = ed_current_line(ed);
+    ed->desired_col = ed_current_column(ed, line);
 }
 
 
@@ -54,10 +54,10 @@ is_cursor_on_line(Editor const * ed, Line line)
 static Pos
 ed_find_cursor_pos(Editor const * ed)
 {
-    usize cursor_x = 0;
-    usize cursor_y = 0;
+    Sz cursor_x = 0;
+    Sz cursor_y = 0;
 
-    for (iterate(i, ed->lines.len)) {
+    for ($it(i, ed->lines.len)) {
         Line const line = arr_at(&ed->lines, i);
 
         if (is_cursor_on_line(ed, line)) {
@@ -71,7 +71,7 @@ ed_find_cursor_pos(Editor const * ed)
 
 
 static bool
-is_between(usize x, usize lo, usize hi)
+is_between(Sz x, Sz lo, Sz hi)
 {
     return (x >= lo && x < hi);
 }
@@ -96,9 +96,9 @@ ed_compute_lines(Editor * ed)
 {
     arr_clear(&ed->lines);
 
-    usize begin = 0;
+    Sz begin = 0;
 
-    for (iterate(i, ed->data.len)) {
+    for ($it(i, ed->data.len)) {
         if (ed->data.ptr[i] == '\n') {
             Line const line = { .begin = begin, .end = i };
             arr_push(&ed->lines, line);
@@ -141,8 +141,8 @@ ed_insert_newline(Editor * ed)
 static void
 ed_insert_tab(Editor * ed)
 {
-    u32 const tab_size = 4;
-    for (iterate(_, tab_size))
+    U32 const tab_size = 4;
+    for ($it(_, tab_size))
         ed_insert_char(ed, ' ');
     VALIDATE_CURSOR();
 }
@@ -159,15 +159,15 @@ ed_select_all(Editor * ed)
 static void
 ed_delete_selection(Editor * ed)
 {
-    usize const begin = Min(ed->anchor, ed->cursor);
-    usize const end   = Max(ed->anchor, ed->cursor);
+    Sz const begin = $min(ed->anchor, ed->cursor);
+    Sz const end   = $max(ed->anchor, ed->cursor);
 
     if (begin == end)
         return;
 
-    char *      dst = ed->data.ptr + begin;
-    char *      src = ed->data.ptr + end;
-    usize const len = ed->data.len - end;
+    char *   dst = ed->data.ptr + begin;
+    char *   src = ed->data.ptr + end;
+    Sz const len = ed->data.len - end;
 
     memmove(dst, src, len);
 
@@ -212,7 +212,7 @@ ed_backspace(Editor * ed)
 
 
 static void
-ed_delete_line(Editor * ed, usize line)
+ed_delete_line(Editor * ed, Sz line)
 {
     ENSURE(line < ed->lines.len);
 
@@ -220,13 +220,13 @@ ed_delete_line(Editor * ed, usize line)
     bool const has_next       = line + 1 < ed->lines.len;
     bool const has_prev       = line > 0;
 
-    usize const begin = has_next ? line_to_delete.begin : (has_prev ? line_to_delete.begin - 1 : line_to_delete.begin);
-    usize const end   = has_next ? line_to_delete.end + 1 : line_to_delete.end;
+    Sz const begin = has_next ? line_to_delete.begin : (has_prev ? line_to_delete.begin - 1 : line_to_delete.begin);
+    Sz const end   = has_next ? line_to_delete.end + 1 : line_to_delete.end;
 
     memmove(ed->data.ptr + begin, ed->data.ptr + end, ed->data.len - end);
     ed->data.len -= (end - begin);
 
-    ed->cursor = Min(begin, ed->data.len);
+    ed->cursor = $min(begin, ed->data.len);
     ed->anchor = ed->cursor;
 
     ed_compute_lines(ed);
@@ -315,8 +315,8 @@ ed_move_word_right(Editor * ed, bool selecting)
 static void
 ed_move_up(Editor * ed, bool selecting)
 {
-    usize const line = ed_current_line(ed);
-    // usize const column = ed_current_column(ed, line);
+    Sz const line = ed_current_line(ed);
+    // Sz const column = ed_current_column(ed, line);
     if (line > 0) {
         ed->cursor = ed->lines.ptr[line - 1].begin + ed->desired_col;
 
@@ -334,8 +334,8 @@ ed_move_up(Editor * ed, bool selecting)
 static void
 ed_move_down(Editor * ed, bool selecting)
 {
-    usize const line = ed_current_line(ed);
-    // usize const column = ed_current_column(ed, line);
+    Sz const line = ed_current_line(ed);
+    // Sz const column = ed_current_column(ed, line);
     if (line < ed->lines.len - 1) {
         ed->cursor = ed->lines.ptr[line + 1].begin + ed->desired_col;
         if (ed->cursor > ed->lines.ptr[line + 1].end) {
@@ -354,7 +354,7 @@ ed_move_down(Editor * ed, bool selecting)
 static void
 ed_clipboard_paste(Editor * ed)
 {
-    usize        text_length;
+    Sz           text_length;
     char const * text = p_read_clipboard(&text_length);
     if (text == NULL)
         return;
@@ -362,7 +362,7 @@ ed_clipboard_paste(Editor * ed)
         ed_delete_selection(ed);
     }
     // text_length includes null terminator ( i think lol )
-    for (iterate(i, text_length - 1)) {
+    for ($it(i, text_length - 1)) {
         ed_insert_char(ed, text[i]);
     }
 }
@@ -372,14 +372,14 @@ static void
 ed_clipboard_copy(Editor * ed)
 {
     if (ed->cursor != ed->anchor) {
-        usize const begin = Min(ed->cursor, ed->anchor);
-        usize const end   = Max(ed->cursor, ed->anchor);
-        p_write_clipboard(&ed->data.ptr[begin], (u32)(end - begin));
+        Sz const begin = $min(ed->cursor, ed->anchor);
+        Sz const end   = $max(ed->cursor, ed->anchor);
+        p_write_clipboard(&ed->data.ptr[begin], (U32)(end - begin));
     }
     else {
         // no selection copy whole line
         Line cur_line = ed->lines.ptr[ed_current_line(ed)];
-        p_write_clipboard(&ed->data.ptr[cur_line.begin], (u32)(cur_line.end - cur_line.begin));
+        p_write_clipboard(&ed->data.ptr[cur_line.begin], (U32)(cur_line.end - cur_line.begin));
     }
 }
 
@@ -394,7 +394,7 @@ ed_clipboard_cut(Editor * ed)
     }
     else {
         // no selection delete line
-        usize line = ed_current_line(ed);
+        Sz line = ed_current_line(ed);
         ed_delete_line(ed, line);
     }
 }
@@ -425,6 +425,8 @@ ed_init(Allocator * a)
 
     Line line = { 0 };
 
+    ed.dirty = true;
+
     arr_push(&ed.lines, line);
 
     return ed;
@@ -437,9 +439,10 @@ void ed_deinit(Editor * ed)
     arr_deinit(&ed->lines);
 }
 
-void ed_push_text(Editor * ed, char const * text, usize text_len)
+void ed_push_text(Editor * ed, char const * text, Sz text_len)
 {
-    for (iterate(i, text_len)) {
+    ed->dirty = true;
+    for ($it(i, text_len)) {
         ed_insert_char(ed, text[i]);
     }
 }
@@ -455,6 +458,7 @@ void ed_clear(Editor * ed)
 
 bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
 {
+    ed->dirty = true;
     if (mod.ctrl && key == PKEY_a) {
         ed_select_all(ed);
         return true;
@@ -528,100 +532,102 @@ bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
 }
 
 
-void ed_mouse_click(Editor * ed, i32 x, i32 y)
+void ed_mouse_click(Editor * ed, I32 x, I32 y)
 {
-    i32 const rel_y = y - (i32)OFFSET_Y;
-    i32 const rel_x = x - (i32)OFFSET_X;
+    I32 const rel_y = y - (I32)OFFSET_Y;
+    I32 const rel_x = x - (I32)OFFSET_X;
 
-    usize const row_offset = (usize)((f32)Max(rel_y, 0) / GLYPH_HEIGHT);
-    usize const col_offset = (usize)((f32)Max(rel_x, 0) / GLYPH_WIDTH);
+    Sz const row_offset = (Sz)((F32)$max(rel_y, 0) / GLYPH_HEIGHT);
+    Sz const col_offset = (Sz)((F32)$max(rel_x, 0) / GLYPH_WIDTH);
 
-    usize click_row = ed->scroll_offset_y + row_offset;
-    click_row       = Min(click_row, ed->lines.len - 1);
+    Sz click_row = ed->scroll_offset_y + row_offset;
+    click_row    = $min(click_row, ed->lines.len - 1);
 
-    Line const  click_line = ed->lines.ptr[click_row];
-    usize const click_col  = ed->scroll_offset_x + col_offset;
-    usize const click_pos  = Min(click_line.begin + click_col, click_line.end);
+    Line const click_line = ed->lines.ptr[click_row];
+    Sz const   click_col  = ed->scroll_offset_x + col_offset;
+    Sz const   click_pos  = $min(click_line.begin + click_col, click_line.end);
 
     ed->cursor = click_pos;
     ed->anchor = ed->cursor;
 }
 
 
-void ed_render(Editor * ed, surface_t * sur, i32 x, i32 y, i32 w, i32 h)
+void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h)
 {
-    usize const scroll_pading = 3;
+    ed->dirty = false;
 
-    Pos const   cursor_pos = ed_find_cursor_pos(ed);
-    usize const cursor_row = cursor_pos.x;
-    usize const cursor_col = cursor_pos.y;
+    Sz const scroll_pading = 3;
 
-    usize const visible_lines = (usize)(((f32)h - OFFSET_Y) / GLYPH_HEIGHT) - 1;
+    Pos const cursor_pos = ed_find_cursor_pos(ed);
+    Sz const  cursor_row = cursor_pos.x;
+    Sz const  cursor_col = cursor_pos.y;
 
-    usize const padding = Min(scroll_pading, visible_lines / 2);
+    Sz const visible_lines = (Sz)(((F32)h - OFFSET_Y) / GLYPH_HEIGHT) - 1;
+
+    Sz const padding = $min(scroll_pading, visible_lines / 2);
 
     if (cursor_row < ed->scroll_offset_y + padding) {
-        ed->scroll_offset_y = (usize)Max((i32)cursor_row - (i32)padding, 0);
+        ed->scroll_offset_y = (Sz)$max((I32)cursor_row - (I32)padding, 0);
     }
 
     if (cursor_row + padding + 1 > ed->scroll_offset_y + visible_lines) {
         ed->scroll_offset_y = cursor_row + padding + 1 - visible_lines;
     }
 
-    usize const max_scroll = (ed->lines.len > visible_lines) ? ed->lines.len - visible_lines : 0;
-    ed->scroll_offset_y    = Min(ed->scroll_offset_y, max_scroll);
+    Sz const max_scroll = (ed->lines.len > visible_lines) ? ed->lines.len - visible_lines : 0;
+    ed->scroll_offset_y = $min(ed->scroll_offset_y, max_scroll);
 
-    usize const start_line  = ed->scroll_offset_y;
-    usize const finish_line = Min(start_line + visible_lines, ed->lines.len);
+    Sz const start_line  = ed->scroll_offset_y;
+    Sz const finish_line = $min(start_line + visible_lines, ed->lines.len);
 
-    usize const scroll_pading_x = 3;
+    Sz const scroll_pading_x = 3;
 
-    usize const visible_cols = (usize)(((f32)w - OFFSET_X) / GLYPH_WIDTH) - 1;
-    usize const padding_x    = Min(scroll_pading_x, visible_cols / 2);
+    Sz const visible_cols = (Sz)(((F32)w - OFFSET_X) / GLYPH_WIDTH) - 1;
+    Sz const padding_x    = $min(scroll_pading_x, visible_cols / 2);
 
     if (cursor_col < ed->scroll_offset_x + padding_x) {
-        ed->scroll_offset_x = (usize)Max((i32)cursor_col - (i32)padding_x, 0);
+        ed->scroll_offset_x = (Sz)$max((I32)cursor_col - (I32)padding_x, 0);
     }
 
     if (cursor_col + padding_x + 1 > ed->scroll_offset_x + visible_cols) {
         ed->scroll_offset_x = cursor_col + padding_x + 1 - visible_cols;
     }
 
-    usize const start_col = ed->scroll_offset_x;
+    Sz const start_col = ed->scroll_offset_x;
 
     // draw line
     draw_rect(sur,
         x,
-        ((i32)cursor_row - (i32)start_line) * (i32)GLYPH_HEIGHT + (i32)OFFSET_Y + y,
+        ((I32)cursor_row - (I32)start_line) * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
         w, // was sur->width — probably should be the render region's width, not the whole surface
-        (i32)GLYPH_HEIGHT,
+        (I32)GLYPH_HEIGHT,
         LINE_COLOUR);
 
     // draw cursor
     draw_rect(sur,
-        ((i32)cursor_col - (i32)start_col) * (i32)GLYPH_WIDTH + (i32)OFFSET_X - 1 + x,
-        ((i32)cursor_row - (i32)start_line) * (i32)GLYPH_HEIGHT + (i32)OFFSET_Y + y,
+        ((I32)cursor_col - (I32)start_col) * (I32)GLYPH_WIDTH + (I32)OFFSET_X - 1 + x,
+        ((I32)cursor_row - (I32)start_line) * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
         1,
-        (i32)GLYPH_HEIGHT,
+        (I32)GLYPH_HEIGHT,
         CURSOR_COLOUR);
 
     // draw selection
-    usize const selection_begin = Min(ed->anchor, ed->cursor);
-    usize const selection_end   = Max(ed->anchor, ed->cursor);
+    Sz const selection_begin = $min(ed->anchor, ed->cursor);
+    Sz const selection_end   = $max(ed->anchor, ed->cursor);
 
     if (ed_is_selection(ed)) {
-        for (iterateEx(line, start_line, finish_line)) {
-            usize const line_begin = ed->lines.ptr[line].begin;
-            usize const line_end   = ed->lines.ptr[line].end;
+        for ($itEx(line, start_line, finish_line)) {
+            Sz const line_begin = ed->lines.ptr[line].begin;
+            Sz const line_end   = ed->lines.ptr[line].end;
 
-            for (iterateEx(i, line_begin, line_end)) {
+            for ($itEx(i, line_begin, line_end)) {
                 if (is_between(i, selection_begin, selection_end)) {
-                    usize const col = i - line_begin;
+                    Sz const col = i - line_begin;
                     draw_rect(sur,
-                        ((i32)col - (i32)start_col) * (i32)GLYPH_WIDTH + (i32)OFFSET_X + x,
-                        (i32)(line - start_line) * (i32)GLYPH_HEIGHT + (i32)OFFSET_Y + y,
-                        (i32)GLYPH_WIDTH,
-                        (i32)GLYPH_HEIGHT,
+                        ((I32)col - (I32)start_col) * (I32)GLYPH_WIDTH + (I32)OFFSET_X + x,
+                        (I32)(line - start_line) * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
+                        (I32)GLYPH_WIDTH,
+                        (I32)GLYPH_HEIGHT,
                         CURSOR_COLOUR);
                 }
             }
@@ -631,19 +637,19 @@ void ed_render(Editor * ed, surface_t * sur, i32 x, i32 y, i32 w, i32 h)
 
     // draw text
     for (
-        usize line = start_line, row = 0;
+        Sz line = start_line, row = 0;
         line < finish_line;
         line += 1, row += 1) //
     {
-        usize const line_begin = ed->lines.ptr[line].begin;
-        usize const line_end   = ed->lines.ptr[line].end;
-        usize const line_len   = line_end - line_begin;
-        usize const skip       = Min(start_col, line_len);
+        Sz const line_begin = ed->lines.ptr[line].begin;
+        Sz const line_end   = ed->lines.ptr[line].end;
+        Sz const line_len   = line_end - line_begin;
+        Sz const skip       = $min(start_col, line_len);
         draw_text(sur,
             ed->data.ptr + line_begin + skip,
-            (i32)line_len - (i32)skip,
-            (i32)OFFSET_X + x,
-            (i32)row * (i32)GLYPH_HEIGHT + (i32)OFFSET_Y + y,
+            (I32)line_len - (I32)skip,
+            (I32)OFFSET_X + x,
+            (I32)row * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
             TEXT_COLOUR);
     }
 }
@@ -666,7 +672,7 @@ bool ed_open_file(Editor * ed, char const * file_path)
     }
 
     fseek(file_ptr, 0L, SEEK_END);
-    isize const file_size = ftell(file_ptr);
+    Sz const file_size = ftell(file_ptr);
     fseek(file_ptr, 0L, SEEK_SET);
 
     if (file_size < 0) {
@@ -677,7 +683,7 @@ bool ed_open_file(Editor * ed, char const * file_path)
 
     arr_reserve(&ed->data, file_size);
 
-    isize const n = fread(ed->data.ptr, sizeof(char), file_size, file_ptr);
+    Sz const n = fread(ed->data.ptr, sizeof(char), file_size, file_ptr);
     if (n != file_size) {
         if (ferror(file_ptr)) {
             fprintf(stderr, "ERROR: could not read file %s: %s\n", file_path,

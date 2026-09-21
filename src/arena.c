@@ -1,15 +1,29 @@
 #include "arena.h"
 
 #include <assert.h>
-#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
-void arena_init(Arena * a, byte_t * buffer, size_t buffer_size)
+
+struct ArenaRegion {
+    char *        buffer;
+    size_t        offset;
+    size_t        capacity;
+    ArenaRegion * next;
+};
+
+static ArenaRegion * ArenaRegion_new(size_t cap)
 {
-    a->len = 0;
-    a->cap = buffer_size;
-    a->ptr = buffer;
+    assert(cap > sizeof(ArenaRegion));
+    ArenaRegion * region = malloc(cap);
+    region->buffer       = (char *)(region + 1);
+    region->offset       = 0;
+    region->capacity     = cap - sizeof(ArenaRegion);
+    region->next         = NULL;
+    return region;
 }
+
 
 static size_t align_forward(size_t ptr, size_t align)
 {
@@ -17,35 +31,80 @@ static size_t align_forward(size_t ptr, size_t align)
     return modulo ? (ptr + (align - modulo)) : ptr;
 }
 
-inline static void memzero(void * ptr, size_t n)
+void arena_reserve(Arena * a, size_t cap)
 {
-    memset(ptr, 0, n);
+    if (a->head == NULL) {
+        ArenaRegion * node = ArenaRegion_new(cap);
+        a->head            = node;
+        return;
+    }
+
+    if (cap < a->head->capacity)
+        return;
+
+    size_t        new_cap = align_forward(cap, sizeof(void *));
+    ArenaRegion * node    = ArenaRegion_new(new_cap);
+    node->next            = a->head;
+    a->head               = node;
 }
 
-void * arena_push(Arena * a, size_t size)
+void * arena_alloc(Arena * a, size_t bytes)
 {
-    if (a->len + size > a->cap) {
-        fprintf(stderr, "arena overflow\n");
-        assert(0);
+    if (a->head == NULL) {
+        ArenaRegion * node = ArenaRegion_new(DEFAULT_REGION_SIZE);
+        a->head            = node;
     }
-    void * ptr = a->ptr + a->len;
-    memzero(ptr, size);
-    a->len = align_forward(a->len + size, sizeof(void *));
+
+    if (a->head->offset + bytes > a->head->capacity) {
+        size_t new_cap     = a->head->capacity * 2 > bytes ? a->head->capacity * 2 : bytes;
+        new_cap            = align_forward(new_cap, sizeof(void *));
+        ArenaRegion * node = ArenaRegion_new(new_cap);
+        node->next         = a->head;
+        a->head            = node;
+    }
+
+    void * ptr = a->head->buffer + a->head->offset;
+    memset(ptr, 0, bytes);
+    a->head->offset = align_forward(a->head->offset + bytes, sizeof(void *));
     return ptr;
 }
 
-size_t arena_mark(Arena a)
+
+void arena_clear(Arena * a)
 {
-    return a.len;
+    if (a->head == NULL)
+        return;
+
+    ArenaRegion * node = a->head->next;
+    while (node) {
+        ArenaRegion * next = node->next;
+        free(node);
+        node = next;
+    }
+
+    a->head->offset = 0;
+    a->head->next   = NULL;
 }
 
-void arena_pop(Arena * a, size_t mark)
+void arena_destroy(Arena * a)
 {
-    assert(mark <= a->len);
-    a->len = mark;
+    arena_clear(a);
+    free(a->head);
+    a->head = NULL;
 }
 
-void arena_reset(Arena * a)
+ArenaMarker arena_mark(Arena * a)
 {
-    a->len = 0;
+    return (ArenaMarker) { .parent = a->head, .offset = a->head->offset };
+}
+
+void arena_pop(Arena * a, ArenaMarker mark)
+{
+    if (a->head != mark.parent)
+        return;
+
+    if (mark.offset > a->head->offset)
+        return;
+
+    a->head->offset = mark.offset;
 }

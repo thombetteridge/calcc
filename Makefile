@@ -1,7 +1,13 @@
 TARGET := calcc
 CC := gcc
-CFLAGS := -Wall -Wextra -Wpedantic -Wconversion -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion
-CFLAGS += -std=c17 -g3 -MMD -MP #-fsanitize=address
+CWARNINGS := -Wall -Wextra -Werror -Wpedantic -Wconversion -Wdouble-promotion \
+          -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion \
+          -Wuninitialized -Wshadow -Wcast-align -Wcast-qual -Wnull-dereference \
+          -Wformat=2 -Wswitch-enum -Wundef -Wredundant-decls -Wmisleading-indentation \
+          -Wduplicated-cond -Wduplicated-branches -Wlogical-op \
+          -Wstrict-prototypes -Wmissing-prototypes -Wvla -Wwrite-strings -Wfloat-equal -Walloca
+
+CFLAGS := $(CWARNINGS) -std=c17 -Og -g3 -MMD -MP  #-fsanitize=address
 SRC_DIR := src/
 BUILD_DIR := build
 SRC := $(SRC_DIR)main.c $(SRC_DIR)3rd.c
