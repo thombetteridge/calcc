@@ -63,8 +63,7 @@ static font_t g_font = {
 
 static bool font_load(U8 const * data, u32 data_size, F32 pixel_height);
 
-bool p_init(char const * title)
-{
+bool p_init(char const * title) {
     g_ctx.target = g_surface;
 
     g_ctx.window = RGFW_createWindow(title, 100, 100, g_ctx.window_width, g_ctx.window_height,
@@ -94,8 +93,7 @@ bool p_init(char const * title)
     return true;
 }
 
-void p_deinit(void)
-{
+void p_deinit(void) {
     if (g_ctx.surface) {
         RGFW_surface_free(g_ctx.surface);
         g_ctx.surface = NULL;
@@ -108,13 +106,11 @@ void p_deinit(void)
     g_ctx.running = false;
 }
 
-void p_request_close(void)
-{
+void p_request_close(void) {
     g_ctx.running = false;
 }
 
-bool p_running(void)
-{
+bool p_running(void) {
     if (!g_ctx.window)
         return false;
     if (RGFW_window_shouldClose(g_ctx.window))
@@ -122,8 +118,7 @@ bool p_running(void)
     return g_ctx.running;
 }
 
-bool p_get_pressed_key(PKey * key)
-{
+bool p_get_pressed_key(PKey * key) {
     if (g_ctx.key_pressed) {
         *key = g_ctx.key_pressed;
         return true;
@@ -131,8 +126,7 @@ bool p_get_pressed_key(PKey * key)
     return false;
 }
 
-bool p_get_released_key(PKey * key)
-{
+bool p_get_released_key(PKey * key) {
     if (g_ctx.key_released) {
         *key = g_ctx.key_released;
         return true;
@@ -140,18 +134,15 @@ bool p_get_released_key(PKey * key)
     return false;
 }
 
-char p_get_last_key_char(void)
-{
+char p_get_last_key_char(void) {
     return g_ctx.key_char;
 }
 
-void p_wait_for_event(I32 ms)
-{
+void p_wait_for_event(I32 ms) {
     RGFW_waitForEvent(ms);
 }
 
-bool p_poll(void)
-{
+bool p_poll(void) {
     bool       any = false;
     RGFW_event event;
 
@@ -217,44 +208,37 @@ bool p_poll(void)
     return any;
 }
 
-void p_present(void)
-{
+void p_present(void) {
     if (g_ctx.window && g_ctx.surface && g_ctx.window_valid) {
         RGFW_window_blitSurface(g_ctx.window, g_ctx.surface);
     }
 }
 
-void p_sleep(u64 ms)
-{
+void p_sleep(u64 ms) {
     rt_sleep(ms);
 }
 
 
-I32 p_window_width(void)
-{
+I32 p_window_width(void) {
     return g_ctx.window_width;
 }
 
-I32 p_window_height(void)
-{
+I32 p_window_height(void) {
     return g_ctx.window_height;
 }
 
-bool p_is_window_valid(void)
-{
+bool p_is_window_valid(void) {
     return g_ctx.window_valid;
 }
 
-point_t p_mouse_pos(void)
-{
+point_t p_mouse_pos(void) {
     I32 x = 0, y = 0;
     if (g_ctx.window)
         RGFW_window_getMouse(g_ctx.window, &x, &y);
     return (point_t) { (I32)x, (I32)y };
 }
 
-point_t p_mouse_delta(void)
-{
+point_t p_mouse_delta(void) {
     point_t delta = {
         g_ctx.current_mouse.x - g_ctx.prev_mouse.x,
         g_ctx.current_mouse.y - g_ctx.prev_mouse.y,
@@ -262,8 +246,7 @@ point_t p_mouse_delta(void)
     return delta;
 }
 
-bool p_is_mouse_pressed(PMouseButton button)
-{
+bool p_is_mouse_pressed(PMouseButton button) {
     if (!g_ctx.window)
         return false;
     RGFW_mouseButton b;
@@ -283,46 +266,39 @@ bool p_is_mouse_pressed(PMouseButton button)
     return RGFW_isMousePressed(b);
 }
 
-F32 p_mouse_scroll(void)
-{
+F32 p_mouse_scroll(void) {
     F32 s        = g_ctx.scroll;
     g_ctx.scroll = 0.0f;
     return s;
 }
 
 
-bool p_is_key_pressed(PKey key)
-{
+bool p_is_key_pressed(PKey key) {
     return RGFW_isKeyPressed((U8)key);
 }
 
 
-bool p_is_key_released(PKey key)
-{
+bool p_is_key_released(PKey key) {
     return RGFW_isKeyReleased((U8)key);
 }
 
 
-bool p_is_key_down(PKey key)
-{
+bool p_is_key_down(PKey key) {
     return RGFW_isKeyDown((U8)key);
 }
 
-char const * p_read_clipboard(Sz * length)
-{
+char const * p_read_clipboard(Sz * length) {
     return RGFW_readClipboard($ptrCast(USz, length));
 }
 
-void p_write_clipboard(char const * text, u32 length)
-{
+void p_write_clipboard(char const * text, u32 length) {
     RGFW_writeClipboard(text, length);
 }
 
 // drawing
 
 surface_t
-surface_init(Allocator * allocator, I32 width, I32 height)
-{
+surface_init(Allocator * allocator, I32 width, I32 height) {
     surface_t  s;
     uint32_t * buffer = ALLOC(allocator, u32, width * height);
     // memset(buffer, 0, (size_t)(width * height * (I32)sizeof(uint32_t)));
@@ -333,14 +309,12 @@ surface_init(Allocator * allocator, I32 width, I32 height)
     return s;
 }
 
-void surface_deinit(surface_t * sur)
-{
+void surface_deinit(surface_t * sur) {
     DEALLOC(sur->allocator, sur->buffer, sur->width * sur->height);
     memset(sur, 0, sizeof(*sur));
 }
 
-void surface_resize(surface_t * sur, I32 width, I32 height)
-{
+void surface_resize(surface_t * sur, I32 width, I32 height) {
     surface_t new_surface = surface_init(sur->allocator, width, height);
     surface_deinit(sur);
 
@@ -353,8 +327,7 @@ void surface_resize(surface_t * sur, I32 width, I32 height)
 }
 
 
-void push_surface(surface_t const * sur, I32 dst_x, I32 dst_y)
-{
+void push_surface(surface_t const * sur, I32 dst_x, I32 dst_y) {
     for (I32 src_y = 0; src_y < sur->height; src_y += 1) {
         for (I32 src_x = 0; src_x < sur->width; src_x += 1) {
             Colour const color = sur->buffer[src_y * sur->width + src_x];
@@ -365,13 +338,11 @@ void push_surface(surface_t const * sur, I32 dst_x, I32 dst_y)
 }
 
 
-void p_clear(Colour colour)
-{
+void p_clear(Colour colour) {
     draw_clear(&g_ctx.target, colour);
 }
 
-void draw_pixel(surface_t * sur, I32 x, I32 y, Colour color)
-{
+void draw_pixel(surface_t * sur, I32 x, I32 y, Colour color) {
     // TODO we should log this
     if (x >= sur->width || y >= sur->height || x < 0 || y < 0)
         return;
@@ -379,22 +350,19 @@ void draw_pixel(surface_t * sur, I32 x, I32 y, Colour color)
 }
 
 
-void draw_clear(surface_t * sur, Colour color)
-{
+void draw_clear(surface_t * sur, Colour color) {
     for (I32 i = 0; i < sur->width * sur->height; i += 1)
         sur->buffer[i] = color;
 }
 
 
-void draw_rect(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour)
-{
+void draw_rect(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour) {
     for (I32 i = 0; i < w; i += 1)
         for (I32 j = 0; j < h; j += 1)
             draw_pixel(sur, i + x, j + y, colour);
 }
 
-void draw_rect_lines(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour)
-{
+void draw_rect_lines(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour) {
     I32 p0x = x;
     I32 p0y = y;
 
@@ -415,15 +383,13 @@ void draw_rect_lines(surface_t * sur, I32 x, I32 y, I32 w, I32 h, Colour colour)
 
 
 static void
-swapi(I32 * a, I32 * b)
-{
+swapi(I32 * a, I32 * b) {
     I32 t = *a;
     *a    = *b;
     *b    = t;
 }
 
-void draw_line(surface_t * sur, I32 start_x, I32 start_y, I32 end_x, I32 end_y, Colour colour)
-{
+void draw_line(surface_t * sur, I32 start_x, I32 start_y, I32 end_x, I32 end_y, Colour colour) {
     if (start_x < end_x) {
         swapi(&start_x, &end_x);
         swapi(&start_y, &end_y);
@@ -449,8 +415,7 @@ void draw_line(surface_t * sur, I32 start_x, I32 start_y, I32 end_x, I32 end_y, 
 
 
 static void
-blend_pixel(surface_t * sur, I32 x, I32 y, Colour colour, U8 coverage)
-{
+blend_pixel(surface_t * sur, I32 x, I32 y, Colour colour, U8 coverage) {
     if (coverage == 0 || x < 0 || y < 0 || x >= sur->width || y >= sur->height)
         return;
     if (coverage == 255) {
@@ -473,8 +438,7 @@ static unsigned int stb_decompress_length(unsigned char const * input);
 static unsigned int stb_decompress(unsigned char * output, unsigned char const * i, unsigned int length);
 
 
-static bool font_load(U8 const * data, u32 data_size, F32 pixel_height)
-{
+static bool font_load(U8 const * data, u32 data_size, F32 pixel_height) {
     U8 * ttf_buffer = malloc(stb_decompress_length(data) + 1); // extra byte for sentinel valuie
 
     // u32 const decompressed_size = stb_decompress_length(data);
@@ -496,16 +460,14 @@ static bool font_load(U8 const * data, u32 data_size, F32 pixel_height)
     return ok > 0;
 }
 
-static void font_unload(Allocator * allocator)
-{
+static void font_unload(Allocator * allocator) {
     // if (g_font.atlas) {
     //     DEALLOC(allocator, g_font.atlas, g_font.atlas_w * g_font.atlas_h);
     // }
 }
 
 
-void draw_text(surface_t * sur, char const * str, I32 len, I32 x, I32 y, Colour colour)
-{
+void draw_text(surface_t * sur, char const * str, I32 len, I32 x, I32 y, Colour colour) {
     F32 fx = (F32)x;
     F32 fy = (F32)y + 9.5f; /* works for proggy at size 13 */
 
@@ -536,8 +498,7 @@ void draw_text(surface_t * sur, char const * str, I32 len, I32 x, I32 y, Colour 
 }
 
 
-void draw_circle(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour)
-{
+void draw_circle(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour) {
     I32 x0 = centre_x - radius;
     I32 x1 = centre_x + radius;
 
@@ -557,8 +518,7 @@ void draw_circle(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour
 }
 
 
-void draw_circle_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour)
-{
+void draw_circle_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, Colour colour) {
     // Source:
     // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
 
@@ -582,8 +542,7 @@ void draw_circle_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, 
         if (d > 0) {
             y -= 1;
             d += 4 * (x - y) + 10;
-        }
-        else {
+        } else {
             d += 4 * x + 6;
         }
 
@@ -600,8 +559,7 @@ void draw_circle_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, 
 
 
 static void
-arc_pixel(surface_t * sur, I32 px, I32 py, I32 centre_x, I32 centre_y, F32 start_angle, F32 end_angle, Colour colour)
-{
+arc_pixel(surface_t * sur, I32 px, I32 py, I32 centre_x, I32 centre_y, F32 start_angle, F32 end_angle, Colour colour) {
 
     F32 a = atan2f((F32)(py - centre_y), (F32)(px - centre_x));
     if (a < 0)
@@ -613,8 +571,7 @@ arc_pixel(surface_t * sur, I32 px, I32 py, I32 centre_x, I32 centre_y, F32 start
         draw_pixel(sur, px, py, colour);
 }
 
-void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32 start_angle, F32 end_angle, Colour colour)
-{
+void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32 start_angle, F32 end_angle, Colour colour) {
     // Normalise so start < end, both in [0, 2pi)
     while (start_angle < 0)
         start_angle += 2.0f * PI_f;
@@ -643,8 +600,7 @@ void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32
         if (d > 0) {
             y -= 1;
             d += 4 * (x - y) + 10;
-        }
-        else {
+        } else {
             d += 4 * x + 6;
         }
         arc_pixel(sur, centre_x + x, centre_y + y, centre_x, centre_y, start_angle, end_angle, colour);
@@ -663,8 +619,7 @@ void draw_arc_lines(surface_t * sur, I32 centre_x, I32 centre_y, I32 radius, F32
 #include <stdio.h>
 #include <windows.h>
 
-void init_console()
-{
+void init_console() {
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
         freopen("CONOUT$", "w", stdout);
         freopen("CONOUT$", "w", stderr);
@@ -672,8 +627,7 @@ void init_console()
     }
 }
 
-void shutdown_console()
-{
+void shutdown_console() {
     fflush(stdout);
     fflush(stderr);
 
@@ -685,18 +639,15 @@ void shutdown_console()
 }
 
 #else
-void init_console()
-{ }
+void init_console() { }
 
-void shutdown_console()
-{ }
+void shutdown_console() { }
 
 #endif
 
 // --- stolen stb_decompress (public domain, Sean Barrett, via github.com/nothings/stb) ---
 
-static unsigned int stb_decompress_length(unsigned char const * input)
-{
+static unsigned int stb_decompress_length(unsigned char const * input) {
     return (input[8] << 24) + (input[9] << 16) + (input[10] << 8) + input[11];
 }
 
@@ -704,8 +655,7 @@ static unsigned char *       stb__barrier_out_e, *stb__barrier_out_b;
 static unsigned char const * stb__barrier_in_b;
 static unsigned char *       stb__dout;
 
-static void stb__match(unsigned char const * data, unsigned int length)
-{
+static void stb__match(unsigned char const * data, unsigned int length) {
     if (stb__dout + length > stb__barrier_out_e) {
         stb__dout += length;
         return;
@@ -718,8 +668,7 @@ static void stb__match(unsigned char const * data, unsigned int length)
         *stb__dout++ = *data++;
 }
 
-static void stb__lit(unsigned char const * data, unsigned int length)
-{
+static void stb__lit(unsigned char const * data, unsigned int length) {
     if (stb__dout + length > stb__barrier_out_e) {
         stb__dout += length;
         return;
@@ -736,8 +685,7 @@ static void stb__lit(unsigned char const * data, unsigned int length)
 #define stb__in3(x) ((i[x] << 16) + stb__in2((x) + 1))
 #define stb__in4(x) ((i[x] << 24) + stb__in3((x) + 1))
 
-static unsigned char const * stb_decompress_token(unsigned char const * i)
-{
+static unsigned char const * stb_decompress_token(unsigned char const * i) {
     if (*i >= 0x20) {
         if (*i >= 0x80)
             stb__match(stb__dout - i[1] - 1, i[0] - 0x80 + 1), i += 2;
@@ -745,8 +693,7 @@ static unsigned char const * stb_decompress_token(unsigned char const * i)
             stb__match(stb__dout - (stb__in2(0) - 0x4000 + 1), i[2] + 1), i += 3;
         else
             stb__lit(i + 1, i[0] - 0x20 + 1), i += 1 + (i[0] - 0x20 + 1);
-    }
-    else {
+    } else {
         if (*i >= 0x18)
             stb__match(stb__dout - (stb__in3(0) - 0x180000 + 1), i[3] + 1), i += 4;
         else if (*i >= 0x10)
@@ -763,8 +710,7 @@ static unsigned char const * stb_decompress_token(unsigned char const * i)
     return i;
 }
 
-static unsigned int stb_adler32(unsigned int adler32, unsigned char * buffer, unsigned int buflen)
-{
+static unsigned int stb_adler32(unsigned int adler32, unsigned char * buffer, unsigned int buflen) {
     unsigned long const ADLER_MOD = 65521;
     unsigned long       s1 = adler32 & 0xffff, s2 = adler32 >> 16;
     unsigned long       blocklen = buflen % 5552;
@@ -791,8 +737,7 @@ static unsigned int stb_adler32(unsigned int adler32, unsigned char * buffer, un
     return (unsigned int)(s2 << 16) + (unsigned int)s1;
 }
 
-static unsigned int stb_decompress(unsigned char * output, unsigned char const * i, unsigned int length)
-{
+static unsigned int stb_decompress(unsigned char * output, unsigned char const * i, unsigned int length) {
     (void)length;
     if (stb__in4(0) != 0x57bC0000)
         return 0;

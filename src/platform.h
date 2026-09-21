@@ -207,14 +207,12 @@ typedef uint32_t Colour;
 #define YELLOW                  RGB_COLOUR(255u, 255u, 0u)
 
 inline static Colour
-toRGB(U32 r, U32 g, U32 b)
-{
+toRGB(U32 r, U32 g, U32 b) {
     return RGB_COLOUR(r, g, b);
 }
 
 inline static Colour
-toRGBA(U32 r, U32 g, U32 b, U32 a)
-{
+toRGBA(U32 r, U32 g, U32 b, U32 a) {
     return RGBA_COLOUR(r, g, b, a);
 }
 

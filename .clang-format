@@ -9,13 +9,13 @@ BraceWrapping:
     AfterCaseLabel: false
     AfterControlStatement: false
     AfterEnum: false
-    AfterFunction: true
+    AfterFunction: false
     AfterStruct: false
     AfterUnion: false
     BeforeLambdaBody: false
     BeforeWhile: false
     BeforeCatch: false
-    BeforeElse: true
+    BeforeElse: false
     SplitEmptyFunction: false
     SplitEmptyRecord: false
 

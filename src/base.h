@@ -171,8 +171,7 @@ void      fixed_allocator_deinit(Allocator * a);
 #ifdef ALLOC_LOGGING
 
 inline static void * alloc_logged(Allocator * allocator, size_t size, size_t align,
-    char const * type_name, char const * file, int line)
-{
+    char const * type_name, char const * file, int line) {
     void * ptr = allocator->alloc(allocator, size, align);
     fprintf(stderr, "[ALLOC]   %s:%d  %zu bytes (align %zu)  %-12s -> %p\n",
         file, line, size, align, type_name, ptr);
@@ -180,8 +179,7 @@ inline static void * alloc_logged(Allocator * allocator, size_t size, size_t ali
 }
 
 inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size,
-    char const * file, int line)
-{
+    char const * file, int line) {
     fprintf(stderr, "[DEALLOC] %s:%d  %zu bytes  ptr=%p\n", file, line, size, ptr);
     allocator->dealloc(allocator, ptr, size);
 }
@@ -199,9 +197,14 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 
 #endif
 
-#define Opt(... /*type*/ ) struct { __VA_ARGS__ value; int ok; }
-#define OptSome( Type, ...) (Type) {.value = __VA_ARGS__, .ok=true}
-#define OptNone(Type) (Type) {0}
+#define Opt(... /*type*/)  \
+    struct {               \
+        __VA_ARGS__ value; \
+        int         ok;    \
+    }
+#define OptSome(Type, ...) \
+    (Type) { .value = __VA_ARGS__, .ok = true }
+#define OptNone(Type) (Type) { 0 }
 
 #define arr_t(arr) __typeof__(*(arr)->ptr) // type helper
 

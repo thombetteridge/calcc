@@ -19,8 +19,7 @@ enum StackError {
     STACK_OUT_OF_RANGE,
 };
 
-static char const * stack_error_to_stringz(StackError err)
-{
+static char const * stack_error_to_stringz(StackError err) {
     switch (err) {
 
     case STACK_SUCCESS: return "Success";
@@ -34,13 +33,11 @@ static char const * stack_error_to_stringz(StackError err)
 }
 
 inline static void
-memzero(void * ptr, size_t n)
-{
+memzero(void * ptr, size_t n) {
     memset(ptr, 0, n);
 }
 
-static void lx_advance(Lexer * lx)
-{
+static void lx_advance(Lexer * lx) {
     if (lx->read_pos >= lx->src.len) {
         lx->pos = lx->read_pos;
         lx->ch  = '\0';
@@ -51,8 +48,7 @@ static void lx_advance(Lexer * lx)
     ++lx->read_pos;
 }
 
-Lexer lx_init(char const * str, Sz len)
-{
+Lexer lx_init(char const * str, Sz len) {
     Lexer lx = { 0 };
 
     lx.src.ptr  = str;
@@ -64,23 +60,19 @@ Lexer lx_init(char const * str, Sz len)
     return lx;
 }
 
-static bool is_white(char c)
-{
+static bool is_white(char c) {
     return c == ' ' || c == '\n' || c == '\t' || c == '\r';
 }
 
-static bool is_digit(char c)
-{
+static bool is_digit(char c) {
     return c >= '0' && c <= '9';
 }
 
-static bool is_letter(char c)
-{
+static bool is_letter(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-static Token lx_new_token(Lexer * lx, TokKind kind)
-{
+static Token lx_new_token(Lexer * lx, TokKind kind) {
     Token result = {
         .kind = kind,
         .text = { .len = 1, .ptr = lx->src.ptr + lx->pos }
@@ -89,16 +81,14 @@ static Token lx_new_token(Lexer * lx, TokKind kind)
     return result;
 }
 
-static char lx_peek(Lexer * lx)
-{
+static char lx_peek(Lexer * lx) {
     if (lx->read_pos >= lx->src.len)
         return '\0';
     else
         return lx->src.ptr[lx->read_pos];
 }
 
-static Token lx_new_number(Lexer * lx)
-{
+static Token lx_new_number(Lexer * lx) {
     size_t const start = lx->pos;
 
     if (lx->ch == '-')
@@ -114,8 +104,7 @@ static Token lx_new_number(Lexer * lx)
     };
 }
 
-static Token lx_new_word(Lexer * lx)
-{
+static Token lx_new_word(Lexer * lx) {
     size_t const start = lx->pos;
 
     while (is_letter(lx->ch) || is_digit(lx->ch)) {
@@ -128,8 +117,7 @@ static Token lx_new_word(Lexer * lx)
     };
 }
 
-static Token lx_next(Lexer * lx)
-{
+static Token lx_next(Lexer * lx) {
     while (is_white(lx->ch)) {
         lx_advance(lx);
     }
@@ -156,18 +144,15 @@ static Token lx_next(Lexer * lx)
     default:
         if (is_digit(lx->ch)) {
             return lx_new_number(lx);
-        }
-        else if (is_letter(lx->ch)) {
+        } else if (is_letter(lx->ch)) {
             return lx_new_word(lx);
-        }
-        else {
+        } else {
             return lx_new_token(lx, TK_ILLEGAL);
         }
     }
 }
 
-void lx_to_tokens(Lexer * lx, TokenArray * toks)
-{
+void lx_to_tokens(Lexer * lx, TokenArray * toks) {
     Token tok = { 0 };
     do {
         tok = lx_next(lx);
@@ -180,22 +165,19 @@ typedef Opt(F64) OptF64;
 typedef Opt(struct { F64 x, y; }) OptF64Pair;
 
 
-static void stack_push(Stack * s, F64 x)
-{
+static void stack_push(Stack * s, F64 x) {
     arr_push(s, x);
 }
 
 
-static OptF64 stack_top(Stack * s)
-{
+static OptF64 stack_top(Stack * s) {
     if (s->len == 0) {
         return OptNone(OptF64);
     }
     return OptSome(OptF64, s->ptr[s->len - 1]);
 }
 
-static OptF64 stack_pop(Stack * s)
-{
+static OptF64 stack_pop(Stack * s) {
     if (s->len == 0) {
         fprintf(stderr, "Stack underflow\n");
         return OptNone(OptF64);
@@ -205,8 +187,7 @@ static OptF64 stack_pop(Stack * s)
     return OptSome(OptF64, x);
 }
 
-static OptF64Pair stack_pop2(Stack * s)
-{
+static OptF64Pair stack_pop2(Stack * s) {
     if (s->len < 2)
         return OptNone(OptF64Pair);
     F64 const x = s->ptr[s->len - 1];
@@ -216,8 +197,7 @@ static OptF64Pair stack_pop2(Stack * s)
     return OptSome(OptF64Pair, { .x = x, .y = y });
 }
 
-static F64 string_to_F64(StringV s)
-{
+static F64 string_to_F64(StringV s) {
     static char buffer[128];
     Sz const    len = $min(s.len, $cast(Sz, sizeof(buffer) - 1));
 
@@ -228,8 +208,7 @@ static F64 string_to_F64(StringV s)
 
 // KEYWORDS
 
-static Sz sv_hash37(StringV s)
-{
+static Sz sv_hash37(StringV s) {
     Sz hash = 0;
     for ($it(i, s.len)) {
         hash = hash * 37 + (Sz)s.ptr[i];
@@ -237,8 +216,7 @@ static Sz sv_hash37(StringV s)
     return hash;
 }
 
-static StackError calc_dup(Stack * s)
-{
+static StackError calc_dup(Stack * s) {
     if (s->len == 0) {
         stack_push(s, 0);
         return STACK_UNDERFLOW;
@@ -248,58 +226,49 @@ static StackError calc_dup(Stack * s)
     return STACK_SUCCESS;
 }
 
-static StackError calc_swap(Stack * s)
-{
+static StackError calc_swap(Stack * s) {
     OptF64Pair const opt = stack_pop2(s);
 
     if (opt.ok) {
         stack_push(s, opt.value.x);
         stack_push(s, opt.value.y);
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_drop(Stack * s)
-{
+static StackError calc_drop(Stack * s) {
     OptF64 const opt = stack_pop(s);
 
     if (opt.ok) {
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_clear(Stack * s)
-{
+static StackError calc_clear(Stack * s) {
     arr_clear(s);
     return STACK_SUCCESS;
 }
 
-static StackError calc_count(Stack * s)
-{
+static StackError calc_count(Stack * s) {
     stack_push(s, (F64)s->len);
     return STACK_SUCCESS;
 }
 
-static StackError calc_over(Stack * s)
-{
+static StackError calc_over(Stack * s) {
     if (s->len < 2) {
         stack_push(s, 0);
         return STACK_OUT_OF_RANGE;
-    }
-    else {
+    } else {
         stack_push(s, s->ptr[s->len - 2]);
         return STACK_SUCCESS;
     }
 }
 
-static StackError calc_roll(Stack * s)
-{
+static StackError calc_roll(Stack * s) {
     if (s->len < 2)
         return STACK_OUT_OF_RANGE;
 
@@ -311,219 +280,185 @@ static StackError calc_roll(Stack * s)
 }
 
 
-static StackError calc_sqrt(Stack * s)
-{
+static StackError calc_sqrt(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, sqrt(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_sin(Stack * s)
-{
+static StackError calc_sin(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
 
         stack_push(s, sin(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_cos(Stack * s)
-{
+static StackError calc_cos(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, cos(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_tan(Stack * s)
-{
+static StackError calc_tan(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, tan(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_asin(Stack * s)
-{
+static StackError calc_asin(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, asin(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_acos(Stack * s)
-{
+static StackError calc_acos(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, acos(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_atan(Stack * s)
-{
+static StackError calc_atan(Stack * s) {
     OptF64 const opt = stack_pop(s);
     if (opt.ok) {
         stack_push(s, atan(opt.value));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_atan2(Stack * s)
-{
+static StackError calc_atan2(Stack * s) {
     OptF64Pair opt = stack_pop2(s);
     if (opt.ok) {
         F64 const x = opt.value.x;
         F64 const y = opt.value.y;
         stack_push(s, atan2(y, x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_pi(Stack * s)
-{
+static StackError calc_pi(Stack * s) {
     stack_push(s, 3.14159265358979323846);
     return STACK_SUCCESS;
 }
 
-static StackError calc_mod(Stack * s)
-{
+static StackError calc_mod(Stack * s) {
     OptF64Pair opt = stack_pop2(s);
     if (opt.ok) {
         F64 const x = opt.value.x;
         F64 const y = opt.value.y;
         stack_push(s, (I32)y % (I32)x);
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_neg(Stack * s)
-{
+static StackError calc_neg(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, x * -1);
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_abs(Stack * s)
-{
+static StackError calc_abs(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, fabs(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_floor(Stack * s)
-{
+static StackError calc_floor(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, floor(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_ceil(Stack * s)
-{
+static StackError calc_ceil(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, ceil(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_round(Stack * s)
-{
+static StackError calc_round(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, round(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
 
-static StackError calc_log(Stack * s)
-{
+static StackError calc_log(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, log(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static StackError calc_exp(Stack * s)
-{
+static StackError calc_exp(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
         F64 const x = opt.value;
         stack_push(s, exp(x));
         return STACK_SUCCESS;
-    }
-    else {
+    } else {
         return STACK_UNDERFLOW;
     }
 }
 
-static U64 builtin_table_hash(StringV s)
-{
+static U64 builtin_table_hash(StringV s) {
     U64 hash = 14695981039346656037ULL;
 
     for ($it(i, s.len)) {
@@ -535,8 +470,7 @@ static U64 builtin_table_hash(StringV s)
 }
 
 
-static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value)
-{
+static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value) {
     U64 h = builtin_table_hash(key);
     Sz  i = $cast(Sz, h % t->capacity);
 
@@ -554,8 +488,7 @@ static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value)
 }
 
 
-static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value)
-{
+static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value) {
     U64 h = builtin_table_hash(key);
     Sz  i = $cast(Sz, h % t->capacity);
 
@@ -573,8 +506,7 @@ static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value)
 
 #define BUILTIN_TABLE_ENTRIES 64
 
-static BuiltinTable builtins_table_init(void)
-{
+static BuiltinTable builtins_table_init(void) {
     static bool once = true;
 
     assert(once && "builtins_table_init called twice");
@@ -626,24 +558,21 @@ static BuiltinTable builtins_table_init(void)
     return result;
 }
 
-static void * arena_allocator_alloc(Allocator * self, size_t size, size_t alignment)
-{
+static void * arena_allocator_alloc(Allocator * self, size_t size, size_t alignment) {
     (void)(alignment);
     Arena * arena = $ptrCast(Arena, self->ctx);
 
     return arena_alloc(arena, size);
 }
 
-static void arena_allocator_dealloc(Allocator * self, void * ptr, size_t size)
-{
+static void arena_allocator_dealloc(Allocator * self, void * ptr, size_t size) {
     (void)self;
     (void)ptr;
     (void)size;
 }
 
 
-static Allocator arena_allocator_init(Arena * arena)
-{
+static Allocator arena_allocator_init(Arena * arena) {
 
     Allocator a = {
         .ctx     = arena,
@@ -654,8 +583,7 @@ static Allocator arena_allocator_init(Arena * arena)
 }
 
 
-static void userword_table_init(UserwordTable * user, Sz initial_size)
-{
+static void userword_table_init(UserwordTable * user, Sz initial_size) {
     *user = (UserwordTable) { 0 };
 
     Sz const bytes = sizeof(UserwordTableEntry) * initial_size;
@@ -666,20 +594,17 @@ static void userword_table_init(UserwordTable * user, Sz initial_size)
     user->capacity  = initial_size;
 }
 
-static void userword_table_deinit(UserwordTable * user)
-{
+static void userword_table_deinit(UserwordTable * user) {
     arena_destroy(&user->arena);
 }
 
-static StringV sv_dup(Allocator * a, StringV s)
-{
+static StringV sv_dup(Allocator * a, StringV s) {
     char * buffer = ALLOC(a, char, s.len);
     memcpy(buffer, s.ptr, s.len);
     return (StringV) { .ptr = buffer, .len = s.len };
 }
 
-static TokenArray user_tokens_dup(Allocator * a, TokenArray arr)
-{
+static TokenArray user_tokens_dup(Allocator * a, TokenArray arr) {
     TokenArray dup_arr = { 0 };
 
     arr_init(&dup_arr, a);
@@ -693,8 +618,7 @@ static TokenArray user_tokens_dup(Allocator * a, TokenArray arr)
     return dup_arr;
 }
 
-static U64 userword_hash(TokenArray tokens)
-{
+static U64 userword_hash(TokenArray tokens) {
     U64 result = 123456789;
 
     for ($it(i, tokens.len)) {
@@ -704,8 +628,7 @@ static U64 userword_hash(TokenArray tokens)
     return result;
 }
 
-static bool sv_key_eq(StringV a, StringV b)
-{
+static bool sv_key_eq(StringV a, StringV b) {
     if (a.len != b.len)
         return false;
     for ($it(i, a.len)) {
@@ -717,8 +640,7 @@ static bool sv_key_eq(StringV a, StringV b)
 
 static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens);
 
-static void userword_table_grow(UserwordTable * user)
-{
+static void userword_table_grow(UserwordTable * user) {
     UserwordTable bigger;
     userword_table_init(&bigger, user->capacity * 2);
 
@@ -732,8 +654,7 @@ static void userword_table_grow(UserwordTable * user)
     user->allocator = arena_allocator_init(&user->arena);
 }
 
-static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens)
-{
+static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens) {
     if (user->count * 10 >= user->capacity * 7) // 70%
         userword_table_grow(user);
 
@@ -746,8 +667,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
                 user->entries[h].value = user_tokens_dup(&user->allocator, tokens);
                 user->entries[h].hash  = userword_hash(tokens);
                 return;
-            }
-            else {
+            } else {
                 // if hash was the same do nothing
                 return;
             }
@@ -766,8 +686,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
     user->count += 1;
 }
 
-static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out)
-{
+static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out) {
     Sz h = sv_hash37(key) % user->capacity;
 
     while (user->entries[h].occupied) {
@@ -793,8 +712,7 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
     } while (0)
 
 
-static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
-{
+static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens) {
     for ($it(i, tokens->len)) {
         Token tok = tokens->ptr[i];
 
@@ -827,8 +745,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
         case TK_CARET: {
             if (calc->stack.len < 2) {
                 fprintf(stderr, "bin_op underflow '^'");
-            }
-            else {
+            } else {
                 OptF64Pair const opt = stack_pop2(&calc->stack);
                 if (opt.ok) {
                     F64 const x = opt.value.x;
@@ -848,8 +765,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 
             if (++i < tokens->len && tokens->ptr[i].kind == TK_WORD) {
                 word_name = tokens->ptr[i].text;
-            }
-            else {
+            } else {
                 break;
             }
 
@@ -859,8 +775,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 
             if (i < tokens->len && tokens->ptr[i].kind == TK_SEMI) {
                 userword_table_add(&calc->userwords, word_name, definition);
-            }
-            else {
+            } else {
                 fprintf(stderr, "unterminated ':'\n");
             }
         } break;
@@ -873,8 +788,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 }
 
 
-Calculator calc_init(Allocator * allocator)
-{
+Calculator calc_init(Allocator * allocator) {
     Calculator calc = { 0 };
     calc.allocator  = allocator;
 
@@ -893,16 +807,14 @@ Calculator calc_init(Allocator * allocator)
     return calc;
 }
 
-void calc_deinit(Calculator * calc)
-{
+void calc_deinit(Calculator * calc) {
     arr_deinit(&calc->stack);
     arr_deinit(&calc->tokens);
     DEALLOC(calc->allocator, calc->output_buffer, calc->output_len);
     userword_table_deinit(&calc->userwords);
 }
 
-StringV calc_eval(Calculator * calc, StringV src)
-{
+StringV calc_eval(Calculator * calc, StringV src) {
     calc->lx = lx_init(src.ptr, src.len);
     arr_clear(&calc->tokens);
 

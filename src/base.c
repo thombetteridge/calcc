@@ -13,8 +13,7 @@ typedef struct {
     size_t peak_allocated;  // high-water mark
 } DefaultAllocatorStats;
 
-static void * default_alloc(Allocator * self, size_t size, size_t alignment)
-{
+static void * default_alloc(Allocator * self, size_t size, size_t alignment) {
     DefaultAllocatorStats * stats = self->ctx;
     (void)alignment;
 
@@ -40,8 +39,7 @@ static void * default_alloc(Allocator * self, size_t size, size_t alignment)
     return buffer;
 }
 
-static void default_dealloc(Allocator * self, void * ptr, size_t size)
-{
+static void default_dealloc(Allocator * self, void * ptr, size_t size) {
     // fprintf(stderr, "DEALLOC ptr=%p,size=%zu\n",ptr , size);
 
     DefaultAllocatorStats * stats = self->ctx;
@@ -50,8 +48,7 @@ static void default_dealloc(Allocator * self, void * ptr, size_t size)
     free(ptr);
 }
 
-Allocator default_allocator_init(void)
-{
+Allocator default_allocator_init(void) {
     DefaultAllocatorStats * stats = malloc(sizeof(DefaultAllocatorStats));
     *stats                        = (DefaultAllocatorStats) { 0 };
 
@@ -62,8 +59,7 @@ Allocator default_allocator_init(void)
     };
 }
 
-static void default_allocator_report(Allocator * self)
-{
+static void default_allocator_report(Allocator * self) {
     DefaultAllocatorStats * stats = self->ctx;
 
     fprintf(stderr,
@@ -79,14 +75,12 @@ static void default_allocator_report(Allocator * self)
         stats->peak_allocated);
 }
 
-void default_allocator_deinit(Allocator * self)
-{
+void default_allocator_deinit(Allocator * self) {
     default_allocator_report(self);
     free(self->ctx);
 }
 
-static void * fixed_alloc(Allocator * self, size_t size, size_t alignment)
-{
+static void * fixed_alloc(Allocator * self, size_t size, size_t alignment) {
     FixedAllocator * a       = (FixedAllocator *)self->ctx;
     size_t           aligned = (a->offset + alignment - 1) & ~(alignment - 1);
     if (aligned + size > a->capacity) {
@@ -101,16 +95,14 @@ static void * fixed_alloc(Allocator * self, size_t size, size_t alignment)
     return ptr;
 }
 
-static void fixed_dealloc(Allocator * self, void * ptr, size_t size)
-{
+static void fixed_dealloc(Allocator * self, void * ptr, size_t size) {
 
     (void)self->ctx;
     (void)ptr;
     (void)size;
 }
 
-Allocator fixed_allocator_init(uint8_t * buffer, size_t buffer_size)
-{
+Allocator fixed_allocator_init(uint8_t * buffer, size_t buffer_size) {
     FixedAllocator * a          = (FixedAllocator *)buffer;
     size_t           header_end = sizeof(FixedAllocator);
     size_t           alignment  = alignof(max_align_t);
@@ -123,8 +115,7 @@ Allocator fixed_allocator_init(uint8_t * buffer, size_t buffer_size)
     return (Allocator) { .ctx = a, .alloc = fixed_alloc, .dealloc = fixed_dealloc };
 }
 
-void fixed_allocator_deinit(Allocator * self)
-{
+void fixed_allocator_deinit(Allocator * self) {
     FixedAllocator * f = self->ctx;
     fprintf(stderr, "fixed deinit %p, len %zu_kb\n", f->buffer, (f->capacity / 1024));
     *self = (Allocator) { 0 };

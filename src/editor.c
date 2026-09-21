@@ -14,8 +14,7 @@
 
 
 static Sz
-ed_current_line(Editor const * ed)
-{
+ed_current_line(Editor const * ed) {
     VALIDATE_CURSOR();
     ENSURE(ed->lines.len >= 1);
 
@@ -29,31 +28,27 @@ ed_current_line(Editor const * ed)
 
 
 static Sz
-ed_current_column(Editor const * ed, Sz cur_line)
-{
+ed_current_column(Editor const * ed, Sz cur_line) {
     VALIDATE_CURSOR();
     ENSURE(cur_line < ed->lines.len);
     return ed->cursor - ed->lines.ptr[cur_line].begin;
 }
 
 
-static void ed_set_desired_col(Editor * ed)
-{
+static void ed_set_desired_col(Editor * ed) {
     Sz const line   = ed_current_line(ed);
     ed->desired_col = ed_current_column(ed, line);
 }
 
 
 static bool
-is_cursor_on_line(Editor const * ed, Line line)
-{
+is_cursor_on_line(Editor const * ed, Line line) {
     return (ed->cursor >= line.begin && ed->cursor <= line.end);
 }
 
 
 static Pos
-ed_find_cursor_pos(Editor const * ed)
-{
+ed_find_cursor_pos(Editor const * ed) {
     Sz cursor_x = 0;
     Sz cursor_y = 0;
 
@@ -71,29 +66,25 @@ ed_find_cursor_pos(Editor const * ed)
 
 
 static bool
-is_between(Sz x, Sz lo, Sz hi)
-{
+is_between(Sz x, Sz lo, Sz hi) {
     return (x >= lo && x < hi);
 }
 
 
 static bool
-ed_is_selection(Editor const * ed)
-{
+ed_is_selection(Editor const * ed) {
     return ed->cursor != ed->anchor;
 }
 
 
 static void
-move_char_back_one(char * begin, char * end)
-{
+move_char_back_one(char * begin, char * end) {
     memmove(begin + 1, begin, end - begin);
 }
 
 
 static void
-ed_compute_lines(Editor * ed)
-{
+ed_compute_lines(Editor * ed) {
     arr_clear(&ed->lines);
 
     Sz begin = 0;
@@ -113,8 +104,7 @@ ed_compute_lines(Editor * ed)
 
 
 static void
-ed_insert_char(Editor * ed, char c)
-{
+ed_insert_char(Editor * ed, char c) {
     arr_reserve(&ed->data, ed->data.len + 1);
 
     move_char_back_one(ed->data.ptr + ed->cursor, ed->data.ptr + ed->data.len);
@@ -131,16 +121,14 @@ ed_insert_char(Editor * ed, char c)
 
 
 static void
-ed_insert_newline(Editor * ed)
-{
+ed_insert_newline(Editor * ed) {
     ed_insert_char(ed, '\n');
     VALIDATE_CURSOR();
 }
 
 
 static void
-ed_insert_tab(Editor * ed)
-{
+ed_insert_tab(Editor * ed) {
     U32 const tab_size = 4;
     for ($it(_, tab_size))
         ed_insert_char(ed, ' ');
@@ -149,16 +137,14 @@ ed_insert_tab(Editor * ed)
 
 
 static void
-ed_select_all(Editor * ed)
-{
+ed_select_all(Editor * ed) {
     ed->anchor = 0;
     ed->cursor = ed->data.len;
 }
 
 
 static void
-ed_delete_selection(Editor * ed)
-{
+ed_delete_selection(Editor * ed) {
     Sz const begin = $min(ed->anchor, ed->cursor);
     Sz const end   = $max(ed->anchor, ed->cursor);
 
@@ -183,8 +169,7 @@ ed_delete_selection(Editor * ed)
 
 
 static void
-ed_backspace(Editor * ed)
-{
+ed_backspace(Editor * ed) {
     if (ed->cursor != ed->anchor) {
         ed_delete_selection(ed);
         return;
@@ -212,8 +197,7 @@ ed_backspace(Editor * ed)
 
 
 static void
-ed_delete_line(Editor * ed, Sz line)
-{
+ed_delete_line(Editor * ed, Sz line) {
     ENSURE(line < ed->lines.len);
 
     Line const line_to_delete = ed->lines.ptr[line];
@@ -236,15 +220,13 @@ ed_delete_line(Editor * ed, Sz line)
 
 
 static bool
-is_word_delim(char c)
-{
+is_word_delim(char c) {
     return c == ' ' || c == '\t' || c == '\r' || ispunct(c);
 }
 
 
 static void
-ed_move_char_left(Editor * ed, bool selecting)
-{
+ed_move_char_left(Editor * ed, bool selecting) {
     if (ed->cursor > 0) {
         ed->cursor -= 1;
         ed_set_desired_col(ed);
@@ -258,8 +240,7 @@ ed_move_char_left(Editor * ed, bool selecting)
 
 
 static void
-ed_move_word_left(Editor * ed, bool selecting)
-{
+ed_move_word_left(Editor * ed, bool selecting) {
     // Skip delims
     while (ed->cursor > 0 && is_word_delim(ed->data.ptr[ed->cursor - 1]))
         ed->cursor -= 1;
@@ -278,8 +259,7 @@ ed_move_word_left(Editor * ed, bool selecting)
 
 
 static void
-ed_move_char_right(Editor * ed, bool selecting)
-{
+ed_move_char_right(Editor * ed, bool selecting) {
     if (ed->cursor < ed->data.len) {
         ed->cursor += 1;
         ed_set_desired_col(ed);
@@ -293,8 +273,7 @@ ed_move_char_right(Editor * ed, bool selecting)
 
 
 static void
-ed_move_word_right(Editor * ed, bool selecting)
-{
+ed_move_word_right(Editor * ed, bool selecting) {
     // Skip delims
     while (ed->cursor < ed->data.len && is_word_delim(ed->data.ptr[ed->cursor]))
         ed->cursor += 1;
@@ -313,8 +292,7 @@ ed_move_word_right(Editor * ed, bool selecting)
 
 
 static void
-ed_move_up(Editor * ed, bool selecting)
-{
+ed_move_up(Editor * ed, bool selecting) {
     Sz const line = ed_current_line(ed);
     // Sz const column = ed_current_column(ed, line);
     if (line > 0) {
@@ -332,8 +310,7 @@ ed_move_up(Editor * ed, bool selecting)
 
 
 static void
-ed_move_down(Editor * ed, bool selecting)
-{
+ed_move_down(Editor * ed, bool selecting) {
     Sz const line = ed_current_line(ed);
     // Sz const column = ed_current_column(ed, line);
     if (line < ed->lines.len - 1) {
@@ -352,8 +329,7 @@ ed_move_down(Editor * ed, bool selecting)
 
 
 static void
-ed_clipboard_paste(Editor * ed)
-{
+ed_clipboard_paste(Editor * ed) {
     Sz           text_length;
     char const * text = p_read_clipboard(&text_length);
     if (text == NULL)
@@ -369,14 +345,12 @@ ed_clipboard_paste(Editor * ed)
 
 
 static void
-ed_clipboard_copy(Editor * ed)
-{
+ed_clipboard_copy(Editor * ed) {
     if (ed->cursor != ed->anchor) {
         Sz const begin = $min(ed->cursor, ed->anchor);
         Sz const end   = $max(ed->cursor, ed->anchor);
         p_write_clipboard(&ed->data.ptr[begin], (U32)(end - begin));
-    }
-    else {
+    } else {
         // no selection copy whole line
         Line cur_line = ed->lines.ptr[ed_current_line(ed)];
         p_write_clipboard(&ed->data.ptr[cur_line.begin], (U32)(cur_line.end - cur_line.begin));
@@ -385,14 +359,12 @@ ed_clipboard_copy(Editor * ed)
 
 
 static void
-ed_clipboard_cut(Editor * ed)
-{
+ed_clipboard_cut(Editor * ed) {
     ed_clipboard_copy(ed);
 
     if (ed->cursor != ed->anchor) {
         ed_delete_selection(ed);
-    }
-    else {
+    } else {
         // no selection delete line
         Sz line = ed_current_line(ed);
         ed_delete_line(ed, line);
@@ -414,8 +386,7 @@ __/\\\\\\\\\\\\\____/\\\________/\\\__/\\\\\\\\\\\\\____/\\\______________/\\\\\
 
 
 Editor
-ed_init(Allocator * a)
-{
+ed_init(Allocator * a) {
     Editor ed = { 0 };
 
     ed.allocator = a;
@@ -433,22 +404,19 @@ ed_init(Allocator * a)
 }
 
 
-void ed_deinit(Editor * ed)
-{
+void ed_deinit(Editor * ed) {
     arr_deinit(&ed->data);
     arr_deinit(&ed->lines);
 }
 
-void ed_push_text(Editor * ed, char const * text, Sz text_len)
-{
+void ed_push_text(Editor * ed, char const * text, Sz text_len) {
     ed->dirty = true;
     for ($it(i, text_len)) {
         ed_insert_char(ed, text[i]);
     }
 }
 
-void ed_clear(Editor * ed)
-{
+void ed_clear(Editor * ed) {
     arr_clear(&ed->data);
     ed->cursor = 0;
     ed->anchor = 0;
@@ -456,8 +424,7 @@ void ed_clear(Editor * ed)
 }
 
 
-bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
-{
+bool ed_edit_key(Editor * ed, PKey key, KeyMod mod) {
     ed->dirty = true;
     if (mod.ctrl && key == PKEY_a) {
         ed_select_all(ed);
@@ -500,8 +467,7 @@ bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
         if (mod.ctrl) {
             ed_move_word_left(ed, mod.shift);
             return true;
-        }
-        else {
+        } else {
             ed_move_char_left(ed, mod.shift);
             return true;
         }
@@ -511,8 +477,7 @@ bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
         if (mod.ctrl) {
             ed_move_word_right(ed, mod.shift);
             return true;
-        }
-        else {
+        } else {
             ed_move_char_right(ed, mod.shift);
             return true;
         }
@@ -532,8 +497,7 @@ bool ed_edit_key(Editor * ed, PKey key, KeyMod mod)
 }
 
 
-void ed_mouse_click(Editor * ed, I32 x, I32 y)
-{
+void ed_mouse_click(Editor * ed, I32 x, I32 y) {
     I32 const rel_y = y - (I32)OFFSET_Y;
     I32 const rel_x = x - (I32)OFFSET_X;
 
@@ -552,8 +516,7 @@ void ed_mouse_click(Editor * ed, I32 x, I32 y)
 }
 
 
-void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h)
-{
+void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h) {
     ed->dirty = false;
 
     Sz const scroll_pading = 3;
@@ -655,8 +618,7 @@ void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h)
 }
 
 
-bool ed_open_file(Editor * ed, char const * file_path)
-{
+bool ed_open_file(Editor * ed, char const * file_path) {
     bool result = true;
 
     ed->data.len  = 0;
@@ -704,8 +666,7 @@ cleanup:
 }
 
 
-bool ed_write_file(Editor * ed, char const * file_path)
-{
+bool ed_write_file(Editor * ed, char const * file_path) {
     bool result = true;
 
     FILE * file_ptr = fopen(file_path, "w");
