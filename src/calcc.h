@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include "base.h"
 #include "arena.h"
+#include "base.h"
 
 typedef enum {
     TK_EOF,
@@ -59,7 +59,7 @@ typedef StackError (*Builtin)(Stack *);
 
 typedef struct BuiltinTableEntry BuiltinTableEntry;
 struct BuiltinTableEntry {
-    U64 key;
+    U64     key;
     Builtin value;
     bool    occupied;
 };
@@ -75,7 +75,7 @@ typedef struct UserwordTableEntry UserwordTableEntry;
 struct UserwordTableEntry {
     StringV    key;
     TokenArray value;
-    U64         hash;
+    U64        hash;
     bool       occupied;
 };
 
@@ -85,9 +85,8 @@ struct UserwordTable {
     Sz                   count, capacity;
 
 
-
     Allocator allocator;
-    Arena arena;
+    Arena     arena;
 };
 
 typedef struct Calculator Calculator;

@@ -6,12 +6,7 @@
 #include <string.h>
 
 
-struct ArenaRegion {
-    char *        buffer;
-    size_t        offset;
-    size_t        capacity;
-    ArenaRegion * next;
-};
+
 
 static ArenaRegion * ArenaRegion_new(size_t cap)
 {

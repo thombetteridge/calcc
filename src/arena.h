@@ -15,6 +15,13 @@ struct ArenaMarker {
     size_t        offset;
 };
 
+struct ArenaRegion {
+    char *        buffer;
+    size_t        offset;
+    size_t        capacity;
+    ArenaRegion * next;
+};
+
 
 #define DEFAULT_REGION_SIZE 0x1000
 

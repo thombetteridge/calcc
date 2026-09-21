@@ -178,22 +178,22 @@ void lx_to_tokens(Lexer * lx, TokenArray * toks)
 
 typedef struct StackMaybe StackMaybe;
 struct StackMaybe {
-    bool has_value;
-    F64  unwrap;
+    bool ok;
+    F64  value;
 };
 
 typedef struct StackMaybePair StackMaybePair;
 struct StackMaybePair {
-    bool has_value;
+    bool ok;
     struct {
         F64 x, y;
-    } unwrap;
+    } value;
 };
 
 
 static StackMaybe stack_some(F64 x)
 {
-    return (StackMaybe) { .has_value = true, .unwrap = x };
+    return (StackMaybe) { .ok = true, .value = x };
 }
 
 static StackMaybe stack_none(void)
@@ -204,8 +204,8 @@ static StackMaybe stack_none(void)
 static StackMaybePair stack_some_pair(F64 x, F64 y)
 {
     return (StackMaybePair) {
-        .has_value = true,
-        .unwrap    = { .x = x, .y = y },
+        .ok    = true,
+        .value = { .x = x, .y = y },
     };
 }
 
@@ -287,9 +287,9 @@ static StackError calc_swap(Stack * s)
 {
     StackMaybePair const opt = stack_pop2(s);
 
-    if (opt.has_value) {
-        stack_push(s, opt.unwrap.x);
-        stack_push(s, opt.unwrap.y);
+    if (opt.ok) {
+        stack_push(s, opt.value.x);
+        stack_push(s, opt.value.y);
         return STACK_SUCCESS;
     }
     else {
@@ -301,7 +301,7 @@ static StackError calc_drop(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
 
-    if (opt.has_value) {
+    if (opt.ok) {
         return STACK_SUCCESS;
     }
     else {
@@ -338,7 +338,7 @@ static StackError calc_roll(Stack * s)
     if (s->len < 2)
         return STACK_OUT_OF_RANGE;
 
-    F64 const t = stack_top(s).unwrap;
+    F64 const t = stack_top(s).value;
 
     memmove(s->ptr + 1, s->ptr, sizeof(F64) * (s->len - 1));
     s->ptr[0] = t;
@@ -349,8 +349,8 @@ static StackError calc_roll(Stack * s)
 static StackError calc_sqrt(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, sqrt(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, sqrt(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -361,9 +361,9 @@ static StackError calc_sqrt(Stack * s)
 static StackError calc_sin(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
+    if (opt.ok) {
 
-        stack_push(s, sin(opt.unwrap));
+        stack_push(s, sin(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -374,8 +374,8 @@ static StackError calc_sin(Stack * s)
 static StackError calc_cos(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, cos(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, cos(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -386,8 +386,8 @@ static StackError calc_cos(Stack * s)
 static StackError calc_tan(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, tan(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, tan(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -398,8 +398,8 @@ static StackError calc_tan(Stack * s)
 static StackError calc_asin(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, asin(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, asin(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -410,8 +410,8 @@ static StackError calc_asin(Stack * s)
 static StackError calc_acos(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, acos(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, acos(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -422,8 +422,8 @@ static StackError calc_acos(Stack * s)
 static StackError calc_atan(Stack * s)
 {
     StackMaybe const opt = stack_pop(s);
-    if (opt.has_value) {
-        stack_push(s, atan(opt.unwrap));
+    if (opt.ok) {
+        stack_push(s, atan(opt.value));
         return STACK_SUCCESS;
     }
     else {
@@ -434,9 +434,9 @@ static StackError calc_atan(Stack * s)
 static StackError calc_atan2(Stack * s)
 {
     StackMaybePair opt = stack_pop2(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap.x;
-        F64 const y = opt.unwrap.y;
+    if (opt.ok) {
+        F64 const x = opt.value.x;
+        F64 const y = opt.value.y;
         stack_push(s, atan2(y, x));
         return STACK_SUCCESS;
     }
@@ -454,9 +454,9 @@ static StackError calc_pi(Stack * s)
 static StackError calc_mod(Stack * s)
 {
     StackMaybePair opt = stack_pop2(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap.x;
-        F64 const y = opt.unwrap.y;
+    if (opt.ok) {
+        F64 const x = opt.value.x;
+        F64 const y = opt.value.y;
         stack_push(s, (I32)y % (I32)x);
         return STACK_SUCCESS;
     }
@@ -468,8 +468,8 @@ static StackError calc_mod(Stack * s)
 static StackError calc_neg(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, x * -1);
         return STACK_SUCCESS;
     }
@@ -481,8 +481,8 @@ static StackError calc_neg(Stack * s)
 static StackError calc_abs(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, fabs(x));
         return STACK_SUCCESS;
     }
@@ -494,8 +494,8 @@ static StackError calc_abs(Stack * s)
 static StackError calc_floor(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, floor(x));
         return STACK_SUCCESS;
     }
@@ -507,8 +507,8 @@ static StackError calc_floor(Stack * s)
 static StackError calc_ceil(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, ceil(x));
         return STACK_SUCCESS;
     }
@@ -520,8 +520,8 @@ static StackError calc_ceil(Stack * s)
 static StackError calc_round(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, round(x));
         return STACK_SUCCESS;
     }
@@ -534,8 +534,8 @@ static StackError calc_round(Stack * s)
 static StackError calc_log(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, log(x));
         return STACK_SUCCESS;
     }
@@ -547,8 +547,8 @@ static StackError calc_log(Stack * s)
 static StackError calc_exp(Stack * s)
 {
     StackMaybe opt = stack_pop(s);
-    if (opt.has_value) {
-        F64 const x = opt.unwrap;
+    if (opt.ok) {
+        F64 const x = opt.value;
         stack_push(s, exp(x));
         return STACK_SUCCESS;
     }
@@ -689,30 +689,21 @@ static Allocator arena_allocator_init(Arena * arena)
 }
 
 
-static UserwordTable userword_table_init(Allocator * a, Sz inital_size)
+static void userword_table_init(UserwordTable * user, Sz initial_size)
 {
-    UserwordTable user = { 0 };
+    *user = (UserwordTable) { 0 };
 
+    Sz const bytes = sizeof(UserwordTableEntry) * initial_size;
+    arena_reserve(&user->arena, bytes * 2 + sizeof(ArenaRegion));
 
-    Sz const inital_buffer_size = sizeof(UserwordTableEntry) * inital_size; // inital array cap,
-                                  // 24 * inital_size +                         // assume keys of max len 24
-                                  // sizeof(Token) * 10 * inital_size;          // assume 10 tokens per word?
-
-    Arena arena = {0};
-    arena_reserve(&arena, inital_buffer_size);
-
-    user.arena = arena;
-    user.allocator = arena_allocator_init(&user.arena);
-
-    user.entries  = ALLOC(&user.allocator, UserwordTableEntry, inital_size);
-    user.capacity = inital_size;
-
-    return user;
+    user->allocator = arena_allocator_init(&user->arena);
+    user->entries   = ALLOC(&user->allocator, UserwordTableEntry, initial_size);
+    user->capacity  = initial_size;
 }
 
 static void userword_table_deinit(UserwordTable * user)
 {
-   arena_destroy(&user->arena);
+    arena_destroy(&user->arena);
 }
 
 static StringV sv_dup(Allocator * a, StringV s)
@@ -759,31 +750,29 @@ static bool sv_key_eq(StringV a, StringV b)
     return true;
 }
 
-// struct Allocator {
-//     void * ctx;
-//     void * (*alloc)(Allocator * self, size_t size, size_t alignment);
-//     void (*dealloc)(Allocator * self, void * ptr, size_t size);
-// };
+static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens);
 
+static void userword_table_grow(UserwordTable * user)
+{
+    UserwordTable bigger;
+    userword_table_init(&bigger, user->capacity * 2);
 
+    for ($it(i, user->capacity)) {
+        if (user->entries[i].occupied)
+            userword_table_add(&bigger, user->entries[i].key, user->entries[i].value);
+    }
+
+    userword_table_deinit(user);
+    *user           = bigger;
+    user->allocator = arena_allocator_init(&user->arena);
+}
 
 static void userword_table_add(UserwordTable * user, StringV key, TokenArray tokens)
 {
+    if (user->count * 10 >= user->capacity * 7) // 70%
+        userword_table_grow(user);
+
     Sz h = sv_hash37(key) % user->capacity;
-
-    if ((F32)user->count / (F32)user->capacity > 0.7f) {
-        UserwordTable new_user = userword_table_init(&user->allocator, user->capacity * 2);
-        for ($it(i, user->capacity)) {
-            if (user->entries[i].occupied) {
-                userword_table_add(&new_user, user->entries[i].key, user->entries[i].value);
-            }
-        }
-
-        userword_table_deinit(user);
-
-        *user = new_user;
-    }
-
 
     while (user->entries[h].occupied) {
         if (sv_key_eq(user->entries[h].key, key)) {
@@ -830,9 +819,9 @@ static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * o
 #define BIN_OP(_op_)                                         \
     do {                                                     \
         StackMaybePair const opt = stack_pop2(&calc->stack); \
-        if (opt.has_value) {                                 \
-            F64 const x = opt.unwrap.x;                      \
-            F64 const y = opt.unwrap.y;                      \
+        if (opt.ok) {                                        \
+            F64 const x = opt.value.x;                       \
+            F64 const y = opt.value.y;                       \
             stack_push(&calc->stack, y _op_ x);              \
         }                                                    \
     } while (0)
@@ -875,9 +864,9 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
             }
             else {
                 StackMaybePair const opt = stack_pop2(&calc->stack);
-                if (opt.has_value) {
-                    F64 const x = opt.unwrap.x;
-                    F64 const y = opt.unwrap.y;
+                if (opt.ok) {
+                    F64 const x = opt.value.x;
+                    F64 const y = opt.value.y;
                     stack_push(&calc->stack, pow(y, x));
                 }
             }
@@ -932,7 +921,8 @@ Calculator calc_init(Allocator * allocator)
     calc.output_buffer = ALLOC(calc.allocator, char, inital_buffer_len);
     calc.output_len    = inital_buffer_len;
 
-    calc.userwords = userword_table_init(calc.allocator, 64);
+
+    userword_table_init(&calc.userwords, 64);
 
     return calc;
 }
