@@ -171,7 +171,7 @@ typedef struct {
 Allocator fixed_allocator_init(uint8_t * buffer, size_t buffer_size);
 void      fixed_allocator_deinit(Allocator * a);
 
-
+#define ALLOC_LOGGING
 #ifdef ALLOC_LOGGING
 
 inline static void * alloc_logged(Allocator * allocator, size_t size, size_t align,

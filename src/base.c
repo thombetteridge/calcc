@@ -34,15 +34,21 @@ static void * default_alloc(Allocator * self, size_t size, size_t alignment)
             stats->peak_allocated = stats->total_allocated - stats->total_freed;
         }
     }
+
+    // fprintf(stderr, "ALLOC ptr=%p,size=%zu\n", buffer, size);
+
     return buffer;
 }
 
 static void default_dealloc(Allocator * self, void * ptr, size_t size)
 {
+    // fprintf(stderr, "DEALLOC ptr=%p,size=%zu\n",ptr , size);
+
     DefaultAllocatorStats * stats = self->ctx;
     stats->total_freed += size;
     stats->dealloc_count += 1;
     free(ptr);
+
 }
 
 Allocator default_allocator_init(void)
@@ -98,6 +104,7 @@ static void * fixed_alloc(Allocator * self, size_t size, size_t alignment)
 
 static void fixed_dealloc(Allocator * self, void * ptr, size_t size)
 {
+
     (void)self->ctx;
     (void)ptr;
     (void)size;
@@ -113,10 +120,13 @@ Allocator fixed_allocator_init(uint8_t * buffer, size_t buffer_size)
     a->buffer   = buffer + aligned;
     a->capacity = buffer_size - aligned;
     a->offset   = 0;
+    fprintf(stderr, "fixed init %p, len %zu_kb\n", a->buffer, (a->capacity / 1024));
     return (Allocator) { .ctx = a, .alloc = fixed_alloc, .dealloc = fixed_dealloc };
 }
 
 void fixed_allocator_deinit(Allocator * self)
 {
+    FixedAllocator * f = self->ctx;
+    fprintf(stderr, "fixed deinit %p, len %zu_kb\n", f->buffer, (f->capacity / 1024));
     *self = (Allocator) { 0 };
 }

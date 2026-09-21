@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 
+
 usize hash_editor(Editor const * ed)
 {
     usize hash = 0;
@@ -97,9 +98,9 @@ int main(/*i32 argc, char ** argv*/ void)
 
             StringV result = calc_eval(&calc, (StringV) { .ptr = ed_in.data.ptr, .len = ed_in.data.len });
 
-            for (iterate(i, calc.tokens.len)) {
-                fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (i32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);
-            }
+            // for (iterate(i, calc.tokens.len)) {
+            //     fprintf(stderr, "Kind=%d, Text= %.*s\n", calc.tokens.ptr[i].kind, (i32)calc.tokens.ptr[i].text.len, calc.tokens.ptr[i].text.ptr);
+            // }
 
             ed_clear(&ed_out);
 

@@ -4,7 +4,6 @@
 
 #include "base.h"
 
-
 typedef enum {
     TK_EOF,
     TK_ILLEGAL,

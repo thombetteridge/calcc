@@ -343,7 +343,7 @@ void push_surface(surface_t const * sur, i32 dst_x, i32 dst_y)
         for (i32 src_x = 0; src_x < sur->width; src_x += 1) {
             Colour const color = sur->buffer[src_y * sur->width + src_x];
 
-            put_pixel(&g_ctx.target, dst_x + src_x, dst_y + src_y, color);
+            draw_pixel(&g_ctx.target, dst_x + src_x, dst_y + src_y, color);
         }
     }
 }
@@ -354,7 +354,7 @@ void p_clear(Colour colour)
     draw_clear(&g_ctx.target, colour);
 }
 
-void put_pixel(surface_t * sur, i32 x, i32 y, Colour color)
+void draw_pixel(surface_t * sur, i32 x, i32 y, Colour color)
 {
     // TODO we should log this
     if (x >= sur->width || y >= sur->height || x < 0 || y < 0)
@@ -374,7 +374,7 @@ void draw_rect(surface_t * sur, i32 x, i32 y, i32 w, i32 h, Colour colour)
 {
     for (i32 i = 0; i < w; i += 1)
         for (i32 j = 0; j < h; j += 1)
-            put_pixel(sur, i + x, j + y, colour);
+            draw_pixel(sur, i + x, j + y, colour);
 }
 
 void draw_rect_lines(surface_t * sur, i32 x, i32 y, i32 w, i32 h, Colour colour)
@@ -425,7 +425,7 @@ void draw_line(surface_t * sur, i32 start_x, i32 start_y, i32 end_x, i32 end_y, 
     dy /= steps;
 
     for (i32 i = 0; i <= (i32)steps; i += 1) {
-        put_pixel(sur, (i32)roundf(x), (i32)roundf(y), colour);
+        draw_pixel(sur, (i32)roundf(x), (i32)roundf(y), colour);
         x += dx;
         y += dy;
     }
@@ -438,7 +438,7 @@ blend_pixel(surface_t * sur, i32 x, i32 y, Colour colour, u8 coverage)
     if (coverage == 0 || x < 0 || y < 0 || x >= sur->width || y >= sur->height)
         return;
     if (coverage == 255) {
-        put_pixel(sur, x, y, colour);
+        draw_pixel(sur, x, y, colour);
         return;
     }
 
@@ -450,7 +450,7 @@ blend_pixel(surface_t * sur, i32 x, i32 y, Colour colour, u8 coverage)
     for (i32 i = 0; i < 4; ++i)
         out[i] = (u8)((src[i] * coverage + dst[i] * (255 - coverage)) / 255);
 
-    put_pixel(sur, x, y, *(Colour *)out);
+    draw_pixel(sur, x, y, *(Colour *)out);
 }
 
 static unsigned int stb_decompress_length(unsigned char const * input);
@@ -533,7 +533,7 @@ void draw_circle(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, Colour
             i32 delta_y = y - centre_y;
 
             if ((delta_x * delta_x) + (delta_y * delta_y) <= (radius * radius)) {
-                put_pixel(sur, x, y, colour);
+                draw_pixel(sur, x, y, colour);
             }
         }
     }
@@ -550,14 +550,14 @@ void draw_circle_lines(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, 
     i32 d = 3 - 2 * radius;
 
 
-    put_pixel(sur, centre_x + x, centre_y + y, colour);
-    put_pixel(sur, centre_x - x, centre_y + y, colour);
-    put_pixel(sur, centre_x + x, centre_y - y, colour);
-    put_pixel(sur, centre_x - x, centre_y - y, colour);
-    put_pixel(sur, centre_x + y, centre_y + x, colour);
-    put_pixel(sur, centre_x - y, centre_y + x, colour);
-    put_pixel(sur, centre_x + y, centre_y - x, colour);
-    put_pixel(sur, centre_x - y, centre_y - x, colour);
+    draw_pixel(sur, centre_x + x, centre_y + y, colour);
+    draw_pixel(sur, centre_x - x, centre_y + y, colour);
+    draw_pixel(sur, centre_x + x, centre_y - y, colour);
+    draw_pixel(sur, centre_x - x, centre_y - y, colour);
+    draw_pixel(sur, centre_x + y, centre_y + x, colour);
+    draw_pixel(sur, centre_x - y, centre_y + x, colour);
+    draw_pixel(sur, centre_x + y, centre_y - x, colour);
+    draw_pixel(sur, centre_x - y, centre_y - x, colour);
 
     while (y >= x) {
         x += 1;
@@ -570,14 +570,14 @@ void draw_circle_lines(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, 
             d += 4 * x + 6;
         }
 
-        put_pixel(sur, centre_x + x, centre_y + y, colour);
-        put_pixel(sur, centre_x - x, centre_y + y, colour);
-        put_pixel(sur, centre_x + x, centre_y - y, colour);
-        put_pixel(sur, centre_x - x, centre_y - y, colour);
-        put_pixel(sur, centre_x + y, centre_y + x, colour);
-        put_pixel(sur, centre_x - y, centre_y + x, colour);
-        put_pixel(sur, centre_x + y, centre_y - x, colour);
-        put_pixel(sur, centre_x - y, centre_y - x, colour);
+        draw_pixel(sur, centre_x + x, centre_y + y, colour);
+        draw_pixel(sur, centre_x - x, centre_y + y, colour);
+        draw_pixel(sur, centre_x + x, centre_y - y, colour);
+        draw_pixel(sur, centre_x - x, centre_y - y, colour);
+        draw_pixel(sur, centre_x + y, centre_y + x, colour);
+        draw_pixel(sur, centre_x - y, centre_y + x, colour);
+        draw_pixel(sur, centre_x + y, centre_y - x, colour);
+        draw_pixel(sur, centre_x - y, centre_y - x, colour);
     }
 }
 
@@ -593,7 +593,7 @@ arc_pixel(surface_t * sur, i32 px, i32 py, i32 centre_x, i32 centre_y, f32 start
                      ? (a >= start_angle && a <= end_angle)
                      : (a >= start_angle || a <= end_angle);
     if (in_arc)
-        put_pixel(sur, px, py, colour);
+        draw_pixel(sur, px, py, colour);
 }
 
 void draw_arc_lines(surface_t * sur, i32 centre_x, i32 centre_y, i32 radius, f32 start_angle, f32 end_angle, Colour colour)

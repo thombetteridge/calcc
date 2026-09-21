@@ -221,7 +221,7 @@ void      surface_resize(surface_t * sur, i32 width, i32 height);
 void      push_surface(surface_t const * sur, i32 x, i32 y);
 void      p_clear(Colour colour);
 
-void put_pixel(surface_t * sur, i32 x, i32 y, Colour color);
+void draw_pixel(surface_t * sur, i32 x, i32 y, Colour color);
 void draw_clear(surface_t * sur, Colour color);
 void draw_text(surface_t * sur, char const * str, i32 len, i32 x, i32 y, Colour colour);
 void draw_rect(surface_t * sur, i32 x, i32 y, i32 w, i32 h, Colour colour);

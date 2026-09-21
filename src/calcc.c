@@ -22,14 +22,10 @@ char const * stack_error_to_stringz(StackError err)
 {
     switch (err) {
 
-    case STACK_SUCCESS:
-        return "Success";
-    case STACK_UNDERFLOW:
-        return "Underflow";
-    case STACK_OVERFLOW:
-        return "Overflow";
-    case STACK_OUT_OF_RANGE:
-        return "Out of Range";
+    case STACK_SUCCESS: return "Success";
+    case STACK_UNDERFLOW: return "Underflow";
+    case STACK_OVERFLOW: return "Overflow";
+    case STACK_OUT_OF_RANGE: return "Out of Range";
     default:
         assert(0);
     }
@@ -144,23 +140,17 @@ static Token lx_next(Lexer * lx)
             .text = { .len = sizeof("EOF"), .ptr = "EOF" }
         };
     }
-    case '+':
-        return lx_new_token(lx, TK_PLUS);
+    case '+': return lx_new_token(lx, TK_PLUS);
     case '-':
         if (is_digit(lx_peek(lx)))
             return lx_new_number(lx);
         else
             return lx_new_token(lx, TK_MINUS);
-    case '/':
-        return lx_new_token(lx, TK_SLASH);
-    case '*':
-        return lx_new_token(lx, TK_STAR);
-    case ':':
-        return lx_new_token(lx, TK_COLON);
-    case '^':
-        return lx_new_token(lx, TK_CARET);
-    case ';':
-        return lx_new_token(lx, TK_SEMI);
+    case '/': return lx_new_token(lx, TK_SLASH);
+    case '*': return lx_new_token(lx, TK_STAR);
+    case ':': return lx_new_token(lx, TK_COLON);
+    case '^': return lx_new_token(lx, TK_CARET);
+    case ';': return lx_new_token(lx, TK_SEMI);
 
     default:
         if (is_digit(lx->ch)) {
@@ -648,11 +638,11 @@ static BuiltinTable builtins_table_init(Allocator * a)
     // constants
     builtin_table_insert(&result, SVLIT("pi"), calc_pi);
 
-    for (iterate(i, result.capacity)) {
-        if (result.entries[i].occupied) {
-            fprintf(stderr, "i:%zu k:'" SVFMT "'\n", i, SVARGS(result.entries[i].key));
-        }
-    }
+    // for (iterate(i, result.capacity)) {
+    //     if (result.entries[i].occupied) {
+    //         fprintf(stderr, "i:%zu k:'" SVFMT "'\n", i, SVARGS(result.entries[i].key));
+    //     }
+    // }
 
     return result;
 }
@@ -822,11 +812,9 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 
         switch (tok.kind) {
 
-        case TK_EOF:
-            return;
-        case TK_NUM:
-            stack_push(&calc->stack, string_to_f64(tok.text));
-            break;
+        case TK_EOF: return;
+        case TK_NUM: stack_push(&calc->stack, string_to_f64(tok.text)); break;
+
         case TK_WORD: {
             Builtin builtin;
             if (builtin_table_get(&calc->builtins, tok.text, &builtin)) {
@@ -844,15 +832,10 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
 
             break;
         }
-        case TK_PLUS:
-            BIN_OP(+);
-            break;
-        case TK_MINUS:
-            BIN_OP(-);
-            break;
-        case TK_STAR:
-            BIN_OP(*);
-            break;
+        case TK_PLUS: BIN_OP(+); break;
+        case TK_MINUS: BIN_OP(-); break;
+        case TK_STAR: BIN_OP(*); break;
+        case TK_SLASH: BIN_OP(/); break;
         case TK_CARET: {
             if (calc->stack.len < 2) {
                 fprintf(stderr, "bin_op underflow '^'");
@@ -867,9 +850,6 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens)
             }
             break;
         }
-        case TK_SLASH:
-            BIN_OP(/);
-            break;
         case TK_COLON: {
             StringV    word_name  = { 0 };
             TokenArray definition = { 0 };

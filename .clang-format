@@ -23,8 +23,8 @@ IndentCaseBlocks: false
 IndentCaseLabels: false
 
 AllowShortBlocksOnASingleLine: Always
-# AllowShortCaseExpressionOnASingleLine: true
-# AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
