@@ -9,8 +9,10 @@
 #include "base.h"
 #include "calcc.h"
 
-static U8 temp_alloc_buffer[4096];
+static U8   temp_alloc_buffer[4096];
+static char error_msg_buffer[1024];
 
+#define RECURSION_MAX_DEPTH 32
 
 enum StackError {
     STACK_SUCCESS,
@@ -32,10 +34,6 @@ static char const * stack_error_to_stringz(StackError err) {
     return 0;
 }
 
-inline static void
-memzero(void * ptr, size_t n) {
-    memset(ptr, 0, n);
-}
 
 static void lx_advance(Lexer * lx) {
     if (lx->read_pos >= lx->src.len) {
@@ -179,7 +177,7 @@ static OptF64 stack_top(Stack * s) {
 
 static OptF64 stack_pop(Stack * s) {
     if (s->len == 0) {
-        fprintf(stderr, "Stack underflow\n");
+        // fprintf(stderr, "Stack underflow\n");
         return OptNone(OptF64);
     }
     F64 const x = s->ptr[s->len - 1];
@@ -198,8 +196,8 @@ static OptF64Pair stack_pop2(Stack * s) {
 }
 
 static F64 string_to_F64(StringV s) {
-    static char buffer[128];
-    Sz const    len = $min(s.len, $cast(Sz, sizeof(buffer) - 1));
+    char     buffer[128];
+    Sz const len = $min(s.len, Cast(Sz, sizeof(buffer) - 1));
 
     sprintf(buffer, "%.*s", (int)len, s.ptr);
     return atof(buffer);
@@ -208,10 +206,10 @@ static F64 string_to_F64(StringV s) {
 
 // KEYWORDS
 
-static Sz sv_hash37(StringV s) {
-    Sz hash = 0;
+static U64 sv_hash37(StringV s) {
+    U64 hash = 0;
     for ($it(i, s.len)) {
-        hash = hash * 37 + (Sz)s.ptr[i];
+        hash = hash * 37 + (U64)s.ptr[i];
     }
     return hash;
 }
@@ -280,76 +278,22 @@ static StackError calc_roll(Stack * s) {
 }
 
 
-static StackError calc_sqrt(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, sqrt(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
+#define UNARY_BUILTIN(name, fn)         \
+    static StackError name(Stack * s) { \
+        OptF64 opt = stack_pop(s);      \
+        if (!opt.ok)                    \
+            return STACK_UNDERFLOW;     \
+        stack_push(s, fn(opt.value));   \
+        return STACK_SUCCESS;           \
     }
-}
 
-static StackError calc_sin(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-
-        stack_push(s, sin(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_cos(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, cos(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_tan(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, tan(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_asin(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, asin(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_acos(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, acos(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_atan(Stack * s) {
-    OptF64 const opt = stack_pop(s);
-    if (opt.ok) {
-        stack_push(s, atan(opt.value));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
+UNARY_BUILTIN(calc_sqrt, sqrt)
+UNARY_BUILTIN(calc_sin, sin)
+UNARY_BUILTIN(calc_cos, cos)
+UNARY_BUILTIN(calc_tan, tan)
+UNARY_BUILTIN(calc_asin, asin)
+UNARY_BUILTIN(calc_acos, acos)
+UNARY_BUILTIN(calc_atan, atan)
 
 static StackError calc_atan2(Stack * s) {
     OptF64Pair opt = stack_pop2(s);
@@ -380,6 +324,7 @@ static StackError calc_mod(Stack * s) {
     }
 }
 
+
 static StackError calc_neg(Stack * s) {
     OptF64 opt = stack_pop(s);
     if (opt.ok) {
@@ -391,79 +336,20 @@ static StackError calc_neg(Stack * s) {
     }
 }
 
-static StackError calc_abs(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, fabs(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
+UNARY_BUILTIN(calc_abs, fabs)
+UNARY_BUILTIN(calc_floor, floor)
+UNARY_BUILTIN(calc_ceil, ceil)
+UNARY_BUILTIN(calc_round, round)
+UNARY_BUILTIN(calc_log, log)
+UNARY_BUILTIN(calc_exp, exp)
 
-static StackError calc_floor(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, floor(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_ceil(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, ceil(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_round(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, round(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-
-static StackError calc_log(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, log(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
-
-static StackError calc_exp(Stack * s) {
-    OptF64 opt = stack_pop(s);
-    if (opt.ok) {
-        F64 const x = opt.value;
-        stack_push(s, exp(x));
-        return STACK_SUCCESS;
-    } else {
-        return STACK_UNDERFLOW;
-    }
-}
 
 static U64 builtin_table_hash(StringV s) {
     U64 hash = 14695981039346656037ULL;
 
     for ($it(i, s.len)) {
-        U8 const c = $cast(U8, s.ptr[i]);
-        hash ^= $cast(U64, c);
+        U8 const c = Cast(U8, s.ptr[i]);
+        hash ^= Cast(U64, c);
         hash *= 1099511628211ULL;
     }
     return hash;
@@ -472,10 +358,10 @@ static U64 builtin_table_hash(StringV s) {
 
 static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value) {
     U64 h = builtin_table_hash(key);
-    Sz  i = $cast(Sz, h % t->capacity);
+    Sz  i = Cast(Sz, h % t->capacity);
 
     while (t->entries[i].occupied) {
-        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
+        i = Cast(Sz, (Cast(U64, i + 1) % Cast(U64, t->capacity)));
     }
 
     BuiltinTableEntry new_entry = {
@@ -490,7 +376,7 @@ static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value) {
 
 static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value) {
     U64 h = builtin_table_hash(key);
-    Sz  i = $cast(Sz, h % t->capacity);
+    Sz  i = Cast(Sz, h % t->capacity);
 
 
     while (t->entries[i].occupied) {
@@ -498,7 +384,7 @@ static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value) {
             *value = t->entries[i].value;
             return true;
         }
-        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
+        i = Cast(Sz, (Cast(U64, i + 1) % Cast(U64, t->capacity)));
     }
 
     return false;
@@ -513,41 +399,41 @@ static BuiltinTable builtins_table_init(void) {
 
     once = false;
 
-    BuiltinTable result = { 0 };
-    result.capacity     = BUILTIN_TABLE_ENTRIES;
+    BuiltinTable builtin_table = { 0 };
+    builtin_table.capacity     = BUILTIN_TABLE_ENTRIES;
     static BuiltinTableEntry entries[BUILTIN_TABLE_ENTRIES];
-    result.entries = entries;
+    builtin_table.entries = entries;
 
     // stack
-    builtin_table_insert(&result, SVLIT("dup"), calc_dup);
-    builtin_table_insert(&result, SVLIT("swap"), calc_swap);
-    builtin_table_insert(&result, SVLIT("drop"), calc_drop);
-    builtin_table_insert(&result, SVLIT("over"), calc_over);
-    builtin_table_insert(&result, SVLIT("count"), calc_count);
-    builtin_table_insert(&result, SVLIT("roll"), calc_roll);
-    builtin_table_insert(&result, SVLIT("clear"), calc_clear);
+    builtin_table_insert(&builtin_table, SVLIT("dup"), calc_dup);
+    builtin_table_insert(&builtin_table, SVLIT("swap"), calc_swap);
+    builtin_table_insert(&builtin_table, SVLIT("drop"), calc_drop);
+    builtin_table_insert(&builtin_table, SVLIT("over"), calc_over);
+    builtin_table_insert(&builtin_table, SVLIT("count"), calc_count);
+    builtin_table_insert(&builtin_table, SVLIT("roll"), calc_roll);
+    builtin_table_insert(&builtin_table, SVLIT("clear"), calc_clear);
 
     // maths
-    builtin_table_insert(&result, SVLIT("sqrt"), calc_sqrt);
-    builtin_table_insert(&result, SVLIT("sin"), calc_sin);
-    builtin_table_insert(&result, SVLIT("cos"), calc_cos);
-    builtin_table_insert(&result, SVLIT("tan"), calc_tan);
-    builtin_table_insert(&result, SVLIT("asin"), calc_asin);
-    builtin_table_insert(&result, SVLIT("acos"), calc_acos);
-    builtin_table_insert(&result, SVLIT("atan"), calc_atan);
-    builtin_table_insert(&result, SVLIT("atan2"), calc_atan2);
-    builtin_table_insert(&result, SVLIT("log"), calc_log);
-    builtin_table_insert(&result, SVLIT("exp"), calc_exp);
+    builtin_table_insert(&builtin_table, SVLIT("sqrt"), calc_sqrt);
+    builtin_table_insert(&builtin_table, SVLIT("sin"), calc_sin);
+    builtin_table_insert(&builtin_table, SVLIT("cos"), calc_cos);
+    builtin_table_insert(&builtin_table, SVLIT("tan"), calc_tan);
+    builtin_table_insert(&builtin_table, SVLIT("asin"), calc_asin);
+    builtin_table_insert(&builtin_table, SVLIT("acos"), calc_acos);
+    builtin_table_insert(&builtin_table, SVLIT("atan"), calc_atan);
+    builtin_table_insert(&builtin_table, SVLIT("atan2"), calc_atan2);
+    builtin_table_insert(&builtin_table, SVLIT("log"), calc_log);
+    builtin_table_insert(&builtin_table, SVLIT("exp"), calc_exp);
 
-    builtin_table_insert(&result, SVLIT("mod"), calc_mod);
-    builtin_table_insert(&result, SVLIT("neg"), calc_neg);
-    builtin_table_insert(&result, SVLIT("abs"), calc_abs);
-    builtin_table_insert(&result, SVLIT("floor"), calc_floor);
-    builtin_table_insert(&result, SVLIT("ceil"), calc_ceil);
-    builtin_table_insert(&result, SVLIT("round"), calc_round);
+    builtin_table_insert(&builtin_table, SVLIT("mod"), calc_mod);
+    builtin_table_insert(&builtin_table, SVLIT("neg"), calc_neg);
+    builtin_table_insert(&builtin_table, SVLIT("abs"), calc_abs);
+    builtin_table_insert(&builtin_table, SVLIT("floor"), calc_floor);
+    builtin_table_insert(&builtin_table, SVLIT("ceil"), calc_ceil);
+    builtin_table_insert(&builtin_table, SVLIT("round"), calc_round);
 
     // constants
-    builtin_table_insert(&result, SVLIT("pi"), calc_pi);
+    builtin_table_insert(&builtin_table, SVLIT("pi"), calc_pi);
 
     // for ($it(i, result.capacity)) {
     //     if (result.entries[i].occupied) {
@@ -555,12 +441,12 @@ static BuiltinTable builtins_table_init(void) {
     //     }
     // }
 
-    return result;
+    return builtin_table;
 }
 
 static void * arena_allocator_alloc(Allocator * self, size_t size, size_t alignment) {
     (void)(alignment);
-    Arena * arena = $ptrCast(Arena, self->ctx);
+    Arena * arena = PtrCast(Arena, self->ctx);
 
     return arena_alloc(arena, size);
 }
@@ -658,21 +544,23 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
     if (user->count * 10 >= user->capacity * 7) // 70%
         userword_table_grow(user);
 
-    Sz h = sv_hash37(key) % user->capacity;
+    U64 hash = sv_hash37(key);
+    Sz  i    = Cast(Sz, hash % Cast(U64, user->capacity));
 
-    while (user->entries[h].occupied) {
-        if (sv_key_eq(user->entries[h].key, key)) {
+    while (user->entries[i].occupied) {
+        if (sv_key_eq(user->entries[i].key, key)) {
             // replace if hash if different
-            if (userword_hash(tokens) != user->entries[h].hash) {
-                user->entries[h].value = user_tokens_dup(&user->allocator, tokens);
-                user->entries[h].hash  = userword_hash(tokens);
+            if (userword_hash(tokens) != user->entries[i].hash) {
+                user->entries[i].value = user_tokens_dup(&user->allocator, tokens);
+                user->entries[i].hash  = userword_hash(tokens);
                 return;
             } else {
                 // if hash was the same do nothing
                 return;
             }
         }
-        h = (h + 1) % user->capacity;
+
+        i = Cast(Sz, ((Cast(U64, i) + 1) % Cast(U64, user->capacity)));
     }
 
     // new entry;
@@ -681,38 +569,45 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
     entry.value              = user_tokens_dup(&user->allocator, tokens);
     entry.occupied           = true;
     entry.hash               = userword_hash(entry.value);
-    user->entries[h]         = entry;
+    user->entries[i]         = entry;
 
     user->count += 1;
 }
 
 static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out) {
-    Sz h = sv_hash37(key) % user->capacity;
+    U64 hash = sv_hash37(key);
+    Sz  i    = Cast(Sz, hash % Cast(U64, user->capacity));
 
-    while (user->entries[h].occupied) {
-        if (sv_key_eq(user->entries[h].key, key)) {
-            *out = user->entries[h].value;
+    while (user->entries[i].occupied) {
+        if (sv_key_eq(user->entries[i].key, key)) {
+            *out = user->entries[i].value;
             return true;
         }
-        h = (h + 1) % user->capacity;
+        i = Cast(Sz, ((Cast(U64, i) + 1) % Cast(U64, user->capacity)));
     }
     return false;
 }
 
 //
 
-#define BIN_OP(_op_)                                     \
-    do {                                                 \
-        OptF64Pair const opt = stack_pop2(&calc->stack); \
-        if (opt.ok) {                                    \
-            F64 const x = opt.value.x;                   \
-            F64 const y = opt.value.y;                   \
-            stack_push(&calc->stack, y _op_ x);          \
-        }                                                \
+#define BIN_OP(_op_)                                                   \
+    do {                                                               \
+        OptF64Pair const opt = stack_pop2(&calc->stack);               \
+        if (opt.ok) {                                                  \
+            F64 const x = opt.value.x;                                 \
+            F64 const y = opt.value.y;                                 \
+            stack_push(&calc->stack, y _op_ x);                        \
+        } else                                                         \
+            sprintf(error_msg_buffer, "bin_op underflow '" #_op_ "'"); \
     } while (0)
 
 
-static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens) {
+static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens, I32 depth) {
+    depth += 1;
+    if (depth >= RECURSION_MAX_DEPTH) {
+        sprintf(error_msg_buffer, "Max Recursion Depth Reached '" SVFMT "'", SVARGS(tokens->ptr[0].text));
+        return;
+    }
     for ($it(i, tokens->len)) {
         Token tok = tokens->ptr[i];
 
@@ -724,17 +619,20 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens) {
         case TK_WORD: {
             Builtin builtin;
             if (builtin_table_get(&calc->builtins, tok.text, &builtin)) {
-                builtin(&calc->stack);
+                StackError err = builtin(&calc->stack);
+                if (err != STACK_SUCCESS) {
+                    sprintf(error_msg_buffer, "Error '" SVFMT "' (%s)", SVARGS(tok.text), stack_error_to_stringz(err));
+                }
                 break;
             }
 
             TokenArray user_word = { 0 };
             if ((userword_table_get(&calc->userwords, tok.text, &user_word))) {
-                calc_eval_tokens(calc, &user_word);
+                calc_eval_tokens(calc, &user_word, depth);
                 break;
             }
 
-            fprintf(stderr, "Unknown Word:'" SVFMT "'\n", SVARGS(tok.text));
+            sprintf(error_msg_buffer, "Unknown Word:'" SVFMT "'\n", SVARGS(tok.text));
 
             break;
         }
@@ -744,7 +642,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens) {
         case TK_SLASH: BIN_OP(/); break;
         case TK_CARET: {
             if (calc->stack.len < 2) {
-                fprintf(stderr, "bin_op underflow '^'");
+                sprintf(error_msg_buffer, "bin_op underflow '^'");
             } else {
                 OptF64Pair const opt = stack_pop2(&calc->stack);
                 if (opt.ok) {
@@ -776,7 +674,7 @@ static void calc_eval_tokens(Calculator * calc, TokenArray const * tokens) {
             if (i < tokens->len && tokens->ptr[i].kind == TK_SEMI) {
                 userword_table_add(&calc->userwords, word_name, definition);
             } else {
-                fprintf(stderr, "unterminated ':'\n");
+                sprintf(error_msg_buffer, "unterminated ':'\n");
             }
         } break;
         case TK_SEMI:
@@ -815,6 +713,9 @@ void calc_deinit(Calculator * calc) {
 }
 
 StringV calc_eval(Calculator * calc, StringV src) {
+
+    memzero(error_msg_buffer, sizeof(error_msg_buffer));
+
     calc->lx = lx_init(src.ptr, src.len);
     arr_clear(&calc->tokens);
 
@@ -822,7 +723,11 @@ StringV calc_eval(Calculator * calc, StringV src) {
 
     arr_clear(&calc->stack);
 
-    calc_eval_tokens(calc, &calc->tokens);
+    calc_eval_tokens(calc, &calc->tokens, 0);
+
+    if (error_msg_buffer[0] != 0) {
+        return (StringV) { .ptr = error_msg_buffer, strlen(error_msg_buffer) };
+    }
 
     Sz offset = 0;
     for ($it(i, calc->stack.len)) {

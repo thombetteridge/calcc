@@ -1,6 +1,8 @@
 #ifndef BASE_H
 #define BASE_H
 
+/* ------------------------------------------------------------------------- */
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -30,10 +32,13 @@ typedef size_t    USz;
 typedef float     F32;
 typedef double    F64;
 
-#define $cast(T, in)    (T)(in)
-#define $ptrCast(T, in) (T *)(in)
-#define $bitCast(T, in) (*(T *)(&(in)))
+/* ------------------------------------------------------------------------- */
 
+#define Cast(T, in)    (T)(in)
+#define PtrCast(T, in) (T *)(in)
+#define BitCast(T, in) (*(T *)(&(in)))
+
+/* ------------------------------------------------------------------------- */
 
 #define Slice(T)   \
     struct {       \
@@ -44,6 +49,7 @@ typedef double    F64;
 #define TYPE(name)            \
     typedef struct name name; \
     struct name
+/* ------------------------------------------------------------------------- */
 
 
 #define UNUSED(... /* x */) (void)(__VA_ARGS__)
@@ -85,6 +91,9 @@ typedef union {
 
 #define $it(i, n) $itEx(i, 0, (n))
 
+/* ------------------------------------------------------------------------- */
+
+
 // DEBUG
 
 #ifdef RELEASE
@@ -108,6 +117,11 @@ typedef union {
 
 #endif // RELEASE
 
+static inline void
+memzero(void * ptr, size_t n) {
+    memset(ptr, 0, n);
+}
+
 
 #define dump(fmt, ...)                                    \
     do {                                                  \
@@ -130,6 +144,8 @@ typedef union {
         abort();                                            \
     } while (0)
 
+/* ------------------------------------------------------------------------- */
+
 // STRINGS
 
 typedef struct StringV StringV;
@@ -141,6 +157,9 @@ struct StringV {
 #define SVLIT(s)  (StringV) { .ptr = (s), .len = sizeof(s) - 1 }
 #define SVFMT     "%.*s"
 #define SVARGS(s) (int)(s).len, (s).ptr
+
+/* ------------------------------------------------------------------------- */
+
 
 // ALLOCATORS
 
@@ -178,7 +197,7 @@ inline static void * alloc_logged(Allocator * allocator, size_t size, size_t ali
     return ptr;
 }
 
-inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size,
+static inline void dealloc_logged(Allocator * allocator, void * ptr, size_t size,
     char const * file, int line) {
     fprintf(stderr, "[DEALLOC] %s:%d  %zu bytes  ptr=%p\n", file, line, size, ptr);
     allocator->dealloc(allocator, ptr, size);
@@ -197,6 +216,9 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 
 #endif
 
+
+/* ------------------------------------------------------------------------- */
+
 #define Opt(... /*type*/)  \
     struct {               \
         __VA_ARGS__ value; \
@@ -205,6 +227,9 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 #define OptSome(Type, ...) \
     (Type) { .value = __VA_ARGS__, .ok = true }
 #define OptNone(Type) (Type) { 0 }
+
+/* ------------------------------------------------------------------------- */
+
 
 #define arr_t(arr) __typeof__(*(arr)->ptr) // type helper
 
@@ -330,3 +355,5 @@ inline static void dealloc_logged(Allocator * allocator, void * ptr, size_t size
 
 
 #endif
+
+/* ------------------------------------------------------------------------- */

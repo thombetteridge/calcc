@@ -3,6 +3,12 @@
 #include <stddef.h>
 
 typedef struct ArenaRegion ArenaRegion;
+struct ArenaRegion {
+    char *        buffer;
+    size_t        offset;
+    size_t        capacity;
+    ArenaRegion * next;
+};
 
 typedef struct Arena Arena;
 struct Arena {
@@ -15,20 +21,15 @@ struct ArenaMarker {
     size_t        offset;
 };
 
-struct ArenaRegion {
-    char *        buffer;
-    size_t        offset;
-    size_t        capacity;
-    ArenaRegion * next;
-};
 
+#define DEFAULT_REGION_SIZE 0x10000 // 64kb
 
-#define DEFAULT_REGION_SIZE 0x1000
+#define arena_push(self, Type, count) (Type *)arena_alloc(self, sizeof(Type) * count)
 
-void * arena_alloc(Arena * a, size_t size);
-void   arena_clear(Arena * a);
-void   arena_destroy(Arena * a);
-void   arena_reserve(Arena * a, size_t cap);
+void * arena_alloc(Arena * self, size_t size);
+void   arena_clear(Arena * self);
+void   arena_destroy(Arena * self);
+void   arena_reserve(Arena * self, size_t cap);
 
-ArenaMarker arena_mark(Arena * a);
-void        arena_pop(Arena * a, ArenaMarker mark);
+ArenaMarker arena_mark(Arena * self);
+void        arena_pop(Arena * self, ArenaMarker mark);

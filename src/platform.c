@@ -288,7 +288,7 @@ bool p_is_key_down(PKey key) {
 }
 
 char const * p_read_clipboard(Sz * length) {
-    return RGFW_readClipboard($ptrCast(USz, length));
+    return RGFW_readClipboard(PtrCast(USz, length));
 }
 
 void p_write_clipboard(char const * text, u32 length) {

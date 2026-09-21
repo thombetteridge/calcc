@@ -211,7 +211,7 @@ toRGB(U32 r, U32 g, U32 b) {
     return RGB_COLOUR(r, g, b);
 }
 
-inline static Colour
+static inline Colour
 toRGBA(U32 r, U32 g, U32 b, U32 a) {
     return RGBA_COLOUR(r, g, b, a);
 }

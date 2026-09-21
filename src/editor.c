@@ -2,13 +2,14 @@
 #include "base.h"
 #include "platform.h"
 
-#include "errno.h"
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
 
 #define VALIDATE_CURSOR()                   \
     do {                                    \
+        ENSURE(ed->cursor >= 0);            \
         ENSURE(ed->cursor <= ed->data.len); \
     } while (0)
 
@@ -549,7 +550,7 @@ void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h) {
     Sz const padding_x    = $min(scroll_pading_x, visible_cols / 2);
 
     if (cursor_col < ed->scroll_offset_x + padding_x) {
-        ed->scroll_offset_x = (Sz)$max((I32)cursor_col - (I32)padding_x, 0);
+        ed->scroll_offset_x = (Sz)$max(cursor_col - padding_x, 0);
     }
 
     if (cursor_col + padding_x + 1 > ed->scroll_offset_x + visible_cols) {
@@ -568,8 +569,8 @@ void ed_render(Editor * ed, surface_t * sur, I32 x, I32 y, I32 w, I32 h) {
 
     // draw cursor
     draw_rect(sur,
-        ((I32)cursor_col - (I32)start_col) * (I32)GLYPH_WIDTH + (I32)OFFSET_X - 1 + x,
-        ((I32)cursor_row - (I32)start_line) * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
+        (I32)(cursor_col - start_col) * (I32)GLYPH_WIDTH + (I32)OFFSET_X - 1 + x,
+        (I32)(cursor_row - start_line) * (I32)GLYPH_HEIGHT + (I32)OFFSET_Y + y,
         1,
         (I32)GLYPH_HEIGHT,
         CURSOR_COLOUR);

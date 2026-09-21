@@ -48,6 +48,6 @@ InsertBraces: false
 MaxEmptyLinesToKeep: 2
 
 QualifierAlignment: Custom
-QualifierOrder: [inline, static, constexpr, type, const]
+QualifierOrder: [static, inline, constexpr, type, const]
 
 SpaceBeforeCpp11BracedList: true
