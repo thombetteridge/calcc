@@ -197,7 +197,7 @@ static OptF64Pair stack_pop2(Stack * s) {
 
 static F64 string_to_F64(StringV s) {
     char     buffer[128];
-    Sz const len = $min(s.len, Cast(Sz, sizeof(buffer) - 1));
+    Sz const len = $min(s.len, $cast(Sz, sizeof(buffer) - 1));
 
     sprintf(buffer, "%.*s", (int)len, s.ptr);
     return atof(buffer);
@@ -348,8 +348,8 @@ static U64 builtin_table_hash(StringV s) {
     U64 hash = 14695981039346656037ULL;
 
     for ($it(i, s.len)) {
-        U8 const c = Cast(U8, s.ptr[i]);
-        hash ^= Cast(U64, c);
+        U8 const c = $cast(U8, s.ptr[i]);
+        hash ^= $cast(U64, c);
         hash *= 1099511628211ULL;
     }
     return hash;
@@ -358,10 +358,10 @@ static U64 builtin_table_hash(StringV s) {
 
 static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value) {
     U64 h = builtin_table_hash(key);
-    Sz  i = Cast(Sz, h % t->capacity);
+    Sz  i = $cast(Sz, h % t->capacity);
 
     while (t->entries[i].occupied) {
-        i = Cast(Sz, (Cast(U64, i + 1) % Cast(U64, t->capacity)));
+        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
     }
 
     BuiltinTableEntry new_entry = {
@@ -376,7 +376,7 @@ static void builtin_table_insert(BuiltinTable * t, StringV key, Builtin value) {
 
 static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value) {
     U64 h = builtin_table_hash(key);
-    Sz  i = Cast(Sz, h % t->capacity);
+    Sz  i = $cast(Sz, h % t->capacity);
 
 
     while (t->entries[i].occupied) {
@@ -384,7 +384,7 @@ static bool builtin_table_get(BuiltinTable * t, StringV key, Builtin * value) {
             *value = t->entries[i].value;
             return true;
         }
-        i = Cast(Sz, (Cast(U64, i + 1) % Cast(U64, t->capacity)));
+        i = $cast(Sz, ($cast(U64, i + 1) % $cast(U64, t->capacity)));
     }
 
     return false;
@@ -446,7 +446,7 @@ static BuiltinTable builtins_table_init(void) {
 
 static void * arena_allocator_alloc(Allocator * self, size_t size, size_t alignment) {
     (void)(alignment);
-    Arena * arena = PtrCast(Arena, self->ctx);
+    Arena * arena = $ptrCast(Arena, self->ctx);
 
     return arena_alloc(arena, size);
 }
@@ -545,7 +545,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
         userword_table_grow(user);
 
     U64 hash = sv_hash37(key);
-    Sz  i    = Cast(Sz, hash % Cast(U64, user->capacity));
+    Sz  i    = $cast(Sz, hash % $cast(U64, user->capacity));
 
     while (user->entries[i].occupied) {
         if (sv_key_eq(user->entries[i].key, key)) {
@@ -560,7 +560,7 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
             }
         }
 
-        i = Cast(Sz, ((Cast(U64, i) + 1) % Cast(U64, user->capacity)));
+        i = $cast(Sz, (($cast(U64, i) + 1) % $cast(U64, user->capacity)));
     }
 
     // new entry;
@@ -576,14 +576,14 @@ static void userword_table_add(UserwordTable * user, StringV key, TokenArray tok
 
 static bool userword_table_get(UserwordTable * user, StringV key, TokenArray * out) {
     U64 hash = sv_hash37(key);
-    Sz  i    = Cast(Sz, hash % Cast(U64, user->capacity));
+    Sz  i    = $cast(Sz, hash % $cast(U64, user->capacity));
 
     while (user->entries[i].occupied) {
         if (sv_key_eq(user->entries[i].key, key)) {
             *out = user->entries[i].value;
             return true;
         }
-        i = Cast(Sz, ((Cast(U64, i) + 1) % Cast(U64, user->capacity)));
+        i = $cast(Sz, (($cast(U64, i) + 1) % $cast(U64, user->capacity)));
     }
     return false;
 }

@@ -5,7 +5,8 @@
 #include <stb_truetype.h>
 
 #include "base.h"
-#include "proggy_font.h"
+
+#include "fira_font.h"
 
 #include "config.h"
 
@@ -61,6 +62,7 @@ static font_t g_font = {
 };
 
 
+
 static bool font_load(U8 const * data, u32 data_size, F32 pixel_height);
 
 bool p_init(char const * title) {
@@ -85,10 +87,12 @@ bool p_init(char const * title) {
         return false;
     }
 
-    if (!font_load(proggy_clean_ttf_compressed_data, proggy_clean_ttf_compressed_size, GLYPH_HEIGHT))
+    if (!font_load(fira_mono_ttf_compressed_data, fira_mono_ttf_compressed_size, GLYPH_HEIGHT))
         return false;
 
+
     g_ctx.window_valid = true;
+
     g_ctx.running      = true;
     return true;
 }
@@ -288,7 +292,7 @@ bool p_is_key_down(PKey key) {
 }
 
 char const * p_read_clipboard(Sz * length) {
-    return RGFW_readClipboard(PtrCast(USz, length));
+    return RGFW_readClipboard($ptrCast(USz, length));
 }
 
 void p_write_clipboard(char const * text, u32 length) {

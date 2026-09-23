@@ -3,7 +3,7 @@
 #include "base.h"
 
 #define PROGGY_RATIO (7.0f / 13.0f)
-#define GLYPH_HEIGHT (13.0f)
+#define GLYPH_HEIGHT (16.0f)
 #define GLYPH_WIDTH  (GLYPH_HEIGHT * PROGGY_RATIO)
 
 typedef struct surface_t surface_t;

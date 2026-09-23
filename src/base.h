@@ -34,9 +34,9 @@ typedef double    F64;
 
 /* ------------------------------------------------------------------------- */
 
-#define Cast(T, in)    (T)(in)
-#define PtrCast(T, in) (T *)(in)
-#define BitCast(T, in) (*(T *)(&(in)))
+#define $cast(T, in)    (T)(in)
+#define $ptrCast(T, in) (T *)(in)
+#define $bitCast(T, in) (*(T *)(&(in)))
 
 /* ------------------------------------------------------------------------- */
 
